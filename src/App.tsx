@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Icon } from '@iconify/react'
-import { LocationIcon, PhoneIcon, EmailIcon, ClockIcon, MapIcon, CalendarIcon, TimerIcon, GlobeIcon, TrophyIcon, CheckCircleIcon, BarChartIcon, FacebookIcon, InstagramIcon, TwitterIcon, YoutubeIcon, MapPinIcon, MailIcon, UsersIcon, UserCheckIcon, DollarSignIcon, TrendingUpIcon, FileTextIcon, GraduationCapIcon, LayoutDashboardIcon, BookOpenIcon, AwardIcon, RadioIcon, ShieldIcon, SettingsIcon, PlusIcon, TrashIcon, ChevronLeftIcon, StarIcon, ExternalLinkIcon, GripVerticalIcon, ChevronDownIcon, ChevronUpIcon, XIcon, MenuIcon, LogOutIcon, LockIcon, ShieldAlertIcon, UploadCloudIcon, HomeIcon, BookMarkedIcon, VideoIcon, InfoIcon, PlayIcon, BanknoteIcon, UserCircleIcon, Building2Icon, MessageCircleIcon, SearchIcon, FilterIcon, ShoppingCartIcon, HeartIcon, Share2Icon, DownloadIcon, UploadIcon, EditIcon, Trash2Icon, CopyIcon, EyeIcon, EyeOffIcon, ChevronRightIcon, ChevronUpIconAlt, ChevronDownIconAlt, MoreVerticalIcon, MoreHorizontalIcon, RefreshCwIcon, RotateCcwIcon, MaximizeIcon, MinimizeIcon, XCircleIcon, CheckIcon, AlertCircleIcon, AlertTriangleIcon, InfoIconAlt, HelpCircleIcon, QuestionMarkCircleIcon, BellIcon, BellOffIcon, Volume2Icon, VolumeXIcon, MicIcon, MicOffIcon, VideoIconAlt, VideoOffIcon, MonitorIcon, SmartphoneIcon, TabletIcon, LaptopIcon, DesktopIcon, WifiIcon, WifiOffIcon, BluetoothIcon, UsbIcon, BatteryIcon, BatteryChargingIcon, ZapIcon, SunIcon, MoonIcon, CloudIcon, CloudRainIcon, CloudSnowIcon, WindIcon, UmbrellaIcon, ThermometerIcon, DropletIcon, HandshakeIcon, ClipboardListIcon, NewspaperIcon, SparklesIcon, UserIcon, FlameIcon, FileTypeIcon, FileArchiveIcon, TargetIcon, TelescopeIcon, StarIconAlt } from '@/components/icons'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Frame =
@@ -15,27 +14,32 @@ type Frame =
   | 'lesson-player'
   | 'about'
   | 'contact'
-  | 'login'
   | 'faq'
+  | 'login'
   | 'register'
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const COURSES = [
+interface SuccessStory {
+  id: number
+  name: string
+  text: string
+  role: string
+  avatar: string
+  rating: number
+}
+
+interface AdminUser {
+  id: number
+  name: string
+  email: string
+  phone: string
+  role: string
+  createdAt: string
+}
+
+// ─── Initial Data (Sorted Descending by Enrollment Count) ─────────────────────
+const INITIAL_COURSES = [
   {
     id: 1,
-    title: 'Full Stack Web Development with React & Node.js',
-    tutor: 'David Ssekandi',
-    price: 120000,
-    rating: 4.8,
-    students: 312,
-    duration: '24 hours',
-    level: 'Intermediate',
-    category: 'Web Development',
-    image: '/images/pexels-photo-3184339.jpeg',
-    free: false,
-  },
-  {
-    id: 2,
     title: 'Python for Data Science & Machine Learning',
     tutor: 'Grace Nakato',
     price: 95000,
@@ -48,20 +52,20 @@ const COURSES = [
     free: false,
   },
   {
-    id: 3,
-    title: 'UI/UX Design Fundamentals with Figma',
-    tutor: 'Amina Nalule',
-    price: 0,
-    rating: 4.7,
-    students: 189,
-    duration: '12 hours',
-    level: 'Beginner',
-    category: 'Design',
-    image: '/images/pexels-photo-3183197.jpeg',
-    free: true,
+    id: 2,
+    title: 'Full Stack Web Development with React & Node.js',
+    tutor: 'David Ssekandi',
+    price: 120000,
+    rating: 4.8,
+    students: 312,
+    duration: '24 hours',
+    level: 'Intermediate',
+    category: 'Web Development',
+    image: '/images/pexels-photo-3184339.jpeg',
+    free: false,
   },
   {
-    id: 4,
+    id: 3,
     title: 'Digital Marketing & Social Media Strategy',
     tutor: 'Ronald Kato',
     price: 75000,
@@ -74,7 +78,7 @@ const COURSES = [
     free: false,
   },
   {
-    id: 5,
+    id: 4,
     title: 'Cybersecurity Essentials for Professionals',
     tutor: 'Peter Musoke',
     price: 150000,
@@ -85,6 +89,19 @@ const COURSES = [
     category: 'Security',
     image: '/images/pexels-photo-3184360.jpeg',
     free: false,
+  },
+  {
+    id: 5,
+    title: 'UI/UX Design Fundamentals with Figma',
+    tutor: 'Amina Nalule',
+    price: 0,
+    rating: 4.7,
+    students: 189,
+    duration: '12 hours',
+    level: 'Beginner',
+    category: 'Design',
+    image: '/images/pexels-photo-3183197.jpeg',
+    free: true,
   },
   {
     id: 6,
@@ -102,89 +119,216 @@ const COURSES = [
 ]
 
 const TUTORS = [
-  { name: 'David Ssekandi', specialty: 'Web Development', students: 312, rating: 4.8, avatar: '/images/pexels-photo-34786947.jpeg' },
   { name: 'Grace Nakato', specialty: 'Data Science', students: 548, rating: 4.9, avatar: '/images/pexels-photo-12293164.jpeg' },
-  { name: 'Amina Nalule', specialty: 'UI/UX Design', students: 189, rating: 4.7, avatar: '/images/pexels-photo-36338866.jpeg' },
+  { name: 'David Ssekandi', specialty: 'Web Development', students: 312, rating: 4.8, avatar: '/images/pexels-photo-34786947.jpeg' },
   { name: 'Ronald Kato', specialty: 'Digital Marketing', students: 274, rating: 4.6, avatar: '/images/pexels-photo-35638373.jpeg' },
+  { name: 'Peter Musoke', specialty: 'Cybersecurity', students: 201, rating: 4.8, avatar: '/images/pexels-photo-3184360.jpeg' },
+  { name: 'Amina Nalule', specialty: 'UI/UX Design', students: 189, rating: 4.7, avatar: '/images/pexels-photo-36338866.jpeg' },
 ]
 
 const LIVE_COURSES = [
-  { title: 'Certified Cloud Practitioner', trainer: 'Emmanuel Byaruhanga', schedule: 'Mon, Wed, Fri', time: '7:00 PM – 9:00 PM', fee: 350000, duration: '6 weeks', spots: 8, platform: 'Google Meet', joinLink: 'https://meet.google.com' },
-  { title: 'Advanced Excel & Data Analysis', trainer: 'Flavia Namukasa', schedule: 'Tue, Thu', time: '6:00 PM – 8:00 PM', fee: 180000, duration: '4 weeks', spots: 12, platform: 'Zoom', joinLink: 'https://zoom.us' },
-  { title: 'Project Management Professional (PMP)', trainer: 'Isaac Tumwine', schedule: 'Sat, Sun', time: '9:00 AM – 12:00 PM', fee: 420000, duration: '8 weeks', spots: 5, platform: 'TikTok Live', joinLink: 'https://www.tiktok.com/live' },
+  {
+    id: 1,
+    title: 'Certified Cloud Practitioner & DevOps Masterclass',
+    trainer: 'Emmanuel Byaruhanga',
+    schedule: 'Mon, Wed, Fri',
+    time: '7:00 PM – 9:00 PM EAT',
+    fee: 350000,
+    duration: '6 weeks',
+    spots: 8,
+    platform: 'Google Meet',
+    platformIcon: 'logos:google-meet',
+    joinLink: 'https://meet.google.com/new',
+    badgeColor: 'blue',
+  },
+  {
+    id: 2,
+    title: 'Advanced Financial Modeling & Excel Analytics',
+    trainer: 'Flavia Namukasa',
+    schedule: 'Tue, Thu, Sat',
+    time: '6:00 PM – 8:00 PM EAT',
+    fee: 180000,
+    duration: '4 weeks',
+    spots: 12,
+    platform: 'Zoom',
+    platformIcon: 'logos:zoom-icon',
+    joinLink: 'https://zoom.us/join',
+    badgeColor: 'cyan',
+  },
+  {
+    id: 3,
+    title: 'Content Creation, Monetization & Brand Strategy',
+    trainer: 'Isaac Tumwine',
+    schedule: 'Sat, Sun',
+    time: '9:00 AM – 12:00 PM EAT',
+    fee: 140000,
+    duration: '3 weeks',
+    spots: 5,
+    platform: 'TikTok Live',
+    platformIcon: 'logos:tiktok-icon',
+    joinLink: 'https://www.tiktok.com/live',
+    badgeColor: 'purple',
+  },
 ]
 
-const TESTIMONIALS = [
-  { name: 'Sarah Namutebi', text: "Digtech Academy changed my career completely. I went from zero coding knowledge to landing a junior developer job in 6 months. The tutors are incredibly supportive.", role: 'Junior Developer at Tecno Uganda', avatar: '/images/pexels-photo-8384894.jpeg' },
-  { name: 'Brian Odhiambo', text: "The Data Science course was comprehensive and practical. I especially loved how each module built on the previous one. Worth every shilling!", role: 'Data Analyst at MTN Uganda', avatar: '/images/pexels-photo-33128556.jpeg' },
-  { name: 'Patricia Auma', text: "Flexible learning that fits my schedule as a working mother. I completed the UI/UX course in 3 weeks and immediately started freelancing.", role: 'Freelance Designer', avatar: '/images/pexels-photo-33128558.jpeg' },
+const INITIAL_TESTIMONIALS: SuccessStory[] = [
+  {
+    id: 1,
+    name: 'Sarah Namutebi',
+    text: 'Digtech Academy transformed my career completely. I went from zero coding knowledge to landing a junior developer job in Kampala in 6 months.',
+    role: 'Junior Developer at Tecno Uganda',
+    avatar: '/images/pexels-photo-8384894.jpeg',
+    rating: 5,
+  },
+  {
+    id: 2,
+    name: 'Brian Odhiambo',
+    text: 'The Data Science course was exceptionally practical. Every project directly matched what I now do daily at work. Worth every shilling!',
+    role: 'Data Analyst at MTN Uganda',
+    avatar: '/images/pexels-photo-33128556.jpeg',
+    rating: 5,
+  },
+  {
+    id: 3,
+    name: 'Patricia Auma',
+    text: 'Flexible learning that fit my busy schedule. I completed the UI/UX course in 4 weeks and immediately started winning international freelance clients.',
+    role: 'Freelance Product Designer',
+    avatar: '/images/pexels-photo-33128558.jpeg',
+    rating: 5,
+  },
 ]
 
-// ─── Shared Components ────────────────────────────────────────────────────────
+const INITIAL_ADMINS: AdminUser[] = [
+  {
+    id: 1,
+    name: 'System Admin',
+    email: 'admin@digtechacademy.ug',
+    phone: '+256 770 613 201',
+    role: 'Course Operations Admin',
+    createdAt: '2024-01-15',
+  },
+  {
+    id: 2,
+    name: 'Sarah Mukasa',
+    email: 'sarah.admin@digtechacademy.ug',
+    phone: '+256 701 445 890',
+    role: 'Finance & Payments Admin',
+    createdAt: '2024-03-10',
+  },
+]
+
+// ─── Shared UI Components ─────────────────────────────────────────────────────
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1,2,3,4,5].map(i => (
-        <Icon key={i} icon="lucide:star" className={`w-3.5 h-3.5 ${i <= Math.floor(rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Icon
+          key={i}
+          icon="lucide:star"
+          className={`w-3.5 h-3.5 ${
+            i <= Math.floor(rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'
+          }`}
+        />
       ))}
-      <span className="ml-1 text-xs font-600 text-gray-600">{rating}</span>
-    </div>
-  )
-}
-
-function CourseCard({ course, onClick }: { course: typeof COURSES[0]; onClick: () => void }) {
-  return (
-    <div onClick={onClick} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover-lift transition-all cursor-pointer group animate-fade-in-up">
-      <div className="relative overflow-hidden bg-gray-100">
-        <img src={course.image} alt={course.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" />
-        {course.free && (
-          <span className="absolute top-3 left-3 bg-emerald-500 text-white text-xs font-600 px-2.5 py-1 rounded-full animate-pulse-glow">FREE</span>
-        )}
-        <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-500 px-2 py-1 rounded-full shadow-sm">{course.level}</span>
-      </div>
-      <div className="p-4">
-        <span className="text-xs font-600 uppercase tracking-wider" style={{ color: '#28C0F4' }}>{course.category}</span>
-        <h3 className="font-600 text-gray-900 mt-1 mb-2 leading-snug line-clamp-2 group-hover:text-blue-900 transition-colors">{course.title}</h3>
-        <p className="text-sm text-gray-500 mb-3">{course.tutor}</p>
-        <StarRating rating={course.rating} />
-        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
-          <span className="flex items-center gap-1.5"><Icon icon="lucide:clock" className="w-3.5 h-3.5 text-gray-400" /> {course.duration}</span>
-          <span className="flex items-center gap-1.5"><Icon icon="lucide:users" className="w-3.5 h-3.5 text-gray-400" /> {course.students.toLocaleString()}</span>
-        </div>
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-          <span className="font-700 text-lg" style={{ color: '#1A4095' }}>
-            {course.free ? 'Free' : `UGX ${course.price.toLocaleString()}`}
-          </span>
-          <button
-            className="text-xs font-600 px-4 py-2 rounded-xl text-white transition-all hover:scale-105 active:scale-95 shadow-sm"
-            style={{ background: '#28C0F4' }}
-          >
-            Enroll
-          </button>
-        </div>
-      </div>
+      <span className="ml-1 text-xs font-semibold text-gray-600">{rating}</span>
     </div>
   )
 }
 
 function Badge({ children, color = 'blue' }: { children: React.ReactNode; color?: string }) {
   const styles: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-700',
-    green: 'bg-emerald-50 text-emerald-700',
-    amber: 'bg-amber-50 text-amber-700',
-    red: 'bg-red-50 text-red-700',
+    blue: 'bg-blue-50 text-blue-700 border border-blue-100',
+    cyan: 'bg-cyan-50 text-cyan-700 border border-cyan-100',
+    green: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+    amber: 'bg-amber-50 text-amber-700 border border-amber-100',
+    red: 'bg-red-50 text-red-700 border border-red-100',
     gray: 'bg-gray-100 text-gray-600',
-    cyan: 'bg-cyan-50 text-cyan-700',
+    purple: 'bg-purple-50 text-purple-700 border border-purple-100',
   }
   return (
-    <span className={`inline-block text-xs font-600 px-2.5 py-1 rounded-full ${styles[color] || styles.blue}`}>
+    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${styles[color] || styles.blue}`}>
       {children}
     </span>
   )
 }
 
+function CourseCard({
+  course,
+  onClick,
+}: {
+  course: typeof INITIAL_COURSES[0]
+  onClick: () => void
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover-lift transition-all cursor-pointer group animate-fade-in-up flex flex-col justify-between"
+    >
+      <div>
+        <div className="relative overflow-hidden bg-gray-100">
+          <img
+            src={course.image}
+            alt={course.title}
+            className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          {course.free && (
+            <span className="absolute top-3 left-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full animate-pulse-glow">
+              FREE
+            </span>
+          )}
+          <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+            {course.level}
+          </span>
+        </div>
+        <div className="p-5">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#28C0F4]">
+            {course.category}
+          </span>
+          <h3 className="font-bold text-gray-900 mt-1 mb-2 leading-snug line-clamp-2 group-hover:text-[#1A4095] transition-colors" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            {course.title}
+          </h3>
+          <p className="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
+            <Icon icon="lucide:user" className="w-3.5 h-3.5 text-gray-400" />
+            {course.tutor}
+          </p>
+          <StarRating rating={course.rating} />
+          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <Icon icon="lucide:clock" className="w-3.5 h-3.5 text-gray-400" /> {course.duration}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Icon icon="lucide:users" className="w-3.5 h-3.5 text-gray-400" /> {course.students.toLocaleString()} enrolled
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="px-5 pb-5 pt-3 border-t border-gray-50 flex items-center justify-between">
+        <span className="font-extrabold text-lg text-[#1A4095]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          {course.free ? 'Free' : `UGX ${course.price.toLocaleString()}`}
+        </span>
+        <button
+          className="text-xs font-bold px-4 py-2 rounded-xl text-white transition-all hover:scale-105 active:scale-95 shadow-sm"
+          style={{ background: '#28C0F4' }}
+        >
+          Enroll Now
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Public Navigation ─────────────────────────────────────────────────────────
-function PublicNav({ frame, setFrame, isAdminLoggedIn, onLogout }: { frame: Frame; setFrame: (f: Frame) => void; isAdminLoggedIn?: boolean; onLogout?: () => void }) {
+function PublicNav({
+  frame,
+  setFrame,
+  currentUser,
+  onLogout,
+}: {
+  frame: Frame
+  setFrame: (f: Frame) => void
+  currentUser: { email: string; role: string; name?: string } | null
+  onLogout: () => void
+}) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const links: { label: string; frame: Frame }[] = [
     { label: 'Home', frame: 'home' },
@@ -194,81 +338,157 @@ function PublicNav({ frame, setFrame, isAdminLoggedIn, onLogout }: { frame: Fram
     { label: 'Contact', frame: 'contact' },
     { label: 'FAQ', frame: 'faq' },
   ]
+
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm animate-fade-in-down">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        <button onClick={() => setFrame('home')} className="flex items-center gap-2.5 group">
-          <img src="/digitechlogo.png" alt="Digtech Academy Logo" className="h-9 w-auto object-contain group-hover:scale-105 transition-transform" />
+        {/* Logo only - strictly without repeating text */}
+        <button
+          onClick={() => setFrame('home')}
+          className="flex items-center group cursor-pointer focus:outline-none"
+          title="Digtech Academy Homepage"
+        >
+          <img
+            src="/digitechlogo.png"
+            alt="Digtech Academy"
+            className="h-10 w-auto object-contain group-hover:scale-105 transition-transform"
+          />
         </button>
+
+        {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
-          {links.map(l => (
+          {links.map((l) => (
             <button
               key={l.frame}
               onClick={() => setFrame(l.frame)}
-              className={`text-sm font-500 transition-all hover:scale-105 ${frame === l.frame ? 'font-600' : 'text-gray-600 hover:text-gray-900'}`}
-              style={frame === l.frame ? { color: '#1A4095' } : undefined}
+              className={`text-sm font-medium transition-all hover:scale-105 cursor-pointer ${
+                frame === l.frame ? 'font-bold text-[#1A4095] border-b-2 border-[#1A4095] pb-0.5' : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               {l.label}
             </button>
           ))}
         </div>
+
+        {/* Desktop Auth Action Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          {isAdminLoggedIn ? (
-            <>
+          {currentUser ? (
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setFrame('admin-dashboard')}
-                className="text-sm font-600 px-4 py-2 rounded-xl text-white transition-all shadow-sm hover:opacity-90 flex items-center gap-2 hover:scale-105"
+                onClick={() => {
+                  if (currentUser.role === 'admin') setFrame('admin-dashboard')
+                  else if (currentUser.role === 'tutor') setFrame('tutor-dashboard')
+                  else if (currentUser.role === 'principal') setFrame('principal-dashboard')
+                  else setFrame('student-dashboard')
+                }}
+                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all shadow-sm hover:opacity-90 flex items-center gap-2 hover:scale-105 cursor-pointer"
                 style={{ background: '#1A4095' }}
               >
-                <Icon icon="lucide:settings" className="w-4 h-4" /> Admin Dashboard
+                <Icon icon="lucide:layout-dashboard" className="w-4 h-4" />
+                {currentUser.role.toUpperCase()} DASHBOARD
               </button>
               <button
                 onClick={onLogout}
-                className="text-sm font-600 px-3.5 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-all flex items-center gap-1.5"
+                className="text-xs font-bold px-3.5 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <Icon icon="lucide:log-out" className="w-4 h-4" /> Logout
               </button>
-            </>
+            </div>
           ) : (
             <>
               <button
                 onClick={() => setFrame('login')}
-                className={`text-sm font-600 px-4 py-2 rounded-xl border-2 transition-all flex items-center gap-2 hover:bg-blue-50 hover:scale-105 ${frame === 'login' ? 'bg-blue-50' : ''}`}
-                style={{ borderColor: '#1A4095', color: '#1A4095' }}
+                className={`text-xs font-bold px-4 py-2.5 rounded-xl border-2 transition-all flex items-center gap-1.5 hover:bg-blue-50 hover:scale-105 cursor-pointer ${
+                  frame === 'login' ? 'bg-blue-50 border-[#1A4095] text-[#1A4095]' : 'border-gray-200 text-gray-700'
+                }`}
               >
-                <Icon icon="lucide:lock" className="w-4 h-4" /> Login
+                <Icon icon="lucide:lock" className="w-4 h-4 text-[#1A4095]" /> Sign In
               </button>
               <button
                 onClick={() => setFrame('register')}
-                className="text-sm font-600 px-4 py-2 rounded-xl text-white transition-all hover:opacity-90 hover:scale-105 shadow-sm"
+                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all hover:opacity-90 hover:scale-105 shadow-sm cursor-pointer"
                 style={{ background: '#1A4095' }}
               >
-                Get Started
+                Create Account
               </button>
             </>
           )}
         </div>
-        <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <XIcon className="w-5 h-5 text-gray-700" /> : <MenuIcon className="w-5 h-5 text-gray-700" />}
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-xl"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle Navigation"
+        >
+          <Icon icon={mobileOpen ? 'lucide:x' : 'lucide:menu'} className="w-6 h-6" />
         </button>
       </div>
+
+      {/* Mobile Menu Dropdown */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 flex flex-col gap-3 animate-fade-in-down">
-          {links.map(l => (
-            <button key={l.frame} onClick={() => { setFrame(l.frame); setMobileOpen(false) }} className="text-left text-sm font-500 py-2 text-gray-700">
+        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 flex flex-col gap-2 animate-fade-in-down shadow-lg">
+          {links.map((l) => (
+            <button
+              key={l.frame}
+              onClick={() => {
+                setFrame(l.frame)
+                setMobileOpen(false)
+              }}
+              className={`text-left text-sm font-medium py-2.5 px-3 rounded-lg ${
+                frame === l.frame ? 'bg-blue-50 text-[#1A4095] font-bold' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
               {l.label}
             </button>
           ))}
-          <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-            {isAdminLoggedIn ? (
+          <div className="flex flex-col gap-2 pt-3 border-t border-gray-100 mt-2">
+            {currentUser ? (
               <>
-                <button onClick={() => { setFrame('admin-dashboard'); setMobileOpen(false) }} className="w-full text-sm font-600 py-2 rounded-xl text-white flex items-center justify-center gap-1.5" style={{ background: '#1A4095' }}><SettingsIcon className="h-4 w-4" /> Admin Dashboard</button>
-                <button onClick={() => { onLogout?.(); setMobileOpen(false) }} className="w-full text-sm font-600 py-2 rounded-xl border border-red-200 text-red-600">Logout</button>
+                <button
+                  onClick={() => {
+                    if (currentUser.role === 'admin') setFrame('admin-dashboard')
+                    else if (currentUser.role === 'tutor') setFrame('tutor-dashboard')
+                    else if (currentUser.role === 'principal') setFrame('principal-dashboard')
+                    else setFrame('student-dashboard')
+                    setMobileOpen(false)
+                  }}
+                  className="w-full text-xs font-bold py-3 rounded-xl text-white flex items-center justify-center gap-1.5"
+                  style={{ background: '#1A4095' }}
+                >
+                  <Icon icon="lucide:layout-dashboard" className="w-4 h-4" /> Go to Dashboard
+                </button>
+                <button
+                  onClick={() => {
+                    onLogout()
+                    setMobileOpen(false)
+                  }}
+                  className="w-full text-xs font-bold py-2.5 rounded-xl border border-red-200 text-red-600"
+                >
+                  Logout
+                </button>
               </>
             ) : (
               <>
-                <button onClick={() => { setFrame('login'); setMobileOpen(false) }} className="w-full text-sm font-600 py-2 rounded-xl border-2 flex items-center justify-center gap-1.5" style={{ borderColor: '#1A4095', color: '#1A4095' }}><LockIcon className="h-4 w-4" /> Login</button>
-                <button onClick={() => { setFrame('register'); setMobileOpen(false) }} className="w-full text-sm font-600 py-2 rounded-xl text-white" style={{ background: '#1A4095' }}>Get Started</button>
+                <button
+                  onClick={() => {
+                    setFrame('login')
+                    setMobileOpen(false)
+                  }}
+                  className="w-full text-xs font-bold py-2.5 rounded-xl border-2 border-[#1A4095] text-[#1A4095] flex items-center justify-center gap-1.5"
+                >
+                  <Icon icon="lucide:lock" className="w-4 h-4" /> Sign In
+                </button>
+                <button
+                  onClick={() => {
+                    setFrame('register')
+                    setMobileOpen(false)
+                  }}
+                  className="w-full text-xs font-bold py-2.5 rounded-xl text-white"
+                  style={{ background: '#1A4095' }}
+                >
+                  Create Account
+                </button>
               </>
             )}
           </div>
@@ -278,20 +498,183 @@ function PublicNav({ frame, setFrame, isAdminLoggedIn, onLogout }: { frame: Fram
   )
 }
 
+// ─── Footer Component (White Theme & Complete Specs) ──────────────────────────
+function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
+  return (
+    <footer className="bg-white border-t border-gray-200 text-gray-700 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+        {/* Brand & Socials */}
+        <div className="space-y-4">
+          <div className="flex items-center">
+            <img
+              src="/digitechlogo.png"
+              alt="Digtech Academy"
+              className="h-10 w-auto object-contain"
+            />
+          </div>
+          <p className="text-gray-500 text-xs leading-relaxed max-w-sm">
+            Uganda's premier digital skills academy. Practical, tutor-led courses in tech, business, and trades — learn on any connection, pay in UGX via PesaPal.
+          </p>
+          <div className="pt-2">
+            <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">Connect With Us</p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { icon: 'lucide:facebook', href: 'https://facebook.com/digtechacademy', label: 'Facebook' },
+                { icon: 'lucide:instagram', href: 'https://instagram.com/digtechacademy', label: 'Instagram' },
+                { icon: 'lucide:twitter', href: 'https://x.com/digtechacademy', label: 'X (Twitter)' },
+                { icon: 'mdi:tiktok', href: 'https://tiktok.com/@digtechacademy', label: 'TikTok' },
+                { icon: 'lucide:linkedin', href: 'https://linkedin.com/company/digtechacademy', label: 'LinkedIn' },
+                { icon: 'lucide:youtube', href: 'https://youtube.com/@digtechacademy', label: 'YouTube' },
+                { icon: 'mdi:whatsapp', href: 'https://wa.me/256770613201', label: 'WhatsApp' },
+              ].map((s, i) => (
+                <a
+                  key={i}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={s.label}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#1A4095] hover:scale-110 transition-all shadow-sm"
+                >
+                  <Icon icon={s.icon} className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Links */}
+        <div>
+          <h4 className="text-gray-900 font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Quick Links
+          </h4>
+          <ul className="space-y-2.5 text-xs">
+            <li>
+              <button onClick={() => setFrame('home')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                Home
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setFrame('courses')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                Browse Courses
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setFrame('live-courses')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                Live Classes
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setFrame('about')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                About Academy
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setFrame('faq')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                Frequently Asked Questions
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setFrame('contact')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                Contact & Support
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        {/* Course Categories */}
+        <div>
+          <h4 className="text-gray-900 font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Course Categories
+          </h4>
+          <ul className="space-y-2.5 text-xs">
+            {['Web Development', 'Data Science', 'UI/UX Design', 'Digital Marketing', 'Cybersecurity', 'Mobile App Development'].map((cat) => (
+              <li key={cat}>
+                <button onClick={() => setFrame('courses')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                  {cat}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Support & Admin Only Link */}
+        <div>
+          <h4 className="text-gray-900 font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Support & Academy Desk
+          </h4>
+          <ul className="space-y-3 text-xs text-gray-600">
+            <li className="flex items-start gap-2.5">
+              <Icon icon="lucide:map-pin" className="w-4 h-4 text-[#1A4095] flex-shrink-0 mt-0.5" />
+              <span>Level 2 Grand West Arcade, High Street Mbarara City - Uganda</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Icon icon="lucide:phone" className="w-4 h-4 text-[#1A4095] flex-shrink-0" />
+              <a href="tel:+256770613201" className="hover:underline">+256 (0) 770 613 201</a>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Icon icon="lucide:mail" className="w-4 h-4 text-[#1A4095] flex-shrink-0" />
+              <a href="mailto:info@digtechsolutionshub.com" className="hover:underline">info@digtechsolutionshub.com</a>
+            </li>
+            <li className="pt-2 border-t border-gray-100">
+              <button
+                onClick={() => setFrame('login')}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1A4095] hover:text-[#28C0F4] transition-colors"
+              >
+                <Icon icon="lucide:shield-check" className="w-4 h-4" />
+                Admin Portal Login
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Embedded Google Map */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
+        <div className="rounded-2xl overflow-hidden border border-gray-200 h-44 shadow-sm">
+          <iframe
+            src="https://www.google.com/maps?ll=-0.606781,30.661901&z=15&t=m&hl=en-US&gl=US&mapclient=embed&cid=8763999400868403491"
+            className="h-full w-full border-0"
+            loading="lazy"
+            title="Digtech Academy Mbarara Location"
+          />
+        </div>
+      </div>
+
+      {/* Automatic Year Copyright Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+        <p>© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
+        <p className="flex items-center gap-2">
+          <span>Official Payment Partner:</span>
+          <span className="font-bold text-[#1A4095]">PesaPal Payments Uganda</span>
+        </p>
+      </div>
+    </footer>
+  )
+}
+
 // ─── HOME PAGE ─────────────────────────────────────────────────────────────────
-function HomePage({ setFrame }: { setFrame: (f: Frame) => void }) {
+function HomePage({
+  setFrame,
+  testimonials,
+}: {
+  setFrame: (f: Frame) => void
+  testimonials: SuccessStory[]
+}) {
   const [searchQ, setSearchQ] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const sortedCourses = [...COURSES].sort((a, b) => b.students - a.students)
+  // Sorted descending by enrollment count
+  const sortedCourses = [...INITIAL_COURSES].sort((a, b) => b.students - a.students)
 
-  const searchResults = searchQ.trim().length > 0
-    ? COURSES.filter(c =>
-        c.title.toLowerCase().includes(searchQ.toLowerCase()) ||
-        c.category.toLowerCase().includes(searchQ.toLowerCase()) ||
-        c.tutor.toLowerCase().includes(searchQ.toLowerCase())
-      )
-    : []
+  const searchResults =
+    searchQ.trim().length > 0
+      ? INITIAL_COURSES.filter(
+          (c) =>
+            c.title.toLowerCase().includes(searchQ.toLowerCase()) ||
+            c.category.toLowerCase().includes(searchQ.toLowerCase()) ||
+            c.tutor.toLowerCase().includes(searchQ.toLowerCase())
+        )
+      : []
 
   const categories = [
     { name: 'Web Development', icon: 'lucide:globe', color: '#1A4095' },
@@ -304,259 +687,213 @@ function HomePage({ setFrame }: { setFrame: (f: Frame) => void }) {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 60%, #1A4095 100%)' }}>
+      {/* Hero Section */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 60%, #1A4095 100%)' }}
+      >
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-1/4 w-72 h-72 rounded-full bg-white blur-3xl" />
-          <div className="absolute bottom-10 right-1/4 w-56 h-56 rounded-full blur-3xl" style={{ background: '#28C0F4' }} />
+          <div className="absolute bottom-10 right-1/4 w-56 h-56 rounded-full blur-3xl bg-[#28C0F4]" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
           <div className="animate-fade-in-left">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-2 mb-6 animate-pulse-glow">
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#28C0F4' }} />
-              <span className="text-white/90 text-sm font-500">Uganda's Leading Online Academy</span>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-2 mb-6">
+              <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-[#28C0F4]" />
+              <span className="text-white/90 text-xs font-semibold uppercase tracking-wider">
+                Uganda's Leading Online Digital Academy
+              </span>
             </div>
-            <h1 className="text-white font-800 text-4xl md:text-5xl leading-tight mb-6" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Unlock Your<br />
-              <span style={{ color: '#28C0F4' }}>Digital Potential</span><br />
-              Today
+            <h1
+              className="text-white font-extrabold text-4xl md:text-5xl leading-tight mb-6"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              Master In-Demand <br />
+              <span className="text-[#28C0F4]">Digital Skills</span> & Career Growth
             </h1>
-            <p className="text-white/75 text-lg mb-8 leading-relaxed">
-              Expert-led courses in tech, design, and business. Learn at your pace, earn a certificate, and transform your career — all in one platform.
+            <p className="text-white/80 text-base mb-8 leading-relaxed">
+              Expert-led courses, live hands-on classes, and accredited certifications. Pay easily in UGX with PesaPal and learn at your own pace.
             </p>
-            {/* Search with Autocomplete */}
-            <div className="relative">
-              <div className="flex gap-2 bg-white rounded-2xl p-1.5 shadow-xl hover:shadow-2xl transition-shadow">
+
+            {/* Live Search Appearance with Autocomplete Dropdown */}
+            <div className="relative max-w-lg">
+              <div className="flex gap-2 bg-white rounded-2xl p-1.5 shadow-2xl">
+                <div className="flex items-center pl-3 text-gray-400">
+                  <Icon icon="lucide:search" className="w-5 h-5" />
+                </div>
                 <input
                   type="text"
                   value={searchQ}
-                  onChange={e => { setSearchQ(e.target.value); setShowSuggestions(true) }}
+                  onChange={(e) => {
+                    setSearchQ(e.target.value)
+                    setShowSuggestions(true)
+                  }}
                   onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  placeholder="What do you want to learn today?"
-                  className="flex-1 px-4 py-2.5 text-gray-800 text-sm outline-none bg-transparent placeholder-gray-400"
+                  placeholder="Search courses, categories, tutors..."
+                  className="flex-1 px-2 py-3 text-gray-800 text-sm outline-none bg-transparent placeholder-gray-400 font-medium"
                 />
                 <button
                   onClick={() => setFrame('courses')}
-                  className="text-white text-sm font-600 px-5 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md"
+                  className="text-white text-xs font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
                   style={{ background: '#28C0F4' }}
                 >
                   Search
                 </button>
               </div>
+
               {/* Autocomplete Dropdown */}
               {showSuggestions && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in-down">
-                  {searchResults.slice(0, 5).map(c => (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in-down max-h-80 overflow-y-auto">
+                  <div className="p-2 bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                    Suggested Courses ({searchResults.length})
+                  </div>
+                  {searchResults.map((c) => (
                     <button
                       key={c.id}
-                      onMouseDown={() => { setSearchQ(''); setFrame('courses') }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
+                      onClick={() => {
+                        setShowSuggestions(false)
+                        setFrame('course-detail')
+                      }}
+                      className="w-full text-left p-3.5 hover:bg-blue-50/60 transition-colors flex items-center justify-between border-b border-gray-50 last:border-0 cursor-pointer"
                     >
-                      <img src={c.image} alt="" className="w-10 h-8 rounded-lg object-cover flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-600 text-gray-900 truncate">{c.title}</div>
-                        <div className="text-xs text-gray-400">{c.category} · {c.tutor}</div>
+                      <div className="flex items-center gap-3">
+                        <img src={c.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                        <div>
+                          <div className="text-xs font-bold text-gray-900">{c.title}</div>
+                          <div className="text-[11px] text-gray-500 flex items-center gap-2 mt-0.5">
+                            <span className="text-[#28C0F4] font-semibold">{c.category}</span>
+                            <span>•</span>
+                            <span>{c.tutor}</span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-xs font-600 text-gray-400 flex-shrink-0">{c.students} enrolled</span>
+                      <div className="text-right">
+                        <div className="text-xs font-extrabold text-[#1A4095]">
+                          {c.free ? 'Free' : `UGX ${c.price.toLocaleString()}`}
+                        </div>
+                        <div className="text-[10px] text-gray-400">{c.students} enrolled</div>
+                      </div>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <div className="flex gap-4 mt-5 flex-wrap">
-              {['Web Development', 'Data Science', 'UI/UX Design'].map(tag => (
-                 <button key={tag} onClick={() => setFrame('courses')} className="text-white/70 text-xs border border-white/20 px-3 py-1.5 rounded-full hover:bg-white/10 hover:border-white/50 hover:text-white transition-all hover:scale-105">
-                  {tag}
-                </button>
-              ))}
-            </div>
           </div>
-            <div className="hidden md:block relative animate-fade-in-right">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl animate-scale-in">
-                <img
-                  src="/images/pexels-photo-3771511.jpeg"
-                  alt="Students learning online"
-                  className="w-full object-cover transform hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-              </div>
-            {/* Floating cards with animation */}
-            <div className="absolute -bottom-4 -left-6 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3 floating-orb border border-gray-100">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-blue-900" style={{ background: '#e8f0fb' }}>
-                <Icon icon="lucide:award" className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="font-700 text-gray-900 text-sm">2,800+ Students</div>
-                <div className="text-xs text-gray-400">Enrolled this month</div>
-              </div>
-            </div>
-            <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3 floating-orb-reverse border border-gray-100">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-amber-500" style={{ background: '#fffbeb' }}>
-                <Icon icon="lucide:star" className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="font-700 text-gray-900 text-sm">4.8 / 5.0</div>
-                <div className="text-xs text-gray-400">Average Rating</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Break after hero */}
-        <div className="relative z-10">
-          <div className="h-1 w-full bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section className="border-b border-gray-100" style={{ background: '#f8faff' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { value: '120+', label: 'Courses', icon: 'lucide:book-open' },
-            { value: '5,200+', label: 'Students', icon: 'lucide:graduation-cap' },
-            { value: '48', label: 'Expert Tutors', icon: 'lucide:user-check' },
-            { value: '94%', label: 'Completion Rate', icon: 'lucide:check-circle-2' },
-          ].map(s => (
-            <div key={s.label} className="text-center group">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                <Icon icon={s.icon} className="w-6 h-6 text-blue-900" />
-              </div>
-              <div className="text-3xl font-800" style={{ color: '#1A4095' }}>{s.value}</div>
-              <div className="text-sm text-gray-500 mt-1 font-500">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Course Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center mb-10">
-          <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>Browse By Category</p>
-          <h2 className="text-3xl font-800 text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Explore Course Categories</h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map(cat => (
-            <button
-              key={cat.name}
-              onClick={() => setFrame('courses')}
-              className="group bg-white rounded-2xl border border-gray-100 p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all"
-            >
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform" style={{ background: `${cat.color}15` }}>
-                <Icon icon={cat.icon} className="w-7 h-7" style={{ color: cat.color }} />
-              </div>
-              <div className="text-sm font-600 text-gray-800">{cat.name}</div>
-              <div className="text-xs text-gray-400 mt-1">{COURSES.filter(c => c.category === cat.name).length} courses</div>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Popular Courses - Sorted by enrollment */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 border-t border-gray-100">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>Most Enrolled</p>
-            <h2 className="text-3xl font-800 text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Popular Courses</h2>
-          </div>
-          <button onClick={() => setFrame('courses')} className="text-sm font-600 border-2 border-blue-900 px-4 py-2 rounded-xl hover:bg-blue-900 hover:text-white transition-all" style={{ borderColor: '#1A4095', color: '#1A4095' }}>
-            View All →
-          </button>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedCourses.slice(0, 6).map(c => (
-            <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} />
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Tutors */}
-      <section style={{ background: '#f8faff' }} className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>Learn from the Best</p>
-            <h2 className="text-3xl font-800 text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Featured Tutors</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TUTORS.map(t => (
-              <div key={t.name} className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <img src={t.avatar} alt={t.name} className="w-16 h-16 rounded-full object-cover mx-auto mb-4 ring-4 ring-blue-50" />
-                <h3 className="font-700 text-gray-900">{t.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{t.specialty}</p>
-                <div className="flex justify-center mt-3">
-                  <StarRating rating={t.rating} />
-                </div>
-                <div className="mt-3 text-xs text-gray-400">{t.students} students</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Live Courses Teaser */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>Interactive Learning</p>
-            <h2 className="text-3xl font-800 text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Live Online Classes</h2>
-          </div>
-          <button onClick={() => setFrame('live-courses')} className="text-sm font-600 border-2 border-blue-900 px-4 py-2 rounded-xl hover:bg-blue-900 hover:text-white transition-all" style={{ borderColor: '#1A4095', color: '#1A4095' }}>View All →</button>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {LIVE_COURSES.map(lc => (
-            <div key={lc.title} className="rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="p-1" style={{ background: 'linear-gradient(135deg, #1A4095, #28C0F4)' }}>
-                <div className="bg-white rounded-xl p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <Badge color="cyan">LIVE</Badge>
-                    <span className="text-xs text-gray-400">{lc.spots} spots left</span>
-                  </div>
-                  <h3 className="font-700 text-gray-900 mb-1">{lc.title}</h3>
-                  <p className="text-sm text-gray-500 mb-3">Trainer: {lc.trainer}</p>
-                  {/* Platform Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-600 mb-3" style={{ background: lc.platform === 'Zoom' ? '#2D8CFF15' : lc.platform === 'Google Meet' ? '#00897B15' : '#EE104515', color: lc.platform === 'Zoom' ? '#2D8CFF' : lc.platform === 'Google Meet' ? '#00897B' : '#EE1045' }}>
-                    <Icon icon={lc.platform === 'Zoom' ? 'lucide:video' : lc.platform === 'Google Meet' ? 'lucide:video' : 'lucide:radio'} className="w-3.5 h-3.5" />
-                    {lc.platform}
-                  </div>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-2"><CalendarIcon className="h-4 w-4 text-gray-400" /> {lc.schedule}</div>
-                    <div className="flex items-center gap-2"><ClockIcon className="h-4 w-4 text-gray-400" /> {lc.time}</div>
-                    <div className="flex items-center gap-2"><TimerIcon className="h-4 w-4 text-gray-400" /> {lc.duration}</div>
-                  </div>
-                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-                    <span className="font-700" style={{ color: '#1A4095' }}>UGX {lc.fee.toLocaleString()}</span>
-                    <div className="flex gap-2">
-                      <a href={lc.joinLink} target="_blank" rel="noopener noreferrer" className="text-xs font-600 px-3 py-2 rounded-xl border-2 transition-all hover:scale-105" style={{ borderColor: '#28C0F4', color: '#28C0F4' }}>
-                        Join Live
-                      </a>
-                      <button className="text-xs font-600 text-white px-4 py-2 rounded-xl" style={{ background: '#28C0F4' }}>Apply Now</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }} className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>Success Stories</p>
-            <h2 className="text-3xl font-800 text-white" style={{ fontFamily: 'Montserrat, sans-serif' }}>What Our Students Say</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map(t => (
-              <div key={t.name} className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
-                <div className="flex gap-1 mb-4">
-                  {[1,2,3,4,5].map(i => <StarIcon key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}
-                </div>
-                <p className="text-white/85 text-sm leading-relaxed mb-5">"{t.text}"</p>
+          <div className="hidden md:block animate-fade-in-right">
+            <div className="relative">
+              <img
+                src="/images/pexels-photo-3184339.jpeg"
+                alt="Students learning tech"
+                className="rounded-3xl shadow-2xl border-4 border-white/20 object-cover w-full h-[420px]"
+              />
+              <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 animate-float">
                 <div className="flex items-center gap-3">
-                  <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
+                  <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <Icon icon="lucide:award" className="w-6 h-6" />
+                  </div>
                   <div>
-                    <div className="text-white font-600 text-sm">{t.name}</div>
-                    <div className="text-white/50 text-xs">{t.role}</div>
+                    <div className="text-sm font-bold text-gray-900">Verified Certificates</div>
+                    <div className="text-xs text-gray-500">Recognized by Top Employers</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Grid */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Explore Skills</p>
+            <h2 className="text-3xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Top Learning Categories
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((cat) => (
+              <button
+                key={cat.name}
+                onClick={() => setFrame('courses')}
+                className="bg-white p-5 rounded-2xl border border-gray-100 text-center hover-lift transition-all group cursor-pointer shadow-sm"
+              >
+                <div
+                  className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-sm"
+                  style={{ background: cat.color }}
+                >
+                  <Icon icon={cat.icon} className="w-6 h-6" />
+                </div>
+                <div className="font-bold text-xs text-gray-900 group-hover:text-[#1A4095]">{cat.name}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Courses (Ordered Descending by Enrollment Count) */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Popular Programs</p>
+              <h2 className="text-3xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Featured Courses
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">Sorted by highest student enrollment and ratings</p>
+            </div>
+            <button
+              onClick={() => setFrame('courses')}
+              className="text-xs font-bold text-[#1A4095] hover:text-[#28C0F4] flex items-center gap-1 cursor-pointer"
+            >
+              View All Courses <Icon icon="lucide:chevron-right" className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedCourses.slice(0, 6).map((c) => (
+              <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories (Admin Managed) */}
+      <section
+        style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }}
+        className="py-20 text-white"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Student Testimonials</p>
+            <h2 className="text-3xl font-extrabold" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Real Success Stories
+            </h2>
+            <p className="text-white/70 text-sm mt-1 max-w-lg mx-auto">
+              Read how Digtech Academy students are transforming their careers across East Africa.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((t) => (
+              <div
+                key={t.id}
+                className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(t.rating)].map((_, i) => (
+                      <Icon key={i} icon="lucide:star" className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-white/90 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+                </div>
+                <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+                  <img src={t.avatar} alt={t.name} className="w-11 h-11 rounded-full object-cover border-2 border-[#28C0F4]" />
+                  <div>
+                    <div className="font-bold text-sm text-white">{t.name}</div>
+                    <div className="text-xs text-white/60">{t.role}</div>
                   </div>
                 </div>
               </div>
@@ -564,195 +901,101 @@ function HomePage({ setFrame }: { setFrame: (f: Frame) => void }) {
           </div>
         </div>
       </section>
-
-      {/* FAQ Teaser */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-800 text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Frequently Asked Questions</h2>
-        </div>
-        <FaqAccordion />
-        <div className="text-center mt-8">
-          <button onClick={() => setFrame('faq')} className="text-sm font-600 border-2 px-6 py-2.5 rounded-xl hover:bg-blue-900 hover:text-white transition-all" style={{ borderColor: '#1A4095', color: '#1A4095' }}>
-            View All FAQs →
-          </button>
-        </div>
-      </section>
-
-      {/* Footer - White Background */}
-      <footer className="bg-white border-t border-gray-200 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center gap-2.5 mb-4">
-              <img src="/digitechlogo.png" alt="Digtech Academy Logo" className="h-9 w-auto object-contain" />
-            </div>
-            <p className="text-gray-500 text-sm leading-relaxed">Uganda's premier online learning platform. Building digital skills for Africa's future.</p>
-            <div className="flex gap-3 mt-5">
-              {[
-                { icon: 'lucide:facebook', href: 'https://facebook.com', label: 'Facebook' },
-                { icon: 'lucide:instagram', href: 'https://instagram.com', label: 'Instagram' },
-                { icon: 'lucide:twitter', href: 'https://x.com', label: 'X' },
-                { icon: 'mdi:tiktok', href: 'https://tiktok.com', label: 'TikTok' },
-                { icon: 'lucide:linkedin', href: 'https://linkedin.com', label: 'LinkedIn' },
-                { icon: 'lucide:youtube', href: 'https://youtube.com', label: 'YouTube' },
-                { icon: 'mdi:whatsapp', href: 'https://wa.me/256770613201', label: 'WhatsApp' },
-              ].map((s, i) => (
-                <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:scale-110 transition-all" style={{ ['--tw-hover-bg' as string]: '#1A4095' }} onMouseEnter={e => (e.currentTarget.style.background = '#1A4095')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
-                  <Icon icon={s.icon} className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
-          </div>
-          {[
-            { title: 'Quick Links', links: [
-              { label: 'Home', action: () => setFrame('home') },
-              { label: 'Courses', action: () => setFrame('courses') },
-              { label: 'Live Classes', action: () => setFrame('live-courses') },
-              { label: 'About Us', action: () => setFrame('about') },
-              { label: 'FAQ', action: () => setFrame('faq') },
-            ]},
-            { title: 'Categories', links: [
-              { label: 'Web Development', action: () => setFrame('courses') },
-              { label: 'Data Science', action: () => setFrame('courses') },
-              { label: 'Design', action: () => setFrame('courses') },
-              { label: 'Marketing', action: () => setFrame('courses') },
-              { label: 'Security', action: () => setFrame('courses') },
-            ]},
-          ].map(col => (
-            <div key={col.title}>
-              <h4 className="text-gray-900 font-700 mb-4">{col.title}</h4>
-              <ul className="space-y-2">
-                {col.links.map(link => (
-                  <li key={link.label}><button onClick={link.action} className="text-gray-500 text-sm hover:text-blue-700 transition-colors">{link.label}</button></li>
-                ))}
-              </ul>
-            </div>
-          ))}
-          <div>
-            <h4 className="text-gray-900 font-700 mb-4">Support</h4>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm text-gray-500">
-                <MapPinIcon className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                <span>Level 2 Grand West Arcade, High Street Mbarara City - Uganda</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm text-gray-500">
-                <PhoneIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <span>+256 (0) 770 613 201</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm text-gray-500">
-                <MailIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <span>info@digtechsolutionshub.com</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-        {/* Google Map */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-          <div className="rounded-2xl overflow-hidden border border-gray-200 h-48">
-            <iframe
-              src="https://www.google.com/maps?ll=-0.606781,30.661901&z=15&t=m&hl=en-US&gl=US&mapclient=embed&cid=8763999400868403491"
-              className="h-full w-full"
-              loading="lazy"
-              title="Digtech Academy location"
-            />
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-gray-200 text-center">
-          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
-  )
-}
-
-function FaqAccordion() {
-  const [open, setOpen] = useState<number | null>(0)
-  const faqs = [
-    { q: 'How do I enroll in a course?', a: 'Browse our courses, click "Enroll Now", complete the payment via PesaPal, and you\'ll get instant access. We also send an SMS confirmation.' },
-    { q: 'What payment methods are accepted?', a: 'We accept Mobile Money (MTN & Airtel), bank cards, and bank transfers through our PesaPal integration.' },
-    { q: 'Can I get a certificate?', a: 'Yes! Complete 100% of a course to unlock your digital certificate. Certificates include a QR code for employer verification.' },
-    { q: 'What if I need help with a lesson?', a: 'Each lesson has a built-in Q&A section where you can ask your tutor directly. Tutors typically respond within 24 hours.' },
-    { q: 'Are there live classes available?', a: 'Yes, we offer live online classes with real-time instruction. Check our Live Classes section for current schedules and apply online.' },
-  ]
-  return (
-    <div className="space-y-3">
-      {faqs.map((faq, i) => (
-        <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden">
-          <button
-            className="w-full text-left px-6 py-4 flex items-center justify-between font-600 text-gray-900 hover:bg-gray-50 transition-colors"
-            onClick={() => setOpen(open === i ? null : i)}
-          >
-            {faq.q}
-            <span className="text-gray-400 ml-4 transition-transform" style={{ transform: open === i ? 'rotate(45deg)' : 'rotate(0)' }}><PlusIcon className="h-4 w-4" /></span>
-          </button>
-          {open === i && (
-            <div className="px-6 pb-5 text-gray-600 text-sm leading-relaxed">{faq.a}</div>
-          )}
-        </div>
-      ))}
     </div>
   )
 }
 
 // ─── COURSES PAGE ──────────────────────────────────────────────────────────────
 function CoursesPage({ setFrame }: { setFrame: (f: Frame) => void }) {
-  const [filters, setFilters] = useState({ category: 'All', level: 'All', price: 'All' })
+  const [selectedCat, setSelectedCat] = useState('All')
+  const [selectedLevel, setSelectedLevel] = useState('All')
+  const [searchQ, setSearchQ] = useState('')
+
   const categories = ['All', 'Web Development', 'Data Science', 'Design', 'Marketing', 'Security', 'Mobile Dev']
   const levels = ['All', 'Beginner', 'Intermediate', 'Advanced']
-  const prices = ['All', 'Free', 'Paid']
 
-  const filtered = COURSES.filter(c => {
-    if (filters.category !== 'All' && c.category !== filters.category) return false
-    if (filters.level !== 'All' && c.level !== filters.level) return false
-    if (filters.price === 'Free' && !c.free) return false
-    if (filters.price === 'Paid' && c.free) return false
+  const filtered = INITIAL_COURSES.filter((c) => {
+    if (selectedCat !== 'All' && c.category !== selectedCat) return false
+    if (selectedLevel !== 'All' && c.level !== selectedLevel) return false
+    if (searchQ.trim() && !c.title.toLowerCase().includes(searchQ.toLowerCase())) return false
     return true
-  })
+  }).sort((a, b) => b.students - a.students)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-800 text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>All Courses</h1>
-        <p className="text-gray-500">{filtered.length} courses available</p>
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          Explore Academy Courses
+        </h1>
+        <p className="text-gray-500 text-sm">Showing {filtered.length} courses ordered by enrollment popularity</p>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-8 flex flex-wrap gap-6">
-        {[
-          { label: 'Category', key: 'category', opts: categories },
-          { label: 'Level', key: 'level', opts: levels },
-          { label: 'Price', key: 'price', opts: prices },
-        ].map(f => (
-          <div key={f.key}>
-            <label className="block text-xs font-600 text-gray-500 mb-2 uppercase tracking-wider">{f.label}</label>
-            <div className="flex gap-2 flex-wrap">
-              {f.opts.map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setFilters(prev => ({ ...prev, [f.key]: opt }))}
-                  className={`text-sm px-4 py-1.5 rounded-full border font-500 transition-all ${
-                    filters[f.key as keyof typeof filters] === opt
-                      ? 'text-white border-transparent'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-400'
-                  }`}
-                  style={filters[f.key as keyof typeof filters] === opt ? { background: '#1A4095', borderColor: '#1A4095' } : undefined}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
+      {/* Filter Toolbar */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-8 shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row gap-4 justify-between">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              placeholder="Search by title or topic..."
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#1A4095]"
+            />
+            <Icon icon="lucide:search" className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
           </div>
-        ))}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-gray-500 uppercase">Level:</span>
+            {levels.map((l) => (
+              <button
+                key={l}
+                onClick={() => setSelectedLevel(l)}
+                className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-all ${
+                  selectedLevel === l ? 'bg-[#1A4095] text-white border-[#1A4095]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Category Pills */}
+        <div className="flex gap-2 flex-wrap pt-2 border-t border-gray-100">
+          <span className="text-xs font-bold text-gray-500 uppercase self-center mr-2">Category:</span>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCat(cat)}
+              className={`text-xs px-3.5 py-1.5 rounded-full border font-semibold transition-all ${
+                selectedCat === cat
+                  ? 'bg-[#28C0F4] text-white border-[#28C0F4] shadow-sm'
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       {filtered.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4"><SearchIcon className="h-16 w-16 text-gray-300 mx-auto" /></div>
-          <p className="font-600 text-gray-600">No courses match your filters</p>
-          <button onClick={() => setFilters({ category: 'All', level: 'All', price: 'All' })} className="mt-4 text-sm font-600 hover:opacity-70 transition-opacity" style={{ color: '#1A4095' }}>Clear filters</button>
+          <Icon icon="lucide:search-x" className="w-16 h-16 text-gray-300 mx-auto mb-3" />
+          <p className="font-bold text-gray-600">No courses found matching your criteria</p>
+          <button
+            onClick={() => {
+              setSelectedCat('All')
+              setSelectedLevel('All')
+              setSearchQ('')
+            }}
+            className="mt-3 text-xs font-bold text-[#1A4095] hover:underline"
+          >
+            Clear all filters
+          </button>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map(c => (
+          {filtered.map((c) => (
             <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} />
           ))}
         </div>
@@ -761,1118 +1004,90 @@ function CoursesPage({ setFrame }: { setFrame: (f: Frame) => void }) {
   )
 }
 
-// ─── COURSE DETAIL ─────────────────────────────────────────────────────────────
-function CourseDetailPage() {
-  const course = COURSES[0]
-  const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'reviews'>('overview')
-  const [showPayment, setShowPayment] = useState(false)
-
-  const modules = [
-    { title: 'Introduction to Web Development', lessons: 5, duration: '2h 30m' },
-    { title: 'HTML5 & Semantic Markup', lessons: 8, duration: '3h 45m' },
-    { title: 'CSS3 & Responsive Design', lessons: 10, duration: '4h 20m' },
-    { title: 'JavaScript Fundamentals', lessons: 12, duration: '5h 10m' },
-    { title: 'React.js Core Concepts', lessons: 15, duration: '6h 30m' },
-    { title: 'Node.js & Express Backend', lessons: 11, duration: '4h 50m' },
-    { title: 'Database Design with PostgreSQL', lessons: 8, duration: '3h 20m' },
-    { title: 'Deployment & DevOps', lessons: 6, duration: '2h 40m' },
-  ]
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Banner */}
-      <div style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }} className="text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <div className="flex gap-2 mb-4">
-              <Badge color="cyan">{course.category}</Badge>
-              <Badge color="gray">{course.level}</Badge>
-            </div>
-            <h1 className="text-3xl font-800 mb-4 leading-snug" style={{ fontFamily: 'Montserrat, sans-serif' }}>{course.title}</h1>
-            <p className="text-white/75 mb-6 leading-relaxed">
-              Master full-stack web development from scratch. Build real-world projects using React, Node.js, and PostgreSQL.
-              This comprehensive course takes you from beginner to job-ready developer.
-            </p>
-            <div className="flex flex-wrap gap-5 text-sm text-white/80">
-              <div className="flex items-center gap-2"><TimerIcon className="h-4 w-4 text-white/70" /> {course.duration}</div>
-              <div className="flex items-center gap-2"><UsersIcon className="h-4 w-4 text-white/70" /> {course.students} enrolled</div>
-              <div className="flex items-center gap-2"><GlobeIcon className="h-4 w-4 text-white/70" /> English</div>
-              <div className="flex items-center gap-2"><RefreshCwIcon className="h-4 w-4 text-white/70" /> Last updated Aug 2024</div>
-            </div>
-            <div className="flex items-center gap-3 mt-5">
-              <img src={course.image} alt="" className="w-10 h-10 rounded-full object-cover ring-2 ring-white/30" />
-              <div>
-                <div className="text-xs text-white/50">Instructor</div>
-                <div className="font-600">{course.tutor}</div>
-              </div>
-            </div>
-          </div>
-          {/* Enrollment Card */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-2xl text-gray-900">
-            <div className="relative">
-              <img src={course.image} alt={course.title} className="w-full h-44 object-cover" />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <button className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                  <PlayIcon className="h-5 w-5 text-white ml-1" />
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-800" style={{ color: '#1A4095' }}>UGX {course.price.toLocaleString()}</span>
-              </div>
-              <button
-                onClick={() => setShowPayment(true)}
-                className="w-full py-3.5 rounded-xl text-white font-700 text-base mb-3 hover:opacity-90 transition-all"
-                style={{ background: '#28C0F4' }}
-              >
-                Enroll Now
-              </button>
-              <button className="w-full py-3.5 rounded-xl font-700 text-base border-2 hover:bg-blue-50 transition-colors" style={{ borderColor: '#1A4095', color: '#1A4095' }}>
-                Add to Wishlist
-              </button>
-              <p className="text-center text-xs text-gray-400 mt-3">30-day money-back guarantee</p>
-              <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                {['Full lifetime access', 'Access on mobile & desktop', 'Certificate of completion', 'Direct Q&A with tutor'].map(b => (
-                  <div key={b} className="flex items-center gap-2 text-sm text-gray-600">
-                    <span className="text-emerald-500"><CheckIcon className="h-4 w-4 inline" /></span> {b}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="sticky top-16 bg-white border-b border-gray-100 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex gap-6">
-            {(['overview', 'curriculum', 'reviews'] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`py-4 text-sm font-600 capitalize border-b-2 transition-all ${
-                  activeTab === tab ? 'border-b-2' : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                style={activeTab === tab ? { borderColor: '#1A4095', color: '#1A4095' } : undefined}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="text-xl font-700 text-gray-900 mb-4">What You'll Learn</h2>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {['Build full-stack web applications', 'Master React.js & Node.js', 'Work with databases (PostgreSQL)', 'Deploy apps to production', 'Understand REST APIs', 'Version control with Git & GitHub', 'Write clean, maintainable code', 'Land a developer job'].map(item => (
-                  <div key={item} className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="text-emerald-500 mt-0.5 flex-shrink-0"><CheckIcon className="h-4 w-4 inline" /></span> {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="text-xl font-700 text-gray-900 mb-4">Requirements</h2>
-              <ul className="space-y-2 text-sm text-gray-600 list-disc list-inside">
-                <li>A computer with internet access</li>
-                <li>Basic computer literacy (no prior coding experience needed)</li>
-                <li>Willingness to learn and practice daily</li>
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'curriculum' && (
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-700 text-gray-900">Course Curriculum</h2>
-              <p className="text-sm text-gray-500 mt-1">{modules.length} modules · {course.duration} total</p>
-            </div>
-            <div className="divide-y divide-gray-50">
-              {modules.map((m, i) => (
-                <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-700 text-white flex-shrink-0" style={{ background: '#1A4095' }}>{i + 1}</div>
-                    <div>
-                      <div className="font-600 text-gray-900 text-sm">{m.title}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{m.lessons} lessons · {m.duration}</div>
-                    </div>
-                  </div>
-                  {i === 0 && <Badge color="green">Preview</Badge>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'reviews' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 flex gap-8 items-center">
-              <div className="text-center">
-                <div className="text-6xl font-800" style={{ color: '#1A4095' }}>{course.rating}</div>
-                <div className="mt-2"><StarRating rating={course.rating} /></div>
-                <div className="text-sm text-gray-400 mt-1">Course Rating</div>
-              </div>
-              <div className="flex-1">
-                {[5,4,3,2,1].map(stars => (
-                  <div key={stars} className="flex items-center gap-3 mb-1.5">
-                    <div className="h-2 flex-1 rounded-full bg-gray-100 overflow-hidden">
-                      <div className="h-full rounded-full bg-amber-400" style={{ width: stars === 5 ? '72%' : stars === 4 ? '20%' : stars === 3 ? '6%' : '2%' }} />
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-400 w-16 text-right">
-                       <span className="flex items-center gap-0.5">{[...Array(stars)].map((_, i) => <StarIcon key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {TESTIMONIALS.map(t => (
-              <div key={t.name} className="bg-white rounded-2xl border border-gray-100 p-6">
-                <div className="flex items-start gap-4">
-                  <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-600 text-gray-900">{t.name}</span>
-                      <StarRating rating={4.8} />
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2 leading-relaxed">{t.text}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Payment Modal */}
-      {showPayment && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div className="p-1" style={{ background: 'linear-gradient(135deg, #1A4095, #28C0F4)' }}>
-              <div className="bg-white rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-700 text-gray-900">Complete Enrollment</h2>
-                  <button onClick={() => setShowPayment(false)} className="text-gray-400 hover:text-gray-600"><XIcon className="h-5 w-5" /></button>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <div className="text-sm text-gray-500 mb-1">You're enrolling in</div>
-                  <div className="font-600 text-gray-900">{course.title}</div>
-                  <div className="text-2xl font-800 mt-2" style={{ color: '#1A4095' }}>UGX {course.price.toLocaleString()}</div>
-                </div>
-                <div className="space-y-3 mb-6">
-                  <p className="text-sm font-600 text-gray-700">Select Payment Method</p>
-                  {['Mobile Money (MTN / Airtel)', 'Visa / Mastercard', 'Bank Transfer'].map((method, i) => (
-                    <label key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 transition-colors">
-                      <input type="radio" name="payment" defaultChecked={i === 0} className="accent-blue-700" />
-                      <span className="text-sm font-500">{method}</span>
-                    </label>
-                  ))}
-                </div>
-                <div className="mb-4">
-                  <label className="block text-xs font-600 text-gray-500 mb-2 uppercase tracking-wider">Phone / Account Number</label>
-                  <input type="text" placeholder="e.g. 0700 000 000" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors" />
-                </div>
-                <button className="w-full py-3.5 rounded-xl text-white font-700 text-base hover:opacity-90 transition-all" style={{ background: '#28C0F4' }}>
-                  Pay UGX {course.price.toLocaleString()}
-                </button>
-                <p className="text-center text-xs text-gray-400 mt-3">Powered by PesaPal · Secured by 256-bit SSL</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── STUDENT DASHBOARD ─────────────────────────────────────────────────────────
-function StudentDashboard() {
-  const [tab, setTab] = useState<'home' | 'courses' | 'certificates' | 'profile'>('home')
-
-  const myCourses = [
-    { ...COURSES[0], progress: 65, lastWatched: 'Module 5: React.js Core Concepts' },
-    { ...COURSES[2], progress: 100, lastWatched: 'Completed!' },
-    { ...COURSES[3], progress: 30, lastWatched: 'Module 2: Audience Research' },
-  ]
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className="w-60 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex">
-        <div className="p-5 border-b border-gray-100">
-          <div className="font-700 text-lg" style={{ color: '#1A4095' }}>Digtech <span style={{ color: '#28C0F4' }}>Academy</span></div>
-        </div>
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-700" style={{ background: '#1A4095' }}>SN</div>
-            <div>
-              <div className="font-600 text-sm text-gray-900">Sarah Namutebi</div>
-              <div className="text-xs text-gray-400">Student</div>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {[
-            { key: 'home', label: 'Dashboard', icon: <HomeIcon className="h-4 w-4" /> },
-            { key: 'courses', label: 'My Courses', icon: <BookOpenIcon className="h-4 w-4" /> },
-            { key: 'certificates', label: 'Certificates', icon: <TrophyIcon className="h-4 w-4" /> },
-            { key: 'profile', label: 'Profile', icon: <UserIcon className="h-4 w-4" /> },
-          ].map(item => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key as typeof tab)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-500 transition-all text-left ${
-                tab === item.key ? 'text-white' : 'text-gray-600 hover:bg-gray-50'
-              }`}
-              style={tab === item.key ? { background: '#1A4095' } : undefined}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      {/* Main */}
-      <main className="flex-1 overflow-auto">
-        {/* Mobile Tab bar */}
-        <div className="md:hidden flex border-b border-gray-100 bg-white overflow-x-auto">
-          {[
-            { key: 'home', label: 'Home', icon: <HomeIcon className="h-4 w-4" /> },
-            { key: 'courses', label: 'Courses', icon: <BookOpenIcon className="h-4 w-4" /> },
-            { key: 'certificates', label: 'Certs', icon: <TrophyIcon className="h-4 w-4" /> },
-            { key: 'profile', label: 'Profile', icon: <UserIcon className="h-4 w-4" /> },
-          ].map(item => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key as typeof tab)}
-              className={`flex-1 flex flex-col items-center py-3 text-xs gap-1 ${tab === item.key ? 'font-600' : 'text-gray-400'}`}
-              style={tab === item.key ? { color: '#1A4095' } : undefined}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-          {tab === 'home' && (
-            <div>
-              <div className="mb-8">
-                <h1 className="text-2xl font-800 text-gray-900">Welcome back, Sarah! <HandshakeIcon className="h-6 w-6 text-action inline ml-1" /></h1>
-                <p className="text-gray-500 mt-1">Keep up the momentum — you're doing great.</p>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[
-                  { label: 'Enrolled Courses', value: '3', icon: <BookOpenIcon className="h-5 w-5 text-gray-400" />, color: '#1A4095' },
-                  { label: 'Completed', value: '1', icon: <CheckCircleIcon className="h-5 w-5 text-gray-400" />, color: '#10B981' },
-                  { label: 'Certificates', value: '1', icon: <TrophyIcon className="h-5 w-5 text-gray-400" />, color: '#F59E0B' },
-                  { label: 'Avg. Progress', value: '65%', icon: <BarChartIcon className="h-5 w-5 text-gray-400" />, color: '#28C0F4' },
-                ].map(s => (
-                  <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="mb-2">{s.icon}</div>
-                    <div className="text-2xl font-800" style={{ color: s.color }}>{s.value}</div>
-                    <div className="text-xs text-gray-400 mt-1 font-500">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Continue learning */}
-              <h2 className="text-lg font-700 text-gray-900 mb-4">Continue Learning</h2>
-              <div className="space-y-4">
-                {myCourses.filter(c => c.progress < 100).map(c => (
-                  <div key={c.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 items-start hover:shadow-sm transition-shadow">
-                    <img src={c.image} alt={c.title} className="w-20 h-16 rounded-xl object-cover flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-600 text-gray-900 text-sm truncate">{c.title}</h3>
-                      <p className="text-xs text-gray-400 mt-1">{c.lastWatched}</p>
-                      <div className="flex items-center gap-3 mt-3">
-                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full transition-all" style={{ width: `${c.progress}%`, background: '#28C0F4' }} />
-                        </div>
-                        <span className="text-xs font-600 text-gray-600">{c.progress}%</span>
-                      </div>
-                    </div>
-                    <button className="text-xs font-600 text-white px-4 py-2 rounded-xl flex-shrink-0 hover:opacity-90" style={{ background: '#1A4095' }}>
-                      Continue
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tab === 'courses' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">My Courses</h1>
-              <div className="grid sm:grid-cols-2 gap-5">
-                {myCourses.map(c => (
-                  <div key={c.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="relative">
-                      <img src={c.image} alt={c.title} className="w-full h-36 object-cover" />
-                      {c.progress === 100 && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/80">
-                          <span className="text-white font-700 text-lg"><CheckCircleIcon className="h-5 w-5 inline mr-1" /> Completed</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <h3 className="font-600 text-gray-900 text-sm leading-snug mb-3">{c.title}</h3>
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${c.progress}%`, background: c.progress === 100 ? '#10B981' : '#28C0F4' }} />
-                        </div>
-                        <span className="text-xs font-600" style={{ color: c.progress === 100 ? '#10B981' : '#28C0F4' }}>{c.progress}%</span>
-                      </div>
-                      <p className="text-xs text-gray-400 mb-4">{c.lastWatched}</p>
-                      <button className={`w-full py-2.5 rounded-xl text-sm font-600 transition-all ${c.progress === 100 ? 'bg-gray-50 text-gray-600' : 'text-white hover:opacity-90'}`} style={c.progress < 100 ? { background: '#1A4095' } : undefined}>
-                        {c.progress === 100 ? 'Review Course' : 'Continue'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tab === 'certificates' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">My Certificates</h1>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
-                <div style={{ background: 'linear-gradient(135deg, #1A4095, #28C0F4)' }} className="p-8 text-center text-white">
-                  <div className="mb-3"><TrophyIcon className="h-10 w-10 text-white mx-auto" /></div>
-                  <div className="text-xs font-600 uppercase tracking-widest mb-2 opacity-75">Certificate of Completion</div>
-                  <h2 className="text-xl font-700 mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>UI/UX Design Fundamentals with Figma</h2>
-                  <p className="opacity-75 text-sm mt-2">Awarded to Sarah Namutebi</p>
-                  <div className="mt-4 text-xs opacity-60">Issued: 15 July 2024 · Verify: digtechacademy.ug/verify/CERT-2024-0847</div>
-                </div>
-                <div className="p-5 flex gap-3">
-                  <button className="flex-1 py-2.5 rounded-xl text-sm font-600 text-white hover:opacity-90 transition-all inline-flex items-center justify-center gap-2" style={{ background: '#1A4095' }}>
-                    <DownloadIcon className="h-4 w-4" /> Download PDF
-                  </button>
-                  <button className="flex-1 py-2.5 rounded-xl text-sm font-600 border-2 hover:bg-blue-50 transition-colors" style={{ borderColor: '#1A4095', color: '#1A4095' }}>
-                    Share
-                  </button>
-                </div>
-              </div>
-              <div className="bg-amber-50 rounded-2xl border border-amber-100 p-5 flex items-start gap-4">
-                <div className="flex-shrink-0"><ClipboardListIcon className="h-6 w-6 text-amber-500" /></div>
-                <div>
-                  <div className="font-600 text-gray-900 text-sm">Certificate Pending Review</div>
-                  <div className="text-sm text-gray-500 mt-1">Full Stack Web Development — submitted for principal review.</div>
-                  <Badge color="amber" >Awaiting Approval</Badge>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tab === 'profile' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">My Profile</h1>
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 max-w-lg">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-700" style={{ background: '#1A4095' }}>SN</div>
-                  <div>
-                    <div className="font-700 text-gray-900">Sarah Namutebi</div>
-                    <div className="text-sm text-gray-400">Student · Joined March 2024</div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    { label: 'Full Name', value: 'Sarah Namutebi', type: 'text' },
-                    { label: 'Mobile Number', value: '+256 772 123 456', type: 'tel' },
-                    { label: 'Email Address', value: 'sarah.namutebi@gmail.com', type: 'email' },
-                  ].map(f => (
-                    <div key={f.label}>
-                      <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">{f.label}</label>
-                      <input type={f.type} defaultValue={f.value} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors" />
-                    </div>
-                  ))}
-                  <div>
-                    <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">New Password</label>
-                    <input type="password" placeholder="Leave blank to keep current" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors" />
-                  </div>
-                  <button className="w-full py-3 rounded-xl text-white font-600 hover:opacity-90 transition-all mt-2" style={{ background: '#1A4095' }}>
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
-  )
-}
-
-// ─── TUTOR DASHBOARD ──────────────────────────────────────────────────────────
-function TutorDashboard() {
-  const [tab, setTab] = useState<'overview' | 'courses' | 'students' | 'earnings' | 'withdrawals'>('overview')
-  const [showWithdraw, setShowWithdraw] = useState(false)
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-60 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex">
-        <div className="p-5 border-b border-gray-100">
-          <div className="font-700 text-lg" style={{ color: '#1A4095' }}>Digtech <span style={{ color: '#28C0F4' }}>Academy</span></div>
-        </div>
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <img src={TUTORS[0].avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-            <div>
-              <div className="font-600 text-sm text-gray-900">{TUTORS[0].name}</div>
-              <div className="text-xs text-gray-400">Tutor</div>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {[
-            { key: 'overview', label: 'Overview', icon: <BarChartIcon className="h-4 w-4" /> },
-            { key: 'courses', label: 'My Courses', icon: <BookOpenIcon className="h-4 w-4" /> },
-            { key: 'students', label: 'Students', icon: <UsersIcon className="h-4 w-4" /> },
-            { key: 'earnings', label: 'Earnings', icon: <DollarSignIcon className="h-4 w-4" /> },
-            { key: 'withdrawals', label: 'Withdrawals', icon: <BanknoteIcon className="h-4 w-4" /> },
-          ].map(item => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key as typeof tab)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-500 transition-all text-left ${
-                tab === item.key ? 'text-white' : 'text-gray-600 hover:bg-gray-50'
-              }`}
-              style={tab === item.key ? { background: '#1A4095' } : undefined}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      <main className="flex-1 overflow-auto">
-        {/* Mobile tabs */}
-        <div className="md:hidden flex border-b border-gray-100 bg-white overflow-x-auto">
-          {[
-            { key: 'overview', icon: <BarChartIcon className="h-4 w-4" />, label: 'Overview' },
-            { key: 'courses', icon: <BookOpenIcon className="h-4 w-4" />, label: 'Courses' },
-            { key: 'students', icon: <UsersIcon className="h-4 w-4" />, label: 'Students' },
-            { key: 'earnings', icon: <DollarSignIcon className="h-4 w-4" />, label: 'Earnings' },
-          ].map(item => (
-            <button key={item.key} onClick={() => setTab(item.key as typeof tab)} className={`flex-1 flex flex-col items-center py-3 text-xs gap-1 ${tab === item.key ? 'font-600' : 'text-gray-400'}`} style={tab === item.key ? { color: '#1A4095' } : undefined}>
-              {item.icon}{item.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-          {tab === 'overview' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Tutor Dashboard</h1>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[
-                  { label: 'Total Courses', value: '4', icon: <BookOpenIcon className="h-5 w-5 text-gray-400" />, color: '#1A4095' },
-                  { label: 'Total Students', value: '312', icon: <UsersIcon className="h-5 w-5 text-gray-400" />, color: '#28C0F4' },
-                  { label: 'Total Revenue', value: 'UGX 21.8M', icon: <BanknoteIcon className="h-5 w-5 text-gray-400" />, color: '#10B981' },
-                  { label: 'Withdrawable', value: 'UGX 4.2M', icon: <DollarSignIcon className="h-5 w-5 text-gray-400" />, color: '#F59E0B' },
-                ].map(s => (
-                  <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="mb-2">{s.icon}</div>
-                    <div className="text-xl font-800 leading-tight" style={{ color: s.color }}>{s.value}</div>
-                    <div className="text-xs text-gray-400 mt-1 font-500">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h2 className="font-700 text-gray-900 mb-4">Recent Enrollments</h2>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Brian Odhiambo', course: COURSES[0].title, date: '2 hours ago', amount: 70000 },
-                    { name: 'Patricia Auma', course: COURSES[0].title, date: '5 hours ago', amount: 70000 },
-                    { name: 'Moses Kibirige', course: COURSES[1].title, date: 'Yesterday', amount: 66500 },
-                    { name: 'Annet Nampijja', course: COURSES[0].title, date: '2 days ago', amount: 70000 },
-                  ].map((e, i) => (
-                    <div key={i} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-700 text-white flex-shrink-0" style={{ background: '#1A4095' }}>
-                          {e.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div>
-                          <div className="text-sm font-600 text-gray-900">{e.name}</div>
-                          <div className="text-xs text-gray-400 truncate max-w-xs">{e.course}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-700 text-emerald-600">+UGX {e.amount.toLocaleString()}</div>
-                        <div className="text-xs text-gray-400">{e.date}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tab === 'courses' && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-800 text-gray-900">My Courses</h1>
-                <button className="text-sm font-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90" style={{ background: '#28C0F4' }}>+ Create Course</button>
-              </div>
-              <div className="space-y-4">
-                {COURSES.slice(0, 4).map(c => (
-                  <div key={c.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4">
-                    <img src={c.image} alt="" className="w-20 h-16 rounded-xl object-cover flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-600 text-gray-900 text-sm">{c.title}</h3>
-                      <div className="flex gap-3 mt-2">
-                        <Badge color="gray">{c.level}</Badge>
-                        <Badge color="cyan">{c.category}</Badge>
-                      </div>
-                      <div className="flex gap-4 mt-3 text-xs text-gray-400">
-                        <span className="flex items-center gap-1"><UserIcon className="h-3 w-3 text-gray-400" /> {c.students} students</span>
-                        <span className="flex items-center gap-1"><StarIcon className="h-3 w-3 text-gray-400" /> {c.rating}</span>
-                        <span className="flex items-center gap-1"><TimerIcon className="h-3 w-3 text-gray-400" /> {c.duration}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2 flex-shrink-0">
-                      <button className="text-xs font-600 px-3 py-1.5 rounded-lg border hover:bg-gray-50 transition-colors" style={{ borderColor: '#1A4095', color: '#1A4095' }}>Edit</button>
-                      <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors">Modules</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tab === 'students' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">My Students</h1>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ background: '#f8faff' }}>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Student</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider hidden md:table-cell">Course</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Progress</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider hidden md:table-cell">Enrolled</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {[
-                      { name: 'Sarah Namutebi', course: 'Full Stack Web Dev', progress: 65, date: '12 Mar 2024' },
-                      { name: 'Brian Odhiambo', course: 'Full Stack Web Dev', progress: 40, date: '15 Mar 2024' },
-                      { name: 'Patricia Auma', course: 'Python for Data Science', progress: 80, date: '20 Mar 2024' },
-                      { name: 'Moses Kibirige', course: 'Full Stack Web Dev', progress: 100, date: '1 Apr 2024' },
-                      { name: 'Annet Nampijja', course: 'Python for Data Science', progress: 25, date: '5 Apr 2024' },
-                    ].map((s, i) => (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-700 text-white flex-shrink-0" style={{ background: '#1A4095' }}>
-                              {s.name.split(' ').map(n => n[0]).join('')}
-                            </div>
-                            <span className="text-sm font-500 text-gray-900">{s.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 hidden md:table-cell text-sm text-gray-500">{s.course}</td>
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full rounded-full" style={{ width: `${s.progress}%`, background: s.progress === 100 ? '#10B981' : '#28C0F4' }} />
-                            </div>
-                            <span className="text-xs font-600 text-gray-500">{s.progress}%</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 text-sm text-gray-400 hidden md:table-cell">{s.date}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {tab === 'earnings' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Earnings</h1>
-              <div className="grid md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                  <div className="text-sm text-gray-500 mb-1">Total Earned (All Time)</div>
-                  <div className="text-2xl font-800" style={{ color: '#1A4095' }}>UGX 21,840,000</div>
-                </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                  <div className="text-sm text-gray-500 mb-1">Total Deductions (30%)</div>
-                  <div className="text-2xl font-800 text-red-500">UGX 6,552,000</div>
-                </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                  <div className="text-sm text-gray-500 mb-1">Withdrawable Balance</div>
-                  <div className="text-2xl font-800 text-emerald-600">UGX 4,200,000</div>
-                  <button onClick={() => setShowWithdraw(true)} className="mt-3 w-full text-xs font-600 text-white py-2 rounded-lg hover:opacity-90" style={{ background: '#28C0F4' }}>Request Withdrawal</button>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h2 className="font-700 text-gray-900 mb-1">Revenue Breakdown</h2>
-                <p className="text-xs text-gray-400 mb-5">Per enrollment: Tutor gets 70%, Digtech Academy gets 30%</p>
-                <div className="space-y-3">
-                  {[
-                    { course: 'Full Stack Web Development', enrollments: 312, fee: 120000, tutor: 84000 },
-                    { course: 'Python for Data Science', enrollments: 87, fee: 95000, tutor: 66500 },
-                    { course: 'UI/UX Design', enrollments: 45, fee: 75000, tutor: 52500 },
-                  ].map(r => (
-                    <div key={r.course} className="flex items-center justify-between p-4 rounded-xl bg-gray-50">
-                      <div>
-                        <div className="text-sm font-600 text-gray-900">{r.course}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{r.enrollments} enrollments · UGX {r.fee.toLocaleString()} / student</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-700 text-emerald-600">UGX {r.tutor.toLocaleString()}/student</div>
-                        <div className="text-xs text-gray-400">your share</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tab === 'withdrawals' && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-800 text-gray-900">Withdrawal Requests</h1>
-                <button onClick={() => setShowWithdraw(true)} className="text-sm font-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90" style={{ background: '#28C0F4' }}>
-                  + Request Withdrawal
-                </button>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ background: '#f8faff' }}>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Amount</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Method</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {[
-                      { date: '28 Jul 2024', amount: 2000000, method: 'MTN Mobile Money', status: 'Paid' },
-                      { date: '15 Jul 2024', amount: 1500000, method: 'Airtel Money', status: 'Paid' },
-                      { date: '1 Aug 2024', amount: 1200000, method: 'Bank Transfer', status: 'Pending' },
-                      { date: '5 Aug 2024', amount: 800000, method: 'MTN Mobile Money', status: 'Approved' },
-                    ].map((w, i) => (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4 text-sm text-gray-600">{w.date}</td>
-                        <td className="px-5 py-4 text-sm font-700 text-gray-900">UGX {w.amount.toLocaleString()}</td>
-                        <td className="px-5 py-4 text-sm text-gray-500">{w.method}</td>
-                        <td className="px-5 py-4">
-                          <Badge color={w.status === 'Paid' ? 'green' : w.status === 'Approved' ? 'blue' : w.status === 'Pending' ? 'amber' : 'red'}>
-                            {w.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {showWithdraw && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-700 text-gray-900">Request Withdrawal</h2>
-               <button onClick={() => setShowWithdraw(false)} className="text-gray-400 hover:text-gray-600"><XIcon className="h-5 w-5" /></button>
-            </div>
-            <div className="bg-emerald-50 rounded-xl p-4 mb-5 text-center">
-              <div className="text-xs text-gray-500 mb-1">Available Balance</div>
-              <div className="text-2xl font-800 text-emerald-600">UGX 4,200,000</div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-600 text-gray-500 mb-2 uppercase tracking-wider">Withdrawal Method</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {['Mobile Money', 'Bank Transfer'].map((m, i) => (
-                    <label key={i} className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 transition-colors">
-                      <input type="radio" name="method" defaultChecked={i === 0} className="accent-blue-700" />
-                      <span className="text-sm font-500">{m}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">Full Name</label>
-                <input type="text" defaultValue="David Ssekandi" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400" />
-              </div>
-              <div>
-                <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">Phone Number</label>
-                <input type="tel" defaultValue="+256 772 000 000" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400" />
-              </div>
-              <div>
-                <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">Amount (UGX)</label>
-                <input type="number" placeholder="Enter amount" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400" />
-              </div>
-            </div>
-            <p className="text-xs text-gray-400 my-4">Processing time: 2 working days</p>
-            <button className="w-full py-3.5 rounded-xl text-white font-700 hover:opacity-90 transition-all" style={{ background: '#1A4095' }}>
-              Submit Request
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── ADMIN DASHBOARD ──────────────────────────────────────────────────────────
-function AdminDashboard({ onLogout, setFrame }: { onLogout?: () => void; setFrame?: (f: Frame) => void }) {
-  const [tab, setTab] = useState<'overview' | 'users' | 'revenue' | 'withdrawals' | 'success-stories'>('overview')
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex animate-fade-in">
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex animate-fade-in-left">
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <div>
-            <div className="font-700 text-lg" style={{ color: '#1A4095' }}>Digtech <span style={{ color: '#28C0F4' }}>Academy</span></div>
-            <div className="text-xs font-600 text-cyan-600 tracking-wide mt-0.5 uppercase">Admin Control Center</div>
-          </div>
-        </div>
-        <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-800 text-sm shadow-md" style={{ background: 'linear-gradient(135deg, #1A4095, #28C0F4)' }}>
-              AD
-            </div>
-            <div className="min-w-0">
-              <div className="font-700 text-sm text-gray-900 truncate">System Admin</div>
-              <div className="text-[11px] text-emerald-600 font-600 truncate">admin@digtechacademy.ug</div>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-            { key: 'overview', label: 'Overview', icon: <BarChartIcon className="h-4 w-4" /> },
-            { key: 'users', label: 'Users', icon: <UsersIcon className="h-4 w-4" /> },
-            { key: 'revenue', label: 'Revenue', icon: <DollarSignIcon className="h-4 w-4" /> },
-            { key: 'withdrawals', label: 'Withdrawals', icon: <BanknoteIcon className="h-4 w-4" /> },
-            { key: 'success-stories', label: 'Success Stories', icon: <StarIcon className="h-4 w-4" /> },
-          ].map(item => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key as typeof tab)}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-600 transition-all text-left ${tab === item.key ? 'text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
-              style={tab === item.key ? { background: '#1A4095' } : undefined}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
-          <div className="mt-4 pt-4 border-t border-gray-100 space-y-1">
-            {['SMS Settings', 'Payment Settings', 'System Settings'].map(item => (
-              <button key={item} className="w-full flex items-center gap-3 px-3 py-2 text-xs font-500 text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all text-left">
-                <SettingsIcon className="h-4 w-4" /> {item}
-              </button>
-            ))}
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-700 text-red-600 hover:bg-red-50 transition-all text-left mt-4 border border-red-100"
-              >
-                <LogOutIcon className="h-4 w-4" /> Sign Out
-              </button>
-            )}
-          </div>
-        </nav>
-      </aside>
-
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          {tab === 'overview' && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h1 className="text-2xl font-800 text-gray-900">System Overview</h1>
-                  <p className="text-gray-400 text-sm mt-1">Monday, 5 August 2024</p>
-                </div>
-                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-500 text-emerald-700">All Systems Operational</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[
-                  { label: 'Total Students', value: '5,248', icon: <GraduationCapIcon className="h-5 w-5 text-gray-400" />, change: '+124 this month', color: '#1A4095' },
-                  { label: 'Active Tutors', value: '48', icon: <UserCheckIcon className="h-5 w-5 text-gray-400" />, change: '+3 pending', color: '#28C0F4' },
-                  { label: 'Total Revenue', value: 'UGX 186M', icon: <DollarSignIcon className="h-5 w-5 text-gray-400" />, change: '+12% vs last month', color: '#10B981' },
-                  { label: 'Pending Withdrawals', value: '7', icon: <BanknoteIcon className="h-5 w-5 text-gray-400" />, change: 'UGX 8.4M total', color: '#F59E0B' },
-                ].map(s => (
-                  <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="mb-2">{s.icon}</div>
-                    <div className="text-2xl font-800" style={{ color: s.color }}>{s.value}</div>
-                    <div className="text-xs text-gray-400 mt-1">{s.label}</div>
-                    <div className="text-xs font-500 mt-2" style={{ color: s.color }}>{s.change}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                  <h2 className="font-700 text-gray-900 mb-4">Recent Activity</h2>
-                  <div className="space-y-4">
-                    {[
-                      { icon: <SparklesIcon className="h-4 w-4 text-blue-500" />, text: 'New tutor registered: Josephine Aber', time: '2 min ago', type: 'blue' },
-                      { icon: <DollarSignIcon className="h-4 w-4 text-green-500" />, text: 'Payment received: UGX 120,000 — Full Stack Web Dev', time: '15 min ago', type: 'green' },
-                      { icon: <BanknoteIcon className="h-4 w-4 text-amber-500" />, text: 'Withdrawal request: David Ssekandi — UGX 1,200,000', time: '1 hr ago', type: 'amber' },
-                      { icon: <GraduationCapIcon className="h-4 w-4 text-blue-500" />, text: 'Certificate approved: Sarah Namutebi', time: '3 hrs ago', type: 'blue' },
-                      { icon: <ClipboardListIcon className="h-4 w-4 text-gray-400" />, text: 'Live class application: PMP Course', time: '5 hrs ago', type: 'gray' },
-                    ].map((a, i) => (
-                      <div key={i} className="flex items-start gap-3 text-sm">
-                        <span className="flex-shrink-0 mt-0.5">{a.icon}</span>
-                        <div className="flex-1">
-                          <span className="text-gray-700">{a.text}</span>
-                          <span className="block text-xs text-gray-400 mt-0.5">{a.time}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                  <h2 className="font-700 text-gray-900 mb-4">Top Performing Courses</h2>
-                  <div className="space-y-4">
-                    {COURSES.slice(0, 4).map((c, i) => (
-                      <div key={c.id} className="flex items-center gap-3">
-                        <span className="text-sm font-700 text-gray-300 w-5">{i + 1}</span>
-                        <img src={c.image} alt="" className="w-10 h-8 rounded-lg object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-600 text-gray-900 truncate">{c.title}</div>
-                          <div className="text-xs text-gray-400">{c.students} enrolled</div>
-                        </div>
-                        <Badge color={i === 0 ? 'green' : 'gray'}>{i === 0 ? <span className="flex items-center gap-1"><FlameIcon className="h-3.5 w-3.5" /> Hot</span> : `#${i + 1}`}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tab === 'users' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">User Management</h1>
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {[
-                  { label: 'Students', count: 5248, action: 'Manage', color: '#1A4095' },
-                  { label: 'Tutors', count: 48, action: 'Manage', color: '#28C0F4' },
-                  { label: 'Principals', count: 3, action: 'Manage', color: '#10B981' },
-                ].map(u => (
-                  <div key={u.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="text-2xl font-800" style={{ color: u.color }}>{u.count.toLocaleString()}</div>
-                    <div className="text-sm text-gray-500 mb-3">{u.label}</div>
-                    <button className="text-xs font-600 px-4 py-1.5 rounded-lg text-white hover:opacity-90" style={{ background: u.color }}>{u.action}</button>
-                  </div>
-                ))}
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                  <h2 className="font-700 text-gray-900">Pending Tutor Verifications</h2>
-                  <Badge color="amber">3 Pending</Badge>
-                </div>
-                <div className="divide-y divide-gray-50">
-                  {[
-                    { name: 'Josephine Aber', specialty: 'Mobile Development', submitted: '2 Aug 2024', docs: true },
-                    { name: 'Emmanuel Byaruhanga', specialty: 'Cloud Computing', submitted: '4 Aug 2024', docs: true },
-                    { name: 'Flavia Namukasa', specialty: 'Data Analytics', submitted: '5 Aug 2024', docs: false },
-                  ].map((t, i) => (
-                    <div key={i} className="px-5 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-700 text-sm" style={{ background: '#1A4095' }}>
-                          {t.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div>
-                          <div className="font-600 text-sm text-gray-900">{t.name}</div>
-                          <div className="text-xs text-gray-400">{t.specialty} · Submitted {t.submitted}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {t.docs ? <Badge color="green">Docs <CheckIcon className="h-3.5 w-3.5 inline" /></Badge> : <Badge color="red">Docs Missing</Badge>}
-                        <button className="text-xs font-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90" style={{ background: '#10B981' }}>Approve</button>
-                        <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">Reject</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tab === 'revenue' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Revenue & Analytics</h1>
-              <div className="grid md:grid-cols-3 gap-4 mb-8">
-                {[
-                  { label: 'Total Revenue', value: 'UGX 186,240,000', sub: 'All time' },
-                  { label: 'Platform Share (30%)', value: 'UGX 55,872,000', sub: 'After tutor payouts' },
-                  { label: 'This Month', value: 'UGX 14,400,000', sub: '+12% vs July 2024' },
-                ].map(r => (
-                  <div key={r.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="text-xs text-gray-400 mb-1">{r.label}</div>
-                    <div className="text-xl font-800" style={{ color: '#1A4095' }}>{r.value}</div>
-                    <div className="text-xs text-emerald-600 font-500 mt-1">{r.sub}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Monthly bars */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h2 className="font-700 text-gray-900 mb-6">Monthly Revenue (2024)</h2>
-                <div className="flex items-end gap-3 h-40">
-                  {[
-                    { month: 'Mar', val: 45 }, { month: 'Apr', val: 60 }, { month: 'May', val: 55 },
-                    { month: 'Jun', val: 72 }, { month: 'Jul', val: 68 }, { month: 'Aug', val: 85 },
-                  ].map(d => (
-                    <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
-                      <div className="text-xs font-600 text-gray-400">{Math.round(d.val * 14.4 / 10) / 10}M</div>
-                      <div className="w-full rounded-t-lg transition-all hover:opacity-80" style={{ height: `${d.val}%`, background: 'linear-gradient(to top, #1A4095, #28C0F4)' }} />
-                      <div className="text-xs text-gray-400">{d.month}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tab === 'withdrawals' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Withdrawal Requests</h1>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                  <h2 className="font-600 text-gray-900">All Requests</h2>
-                  <div className="flex gap-2">
-                    {['All', 'Pending', 'Approved', 'Paid'].map(s => (
-                      <button key={s} className="text-xs font-500 px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 transition-colors">{s}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="divide-y divide-gray-50">
-                  {[
-                    { tutor: 'David Ssekandi', amount: 1200000, method: 'Bank Transfer', status: 'Pending', date: '1 Aug 2024' },
-                    { tutor: 'Grace Nakato', amount: 950000, method: 'MTN Mobile Money', status: 'Approved', date: '3 Aug 2024' },
-                    { tutor: 'Amina Nalule', amount: 600000, method: 'Airtel Money', status: 'Pending', date: '4 Aug 2024' },
-                    { tutor: 'Ronald Kato', amount: 750000, method: 'Bank Transfer', status: 'Paid', date: '28 Jul 2024' },
-                  ].map((w, i) => (
-                    <div key={i} className="px-5 py-4 flex items-center justify-between">
-                      <div>
-                        <div className="font-600 text-sm text-gray-900">{w.tutor}</div>
-                        <div className="text-xs text-gray-400">{w.method} · {w.date}</div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="font-700 text-gray-900">UGX {w.amount.toLocaleString()}</div>
-                        <Badge color={w.status === 'Paid' ? 'green' : w.status === 'Approved' ? 'blue' : 'amber'}>{w.status}</Badge>
-                        {w.status === 'Pending' && (
-                          <div className="flex gap-2">
-                            <button className="text-xs font-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90" style={{ background: '#10B981' }}>Approve</button>
-                            <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">Reject</button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          {tab === 'success-stories' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Manage Success Stories</h1>
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-700 text-gray-900">Student Testimonials</h2>
-                  <button className="text-sm font-600 text-white px-5 py-2 rounded-xl" style={{ background: '#28C0F4' }}>+ Add Story</button>
-                </div>
-                <div className="space-y-4">
-                  {TESTIMONIALS.map(t => (
-                    <div key={t.name} className="flex gap-4 p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
-                      <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover" />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-600 text-gray-900 text-sm">{t.name}</div>
-                            <div className="text-xs text-gray-400">{t.role}</div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button className="text-xs font-600 text-blue-600 hover:underline">Edit</button>
-                            <button className="text-xs font-600 text-red-600 hover:underline">Delete</button>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-2">"{t.text}"</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
-  )
-}
-
-// ─── LIVE COURSES PAGE ────────────────────────────────────────────────────────
+// ─── LIVE COURSES PAGE (With Platform Links & Details) ────────────────────────
 function LiveCoursesPage() {
-  const [showForm, setShowForm] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<typeof LIVE_COURSES[0] | null>(null)
+  const [showApplyModal, setShowApplyModal] = useState(false)
+  const [appliedSuccess, setAppliedSuccess] = useState(false)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
       <div className="text-center mb-12">
-        <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>Real-Time Learning</p>
-        <h1 className="text-4xl font-800 text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>Live Online Classes</h1>
-        <p className="text-gray-500 max-w-xl mx-auto">Interact directly with expert trainers in real time. Ask questions, get instant feedback, and learn alongside peers.</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Real-Time Interaction</p>
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          Live Online Classes
+        </h1>
+        <p className="text-gray-500 max-w-xl mx-auto text-sm">
+          Interactive cohort-based sessions streamed directly on Google Meet, Zoom, and TikTok Live. Direct mentorship, Q&A, and practical code reviews.
+        </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-12">
-        {LIVE_COURSES.map(lc => (
-          <div key={lc.title} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+        {LIVE_COURSES.map((lc) => (
+          <div
+            key={lc.id}
+            className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between"
+          >
             <div className="p-1" style={{ background: 'linear-gradient(135deg, #1A4095, #28C0F4)' }}>
-              <div className="bg-white rounded-xl p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <Badge color="cyan">LIVE COURSE</Badge>
-                  <div className="text-right">
-                    <div className="text-xs text-red-500 font-600">{lc.spots} spots left</div>
+              <div className="bg-white rounded-[22px] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Badge color={lc.badgeColor}>{lc.duration.toUpperCase()}</Badge>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-red-500 bg-red-50 px-2.5 py-1 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    {lc.spots} spots left
                   </div>
                 </div>
-                <h2 className="font-700 text-gray-900 text-lg leading-snug mb-2">{lc.title}</h2>
-                <p className="text-sm text-gray-500 mb-5">Trainer: <span className="font-600 text-gray-700">{lc.trainer}</span></p>
-                <div className="space-y-2.5 text-sm">
-                  {[
-                    { icon: <CalendarIcon className="h-4 w-4 text-gray-400" />, label: 'Schedule', value: lc.schedule },
-                    { icon: <ClockIcon className="h-4 w-4 text-gray-400" />, label: 'Time', value: lc.time },
-                    { icon: <TimerIcon className="h-4 w-4 text-gray-400" />, label: 'Duration', value: lc.duration },
-                  ].map(d => (
-                    <div key={d.label} className="flex items-center gap-3">
-                      {d.icon}
-                      <span className="text-gray-400">{d.label}:</span>
-                      <span className="text-gray-700 font-500">{d.value}</span>
-                    </div>
-                  ))}
+
+                <h2 className="font-bold text-gray-900 text-lg leading-snug mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  {lc.title}
+                </h2>
+                <p className="text-xs text-gray-500 mb-5 flex items-center gap-1.5">
+                  <Icon icon="lucide:user" className="w-4 h-4 text-gray-400" />
+                  Lead Trainer: <span className="font-semibold text-gray-800">{lc.trainer}</span>
+                </p>
+
+                {/* Platform Tag */}
+                <div className="mb-5 p-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
+                    <Icon icon={lc.platformIcon} className="w-5 h-5" />
+                    <span>Hosted on {lc.platform}</span>
+                  </div>
+                  <a
+                    href={lc.joinLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-bold text-[#1A4095] hover:text-[#28C0F4] flex items-center gap-1 hover:underline"
+                  >
+                    Test Link <Icon icon="lucide:external-link" className="w-3 h-3" />
+                  </a>
                 </div>
+
+                <div className="space-y-2 text-xs text-gray-600">
+                  <div className="flex items-center gap-2.5">
+                    <Icon icon="lucide:calendar" className="w-4 h-4 text-gray-400" />
+                    <span>Schedule: <strong className="text-gray-800">{lc.schedule}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <Icon icon="lucide:clock" className="w-4 h-4 text-gray-400" />
+                    <span>Timing: <strong className="text-gray-800">{lc.time}</strong></span>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between mt-6 pt-5 border-t border-gray-100">
                   <div>
-                    <div className="text-xs text-gray-400">Course Fee</div>
-                    <div className="text-xl font-800" style={{ color: '#1A4095' }}>UGX {lc.fee.toLocaleString()}</div>
+                    <div className="text-[11px] text-gray-400 uppercase font-semibold">Tuition Fee</div>
+                    <div className="text-xl font-extrabold text-[#1A4095]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                      UGX {lc.fee.toLocaleString()}
+                    </div>
                   </div>
                   <button
-                    onClick={() => { setSelectedCourse(lc); setShowForm(true) }}
-                    className="text-sm font-700 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all"
-                    style={{ background: '#28C0F4' }}
+                    onClick={() => {
+                      setSelectedCourse(lc)
+                      setShowApplyModal(true)
+                      setAppliedSuccess(false)
+                    }}
+                    className="text-xs font-bold text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-sm cursor-pointer"
+                    style={{ background: '#1A4095' }}
                   >
                     Apply Now
                   </button>
@@ -1883,52 +1098,87 @@ function LiveCoursesPage() {
         ))}
       </div>
 
-      {/* Application Modal */}
-      {showForm && selectedCourse && (
+      {/* Apply Modal */}
+      {showApplyModal && selectedCourse && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 animate-scale-in">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-700 text-gray-900">Apply for Live Class</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600"><XIcon className="h-5 w-5" /></button>
+              <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Join Live Class Cohort
+              </h2>
+              <button onClick={() => setShowApplyModal(false)} className="text-gray-400 hover:text-gray-600">
+                <Icon icon="lucide:x" className="w-5 h-5" />
+              </button>
             </div>
-            <div className="bg-blue-50 rounded-xl p-4 mb-5">
-              <div className="font-600 text-gray-900 text-sm">{selectedCourse.title}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{selectedCourse.schedule} · {selectedCourse.time}</div>
-            </div>
-            <div className="space-y-4">
-              {[
-                { label: 'Full Name', placeholder: 'Your full name', type: 'text' },
-                { label: 'Mobile Number', placeholder: '+256 (0) 770 613 201', type: 'tel' },
-              ].map(f => (
-                <div key={f.label}>
-                  <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">{f.label}</label>
-                  <input type={f.type} placeholder={f.placeholder} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors" />
+
+            {appliedSuccess ? (
+              <div className="text-center py-6">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Icon icon="lucide:check-circle" className="w-8 h-8" />
                 </div>
-              ))}
-              <div>
-                <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">Preferred Days</label>
-                <div className="flex flex-wrap gap-2">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                    <label key={day} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-sm cursor-pointer hover:border-blue-300 transition-colors">
-                      <input type="checkbox" className="accent-blue-700 w-3 h-3" />
-                      {day}
-                    </label>
-                  ))}
+                <h3 className="text-base font-bold text-gray-900 mb-1">Application Submitted!</h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  We have sent the live cohort link and schedule details to your WhatsApp and email.
+                </p>
+                <button
+                  onClick={() => setShowApplyModal(false)}
+                  className="w-full py-3 rounded-xl bg-[#1A4095] text-white font-bold text-xs"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  setAppliedSuccess(true)
+                }}
+                className="space-y-4"
+              >
+                <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 text-xs">
+                  <div className="font-bold text-gray-900">{selectedCourse.title}</div>
+                  <div className="text-gray-500 mt-0.5">{selectedCourse.schedule} • {selectedCourse.time}</div>
                 </div>
-              </div>
-              <div>
-                <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">Preferred Study Time</label>
-                <select className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors">
-                  <option>Morning (6AM – 12PM)</option>
-                  <option>Afternoon (12PM – 5PM)</option>
-                  <option>Evening (5PM – 9PM)</option>
-                </select>
-              </div>
-            </div>
-            <button className="w-full py-3.5 rounded-xl text-white font-700 text-base mt-5 hover:opacity-90 transition-all" style={{ background: '#1A4095' }}>
-              Submit Application
-            </button>
-            <p className="text-center text-xs text-gray-400 mt-3">Your application will be reviewed within 24 hours</p>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Isaac Mugisha"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Phone / WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+256 700 000 000"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="student@example.com"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl text-white font-bold text-xs shadow-md mt-2"
+                  style={{ background: '#1A4095' }}
+                >
+                  Submit & Get Live Link
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
@@ -1936,1151 +1186,992 @@ function LiveCoursesPage() {
   )
 }
 
-// ─── ABOUT PAGE ───────────────────────────────────────────────────────────────
-function AboutPage() {
-  const team = [
-    { name: 'Dr. Robert Mugisha', role: 'Founder & CEO', bio: 'Former lecturer at Makerere University with 15 years in tech education.', avatar: '/images/pexels-photo-16776842.jpeg' },
-    { name: 'Christine Nakazibwe', role: 'Head of Curriculum', bio: 'Certified instructional designer specializing in digital skills development for East Africa.', avatar: '/images/pexels-photo-34786947.jpeg' },
-    { name: 'Samuel Ochieng', role: 'CTO', bio: 'Full-stack engineer with expertise in scalable EdTech platforms and mobile-first design.', avatar: '/images/pexels-photo-12293164.jpeg' },
-    { name: 'Harriet Kyomuhendo', role: 'Student Success Lead', bio: 'Passionate about ensuring every learner reaches their potential through mentorship and support.', avatar: '/images/pexels-photo-36338866.jpeg' },
-  ]
+// ─── COURSE DETAIL & PESAPAL PAYMENT ──────────────────────────────────────────
+function CourseDetailPage() {
+  const course = INITIAL_COURSES[0]
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [method, setMethod] = useState<'momo' | 'airtel' | 'card' | 'bank'>('momo')
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden py-20" style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }}>
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl" style={{ background: '#28C0F4' }} />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm font-600 uppercase tracking-widest mb-4" style={{ color: '#28C0F4' }}>Our Story</p>
-          <h1 className="text-4xl md:text-5xl font-800 text-white leading-tight mb-6" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Building Africa's Digital Future,<br />One Learner at a Time
-          </h1>
-          <p className="text-white/70 text-lg leading-relaxed max-w-2xl mx-auto">
-            Digtech Academy was founded in Kampala in 2021 with a clear mission: make world-class digital skills education accessible to every Ugandan, regardless of background or location.
-          </p>
-        </div>
-      </section>
+    <div className="min-h-screen bg-gray-50">
+      {/* Banner */}
+      <div style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }} className="text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-3 gap-8">
+          <div className="md:col-span-2">
+            <div className="flex gap-2 mb-4">
+              <Badge color="cyan">{course.category}</Badge>
+              <Badge color="green">{course.level}</Badge>
+            </div>
+            <h1 className="text-3xl font-extrabold mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              {course.title}
+            </h1>
+            <p className="text-white/80 text-sm leading-relaxed mb-6">
+              Master industrial machine learning, statistical modeling, and data pipelines using Python, Pandas, Scikit-Learn, and PyTorch.
+            </p>
+            <div className="flex flex-wrap gap-5 text-xs text-white/80">
+              <span className="flex items-center gap-1.5"><Icon icon="lucide:clock" className="w-4 h-4 text-[#28C0F4]" /> {course.duration}</span>
+              <span className="flex items-center gap-1.5"><Icon icon="lucide:users" className="w-4 h-4 text-[#28C0F4]" /> {course.students} enrolled</span>
+              <span className="flex items-center gap-1.5"><Icon icon="lucide:globe" className="w-4 h-4 text-[#28C0F4]" /> English & Luganda support</span>
+            </div>
+          </div>
 
-      {/* Story */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <p className="text-sm font-600 uppercase tracking-wider mb-3" style={{ color: '#28C0F4' }}>How It Started</p>
-          <h2 className="text-3xl font-800 text-gray-900 mb-5" style={{ fontFamily: 'Montserrat, sans-serif' }}>From a Kampala Classroom to a National Platform</h2>
-          <p className="text-gray-600 leading-relaxed mb-4">
-            It started with a simple observation: Uganda has a massive youth population hungry for digital skills, but quality training was either too expensive, too far away, or simply not available in local languages and contexts.
-          </p>
-          <p className="text-gray-600 leading-relaxed mb-4">
-            Dr. Robert Mugisha, alongside a small team of passionate educators and engineers, built Digtech Academy as a platform that puts the Ugandan learner first — mobile-optimized, affordable, and taught by instructors who understand the local market.
-          </p>
-          <p className="text-gray-600 leading-relaxed">
-            Today, over 5,200 students across Uganda have learned and grown with us, with alumni working at MTN, Airtel, Stanbic Bank, and leading startups across East Africa.
-          </p>
-        </div>
-        <div className="relative">
-          <img
-            src="/images/pexels-photo-3184339.jpeg"
-            alt="Students learning in Kampala"
-            className="rounded-3xl w-full object-cover shadow-xl"
-          />
-          <div className="absolute -bottom-5 -left-5 bg-white rounded-2xl shadow-lg p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: '#e8f0fb' }}><MapPinIcon className="h-5 w-5 text-gray-600" /></div>
-            <div>
-              <div className="font-700 text-gray-900 text-sm">Based in Kampala</div>
-              <div className="text-xs text-gray-400">Serving all of Uganda</div>
+          {/* Pricing Card */}
+          <div className="bg-white rounded-3xl p-6 text-gray-900 shadow-2xl border border-white/20">
+            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Course Fee</div>
+            <div className="text-3xl font-extrabold text-[#1A4095] mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              UGX {course.price.toLocaleString()}
+            </div>
+            <button
+              onClick={() => {
+                setShowPaymentModal(true)
+                setPaymentSuccess(false)
+              }}
+              className="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all mb-3 cursor-pointer"
+              style={{ background: '#28C0F4' }}
+            >
+              Enroll with PesaPal
+            </button>
+            <div className="space-y-2 text-xs text-gray-600 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-2"><Icon icon="lucide:check-circle" className="w-4 h-4 text-emerald-500" /> Instant access to all modules</div>
+              <div className="flex items-center gap-2"><Icon icon="lucide:check-circle" className="w-4 h-4 text-emerald-500" /> Verifiable Certificate included</div>
+              <div className="flex items-center gap-2"><Icon icon="lucide:check-circle" className="w-4 h-4 text-emerald-500" /> Direct tutor Q&A support</div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Mission / Vision */}
-      <section style={{ background: '#f8faff' }} className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-8">
-          {[
-            {
-              icon: <TargetIcon className="h-10 w-10" style={{ color: '#1A4095' }} />,
-              label: 'Our Mission',
-              title: 'Democratize Digital Education',
-              text: 'To provide affordable, high-quality digital skills training that empowers Ugandans to participate fully in the modern economy — on any device, from anywhere in the country.',
-              color: '#1A4095',
-            },
-            {
-              icon: <TelescopeIcon className="h-10 w-10" style={{ color: '#28C0F4' }} />,
-              label: 'Our Vision',
-              title: 'Africa\'s Most Trusted EdTech Platform',
-              text: 'To be the leading online learning platform in East Africa, known for producing job-ready graduates, trusted by employers, and celebrated by our alumni.',
-              color: '#28C0F4',
-            },
-          ].map(item => (
-            <div key={item.label} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-              <div className="mb-4">{item.icon}</div>
-              <p className="text-xs font-700 uppercase tracking-widest mb-2" style={{ color: item.color }}>{item.label}</p>
-              <h3 className="text-2xl font-800 text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>{item.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{item.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center mb-12">
-          <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>What Guides Us</p>
-          <h2 className="text-3xl font-800 text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Our Core Values</h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: <GlobeIcon className="h-6 w-6 text-gray-400" />, title: 'Accessibility', text: 'Learning should be available to everyone, regardless of location or income.' },
-            { icon: <CheckCircleIcon className="h-6 w-6 text-gray-400" />, title: 'Quality', text: 'Every course is reviewed for practical, real-world relevance before publishing.' },
-            { icon: <HandshakeIcon className="h-6 w-6 text-gray-400" />, title: 'Community', text: 'We grow together — students, tutors, and staff support each other.' },
-            { icon: <TrendingUpIcon className="h-6 w-6 text-gray-400" />, title: 'Impact', text: 'We measure success by the careers changed and businesses launched by our alumni.' },
-          ].map(v => (
-            <div key={v.title} className="text-center p-6 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all">
-              <div className="mb-4 flex justify-center">{v.icon}</div>
-              <h3 className="font-700 text-gray-900 mb-2">{v.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{v.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Team */}
-      <section style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }} className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <p className="text-sm font-600 uppercase tracking-wider mb-2" style={{ color: '#28C0F4' }}>The People Behind It</p>
-            <h2 className="text-3xl font-800 text-white" style={{ fontFamily: 'Montserrat, sans-serif' }}>Meet the Team</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map(member => (
-              <div key={member.name} className="bg-white/10 backdrop-blur rounded-2xl p-6 text-center border border-white/10 hover:bg-white/15 transition-all">
-                <img src={member.avatar} alt={member.name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 ring-4 ring-white/20" />
-                <h3 className="font-700 text-white">{member.name}</h3>
-                <p className="text-xs font-600 mt-1 mb-3" style={{ color: '#28C0F4' }}>{member.role}</p>
-                <p className="text-white/60 text-sm leading-relaxed">{member.bio}</p>
+      {/* PesaPal Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-in border border-gray-100">
+            {/* Header with PesaPal Badge */}
+            <div className="p-4 bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="bg-white text-[#1A4095] text-[10px] font-extrabold px-2 py-0.5 rounded shadow">
+                  PESAPAL
+                </div>
+                <span className="text-xs font-bold">Secure Payment Gateway</span>
               </div>
-            ))}
+              <button onClick={() => setShowPaymentModal(false)} className="text-white/80 hover:text-white">
+                <Icon icon="lucide:x" className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {paymentSuccess ? (
+                <div className="text-center py-4">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Icon icon="lucide:check-circle" className="w-10 h-10" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                    Payment Successful!
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Reference ID: <strong className="text-gray-800">PESA-UG-{Math.floor(100000 + Math.random() * 900000)}</strong>
+                    <br />
+                    Confirmation SMS dispatched to {phone || '+256 770 613 201'}.
+                  </p>
+                  <button
+                    onClick={() => setShowPaymentModal(false)}
+                    className="w-full py-3 rounded-xl bg-[#1A4095] text-white font-bold text-xs"
+                  >
+                    Start Learning Now
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    setPaymentSuccess(true)
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-100 flex items-center justify-between">
+                    <div>
+                      <div className="text-xs text-gray-500">Course Enrollment</div>
+                      <div className="text-xs font-bold text-gray-900">{course.title}</div>
+                    </div>
+                    <div className="text-base font-extrabold text-[#1A4095]">
+                      UGX {course.price.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
+                      Select Payment Channel
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'momo', label: 'MTN MoMo', icon: 'lucide:smartphone' },
+                        { id: 'airtel', label: 'Airtel Money', icon: 'lucide:phone-call' },
+                        { id: 'card', label: 'Visa / Card', icon: 'lucide:credit-card' },
+                        { id: 'bank', label: 'Bank Transfer', icon: 'lucide:building-2' },
+                      ].map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => setMethod(m.id as any)}
+                          className={`p-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                            method === m.id
+                              ? 'border-[#1A4095] bg-blue-50 text-[#1A4095]'
+                              : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          <Icon icon={m.icon} className="w-4 h-4" />
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                      Mobile Money / Account Number
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g. 0770 000 000"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-lg hover:opacity-90 transition-all mt-2"
+                    style={{ background: '#1A4095' }}
+                  >
+                    Pay UGX {course.price.toLocaleString()} via PesaPal
+                  </button>
+
+                  <div className="text-center text-[10px] text-gray-400 flex items-center justify-center gap-1.5">
+                    <Icon icon="lucide:shield-check" className="w-3.5 h-3.5 text-emerald-500" />
+                    256-bit Encrypted PesaPal Consumer API
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </div>
-      </section>
-
-      {/* CTA */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-20 text-center border-t border-gray-100">
-        <h2 className="text-3xl font-800 text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>Ready to Start Learning?</h2>
-        <p className="text-gray-500 mb-8">Join 5,200+ students already building their digital careers with Digtech Academy.</p>
-        <button className="text-white font-700 px-8 py-4 rounded-2xl text-base hover:opacity-90 transition-all shadow-lg" style={{ background: '#1A4095' }}>
-          Browse All Courses
-        </button>
-      </section>
+      )}
     </div>
   )
 }
 
-// ─── CONTACT PAGE ──────────────────────────────────────────────────────────────
-function ContactPage() {
-  const [sent, setSent] = useState(false)
+// ─── FAQ PAGE (Dedicated Page) ─────────────────────────────────────────────────
+function FaqPage() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [activeCategory, setActiveCategory] = useState('All')
+
+  const faqs = [
+    {
+      category: 'Enrollment & Access',
+      q: 'How do I enroll and start learning a course?',
+      a: 'Browse through our courses catalog, click "Enroll Now", and complete the checkout using PesaPal. You will receive immediate dashboard access and an SMS confirmation with your login details.',
+    },
+    {
+      category: 'Payments',
+      q: 'What payment methods are supported via PesaPal?',
+      a: 'Through our official PesaPal integration, we accept MTN Mobile Money, Airtel Money, Visa, Mastercard, and direct bank transfers in Ugandan Shillings (UGX).',
+    },
+    {
+      category: 'Live Classes',
+      q: 'How do live online classes work?',
+      a: 'Live classes are real-time sessions hosted on Google Meet, Zoom, and TikTok Live. Trainers demonstrate code live, review assignments, and answer questions directly.',
+    },
+    {
+      category: 'Certificates',
+      q: 'Are certificates verifiable by employers?',
+      a: 'Yes! Upon 100% course completion and project submission, you earn a digital certificate equipped with a unique QR code and verification ID for employers.',
+    },
+    {
+      category: 'Tutors & Support',
+      q: 'Can I interact with my tutor during self-paced courses?',
+      a: 'Absolutely. Every lesson includes a dedicated Q&A discussion tab where you can post questions and receive direct responses from your course tutor within 24 hours.',
+    },
+  ]
+
+  const categories = ['All', 'Enrollment & Access', 'Payments', 'Live Classes', 'Certificates', 'Tutors & Support']
+
+  const filtered = faqs.filter((f) => activeCategory === 'All' || f.category === activeCategory)
 
   return (
-    <div>
-      {/* Header */}
-      <section className="py-16 text-center" style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }}>
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <p className="text-sm font-600 uppercase tracking-widest mb-3" style={{ color: '#28C0F4' }}>Get In Touch</p>
-          <h1 className="text-4xl font-800 text-white" style={{ fontFamily: 'Montserrat, sans-serif' }}>We'd Love to Hear From You</h1>
-          <p className="text-white/60 mt-4">Have a question, partnership idea, or just want to say hello? Reach out — we respond within 24 hours.</p>
-        </div>
-      </section>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div className="text-center mb-12">
+        <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Help Center</p>
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          Frequently Asked Questions
+        </h1>
+        <p className="text-gray-500 text-sm">Everything you need to know about Digtech Academy programs, payments, and certificates.</p>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid lg:grid-cols-3 gap-10">
-        {/* Info */}
-        <div className="space-y-6">
-          {[
-            { icon: <LocationIcon className="h-5 w-5 text-action" />, label: 'Address', value: 'Level 2 Grand West Arcade, High Street Mbarara City - Uganda' },
-            { icon: <PhoneIcon className="h-5 w-5 text-action" />, label: 'Phone', value: '+256 (0) 770 613 201' },
-            { icon: <EmailIcon className="h-5 w-5 text-action" />, label: 'Email', value: 'info@digtechsolutionshub.com' },
-            { icon: <ClockIcon className="h-5 w-5 text-action" />, label: 'Working Hours', value: 'Mon – Fri: 8AM – 6PM\nSat: 9AM – 1PM' },
-          ].map(item => (
-            <div key={item.label} className="flex gap-4 items-start p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#e8f0fb' }}>
-                {item.icon}
+      {/* Category Pills */}
+      <div className="flex gap-2 flex-wrap justify-center mb-8">
+        {categories.map((c) => (
+          <button
+            key={c}
+            onClick={() => setActiveCategory(c)}
+            className={`text-xs px-4 py-2 rounded-full border font-bold transition-all ${
+              activeCategory === c
+                ? 'bg-[#1A4095] text-white border-[#1A4095] shadow-sm'
+                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Accordion List */}
+      <div className="space-y-4 max-w-3xl mx-auto">
+        {filtered.map((item, i) => (
+          <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+            <button
+              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              className="w-full text-left p-5 flex items-center justify-between font-bold text-sm text-gray-900 hover:bg-gray-50 transition-colors"
+            >
+              <span>{item.q}</span>
+              <Icon
+                icon={openIndex === i ? 'lucide:chevron-up' : 'lucide:chevron-down'}
+                className="w-5 h-5 text-[#1A4095] flex-shrink-0 ml-4"
+              />
+            </button>
+            {openIndex === i && (
+              <div className="px-5 pb-5 text-xs text-gray-600 leading-relaxed border-t border-gray-50 pt-3">
+                {item.a}
               </div>
-              <div>
-                <div className="text-xs font-700 uppercase tracking-wider text-gray-400 mb-1">{item.label}</div>
-                <div className="text-sm text-gray-700 font-500 whitespace-pre-line">{item.value}</div>
-              </div>
-            </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── LOGIN PORTAL (Unified with Defined Roles) ────────────────────────────────
+function LoginPage({
+  onLoginSuccess,
+  setFrame,
+}: {
+  onLoginSuccess: (email: string, role: string, name: string) => void
+  setFrame: (f: Frame) => void
+}) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState<'student' | 'tutor' | 'admin'>('student')
+  const [error, setError] = useState('')
+
+  const handleQuickDemo = (demoRole: 'admin' | 'tutor' | 'student') => {
+    setRole(demoRole)
+    if (demoRole === 'admin') {
+      setEmail('admin@digtechacademy.ug')
+      setPassword('Digtech@2024')
+    } else if (demoRole === 'tutor') {
+      setEmail('tutor@digtechacademy.ug')
+      setPassword('Tutor@2024')
+    } else {
+      setEmail('student@digtechacademy.ug')
+      setPassword('Student@2024')
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password) {
+      setError('Please fill in both email and password.')
+      return
+    }
+
+    if (role === 'admin' && email === 'admin@digtechacademy.ug' && password !== 'Digtech@2024') {
+      setError('Invalid admin credentials. Use admin@digtechacademy.ug / Digtech@2024')
+      return
+    }
+
+    onLoginSuccess(email, role, role === 'admin' ? 'System Administrator' : 'User')
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+        {/* Logo only - strictly without repeating text */}
+        <div className="text-center mb-6">
+          <button onClick={() => setFrame('home')} className="inline-block">
+            <img src="/digitechlogo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
+          </button>
+          <h1 className="text-2xl font-extrabold text-gray-900 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Portal Sign In
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">Select your account role to continue</p>
+        </div>
+
+        {/* Role Selector Tabs */}
+        <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+          {(['student', 'tutor', 'admin'] as const).map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => {
+                setRole(r)
+                setError('')
+              }}
+              className={`flex-1 py-2 text-xs font-bold capitalize rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                role === r ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Icon
+                icon={r === 'admin' ? 'lucide:shield' : r === 'tutor' ? 'lucide:user-check' : 'lucide:graduation-cap'}
+                className="w-3.5 h-3.5"
+              />
+              {r}
+            </button>
           ))}
-
-           {/* Social */}
-           <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-             <div className="text-xs font-700 uppercase tracking-wider text-gray-400 mb-3">Follow Us</div>
-             <div className="flex gap-3">
-               {[
-                 { icon: <FacebookIcon className="h-4 w-4" />, label: 'Facebook', color: '#1877F2' },
-                 { icon: <InstagramIcon className="h-4 w-4" />, label: 'Instagram', color: '#E4405F' },
-                 { icon: <TwitterIcon className="h-4 w-4" />, label: 'Twitter/X', color: '#000' },
-                 { icon: <YoutubeIcon className="h-4 w-4" />, label: 'YouTube', color: '#FF0000' },
-               ].map(s => (
-                 <button
-                   key={s.label}
-                   title={s.label}
-                   className="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
-                   style={{ background: '#f0f4ff' }}
-                 >
-                   {s.icon}
-                 </button>
-               ))}
-             </div>
-           </div>
         </div>
 
-        {/* Form */}
-        <div className="lg:col-span-2">
-           {sent ? (
-             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center">
-               <div className="text-6xl mb-4"><CheckIcon className="h-16 w-16 text-green-500 mx-auto" /></div>
-               <h2 className="text-2xl font-800 text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>Message Sent!</h2>
-              <p className="text-gray-500">Thank you for reaching out. We'll get back to you within 24 hours.</p>
-              <button onClick={() => setSent(false)} className="mt-6 text-sm font-600 hover:opacity-70 transition-opacity" style={{ color: '#1A4095' }}>Send another message</button>
-            </div>
-          ) : (
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-              <h2 className="text-xl font-700 text-gray-900 mb-6">Send Us a Message</h2>
-              <div className="grid sm:grid-cols-2 gap-5">
-                {[
-                  { label: 'Full Name', placeholder: 'Your full name', type: 'text', span: false },
-                  { label: 'Email Address', placeholder: 'your@email.com', type: 'email', span: false },
-                  { label: 'Phone Number', placeholder: '+256 (0) 770 613 201', type: 'tel', span: false },
-                  { label: 'Subject', placeholder: 'How can we help?', type: 'text', span: false },
-                ].map(f => (
-                  <div key={f.label}>
-                    <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">{f.label}</label>
-                    <input type={f.type} placeholder={f.placeholder} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors" />
-                  </div>
-                ))}
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-600 text-gray-500 mb-1.5 uppercase tracking-wider">Message</label>
-                  <textarea rows={5} placeholder="Tell us more about your enquiry..." className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors resize-none" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-600 text-gray-500 mb-2 uppercase tracking-wider">I am a...</label>
-                  <div className="flex flex-wrap gap-3">
-                    {['Student', 'Tutor', 'School / Organization', 'Employer', 'Other'].map(role => (
-                      <label key={role} className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 text-sm cursor-pointer hover:border-blue-300 transition-colors">
-                        <input type="radio" name="role" className="accent-blue-700" />
-                        {role}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setSent(true)}
-                className="mt-6 w-full py-3.5 rounded-xl text-white font-700 text-base hover:opacity-90 transition-all"
-                style={{ background: '#1A4095' }}
-              >
-                Send Message
-              </button>
-            </div>
-          )}
+        {/* Demo Auto-fill Helper */}
+        <div className="mb-5 p-3 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center justify-between text-xs">
+          <div>
+            <span className="font-bold text-blue-950 block capitalize">Demo {role} Access</span>
+            <span className="text-[11px] text-blue-700">{role}@digtechacademy.ug</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleQuickDemo(role)}
+            className="text-[11px] font-bold px-3 py-1 rounded-lg bg-[#1A4095] text-white hover:opacity-90"
+          >
+            Auto-fill
+          </button>
+        </div>
 
-          {/* Map */}
-          <div className="mt-6 rounded-3xl overflow-hidden border border-gray-100 shadow-sm h-52">
-            <iframe
-              src="https://www.google.com/maps?ll=-0.606781,30.661901&z=10&t=m&hl=en-US&gl=US&mapclient=embed&cid=8763999400868403491"
-              className="h-full w-full"
-              loading="lazy"
-              title="Digtech Academy location"
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
+            <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Email Address</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@digtechacademy.ug"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
             />
           </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-md transition-all mt-2"
+            style={{ background: '#1A4095' }}
+          >
+            Sign In to {role.toUpperCase()} Portal →
+          </button>
+        </form>
+
+        <div className="mt-6 pt-4 border-t border-gray-100 text-center text-xs text-gray-500">
+          Need an account?{' '}
+          <button onClick={() => setFrame('register')} className="font-bold text-[#1A4095] hover:underline">
+            Register as Student or Tutor
+          </button>
         </div>
       </div>
     </div>
   )
 }
 
-// ─── PRINCIPAL DASHBOARD ──────────────────────────────────────────────────────
-function PrincipalDashboard() {
-  const [tab, setTab] = useState<'overview' | 'tutors' | 'students' | 'certificates' | 'applications'>('overview')
+// ─── REGISTRATION PAGE (Students & Tutors) ────────────────────────────────────
+function RegisterPage({
+  onRegisterSuccess,
+  setFrame,
+}: {
+  onRegisterSuccess: (email: string, role: string, name: string) => void
+  setFrame: (f: Frame) => void
+}) {
+  const [role, setRole] = useState<'student' | 'tutor'>('student')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [error, setError] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password !== confirmPass) {
+      setError('Passwords do not match.')
+      return
+    }
+    onRegisterSuccess(email, role, name)
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+        {/* Logo only - strictly without repeating text */}
+        <div className="text-center mb-6">
+          <button onClick={() => setFrame('home')} className="inline-block">
+            <img src="/digitechlogo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
+          </button>
+          <h1 className="text-2xl font-extrabold text-gray-900 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Create Your Account
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">Join Digtech Academy as a Student or Certified Tutor</p>
+        </div>
+
+        {/* Role Selector: Student & Tutor only */}
+        <div className="flex bg-gray-100 p-1 rounded-xl mb-5">
+          <button
+            type="button"
+            onClick={() => setRole('student')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              role === 'student' ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            <Icon icon="lucide:graduation-cap" className="w-4 h-4" /> Student Account
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole('tutor')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              role === 'tutor' ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            <Icon icon="lucide:user-check" className="w-4 h-4" /> Tutor Account
+          </button>
+        </div>
+
+        <div className="mb-4 p-2.5 rounded-xl bg-amber-50 border border-amber-100 text-[11px] text-amber-800 flex items-center gap-1.5">
+          <Icon icon="lucide:info" className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>Admin accounts are provisioned exclusively by the Academy Principal.</span>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
+            <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Full Name</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. David Mukisa"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Email Address</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="student@example.com"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Phone Number</label>
+            <input
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+256 700 000 000"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#1A4095]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Confirm</label>
+              <input
+                type="password"
+                required
+                value={confirmPass}
+                onChange={(e) => setConfirmPass(e.target.value)}
+                placeholder="••••••••"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#1A4095]"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-md transition-all mt-2"
+            style={{ background: '#1A4095' }}
+          >
+            Create {role.toUpperCase()} Account →
+          </button>
+        </form>
+
+        <div className="mt-5 pt-4 border-t border-gray-100 text-center text-xs text-gray-500">
+          Already registered?{' '}
+          <button onClick={() => setFrame('login')} className="font-bold text-[#1A4095] hover:underline">
+            Sign In here
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── ADMIN DASHBOARD (With Success Stories Manager) ───────────────────────────
+function AdminDashboard({
+  testimonials,
+  setTestimonials,
+  onLogout,
+}: {
+  testimonials: SuccessStory[]
+  setTestimonials: React.Dispatch<React.SetStateAction<SuccessStory[]>>
+  onLogout: () => void
+}) {
+  const [tab, setTab] = useState<'overview' | 'stories' | 'withdrawals'>('overview')
+  const [newStoryName, setNewStoryName] = useState('')
+  const [newStoryRole, setNewStoryRole] = useState('')
+  const [newStoryText, setNewStoryText] = useState('')
+
+  const handleAddStory = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newStoryName || !newStoryText) return
+    const newStory: SuccessStory = {
+      id: Date.now(),
+      name: newStoryName,
+      role: newStoryRole || 'Academy Graduate',
+      text: newStoryText,
+      avatar: '/images/pexels-photo-8384894.jpeg',
+      rating: 5,
+    }
+    setTestimonials([newStory, ...testimonials])
+    setNewStoryName('')
+    setNewStoryRole('')
+    setNewStoryText('')
+  }
+
+  const handleDeleteStory = (id: number) => {
+    setTestimonials(testimonials.filter((t) => t.id !== id))
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-60 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex">
-        <div className="p-5 border-b border-gray-100">
-          <div className="font-700 text-lg" style={{ color: '#1A4095' }}>Digtech <span style={{ color: '#28C0F4' }}>Academy</span></div>
-          <div className="text-xs text-gray-400 mt-0.5">Principal Panel</div>
+      {/* Sidebar */}
+      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex p-5">
+        <div className="pb-4 border-b border-gray-100">
+          <img src="/digitechlogo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
+          <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mt-1">Admin Operations</div>
         </div>
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-700" style={{ background: '#28C0F4' }}>JK</div>
-            <div>
-              <div className="font-600 text-sm text-gray-900">James Kakembo</div>
-              <div className="text-xs text-gray-400">Principal</div>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
+
+        <nav className="flex-1 py-4 space-y-1">
           {[
-            { key: 'overview', label: 'Overview', icon: <BarChartIcon className="h-4 w-4" /> },
-            { key: 'tutors', label: 'Tutors', icon: <UserCheckIcon className="h-4 w-4" /> },
-            { key: 'students', label: 'Students', icon: <GraduationCapIcon className="h-4 w-4" /> },
-            { key: 'certificates', label: 'Certificates', icon: <TrophyIcon className="h-4 w-4" /> },
-            { key: 'applications', label: 'Live Applications', icon: <ClipboardListIcon className="h-4 w-4" /> },
-          ].map(item => (
+            { id: 'overview', label: 'System Overview', icon: 'lucide:layout-dashboard' },
+            { id: 'stories', label: 'Success Stories', icon: 'lucide:star' },
+            { id: 'withdrawals', label: 'PesaPal Payouts', icon: 'lucide:banknote' },
+          ].map((item) => (
             <button
-              key={item.key}
-              onClick={() => setTab(item.key as typeof tab)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-500 transition-all text-left ${tab === item.key ? 'text-white' : 'text-gray-600 hover:bg-gray-50'}`}
-              style={tab === item.key ? { background: '#1A4095' } : undefined}
+              key={item.id}
+              onClick={() => setTab(item.id as any)}
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-all ${
+                tab === item.id ? 'bg-[#1A4095] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'
+              }`}
             >
-              {item.icon} {item.label}
+              <Icon icon={item.icon} className="w-4 h-4" />
+              {item.label}
             </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-100">
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
-            <div className="text-xs font-600 text-amber-700">Note</div>
-            <div className="text-xs text-amber-600 mt-0.5">You cannot modify system settings or create admins.</div>
-          </div>
-        </div>
+
+        <button
+          onClick={onLogout}
+          className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl"
+        >
+          <Icon icon="lucide:log-out" className="w-4 h-4" /> Sign Out
+        </button>
       </aside>
 
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-
-          {tab === 'overview' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Principal Overview</h1>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[
-                  { label: 'Active Tutors', value: '48', icon: <UserCheckIcon className="h-5 w-5 text-gray-400" />, color: '#1A4095' },
-                  { label: 'Total Students', value: '5,248', icon: <GraduationCapIcon className="h-5 w-5 text-gray-400" />, color: '#28C0F4' },
-                  { label: 'Pending Certs', value: '12', icon: <TrophyIcon className="h-5 w-5 text-gray-400" />, color: '#F59E0B' },
-                  { label: 'Live Applications', value: '7', icon: <ClipboardListIcon className="h-5 w-5 text-gray-400" />, color: '#10B981' },
-                ].map(s => (
-                  <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="mb-2">{s.icon}</div>
-                    <div className="text-2xl font-800" style={{ color: s.color }}>{s.value}</div>
-                    <div className="text-xs text-gray-400 mt-1 font-500">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Recent Notifications */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-                <h2 className="font-700 text-gray-900 mb-4">Recent Notifications</h2>
-                <div className="space-y-4">
-                  {[
-                    { icon: <SparklesIcon className="h-4 w-4 text-blue-500" />, text: 'New tutor registered: Josephine Aber (Mobile Dev)', time: '2 hours ago', type: 'blue' },
-                    { icon: <ClipboardListIcon className="h-4 w-4 text-green-500" />, text: 'New live class application: PMP Course — Patricia Auma', time: '4 hours ago', type: 'green' },
-                    { icon: <DollarSignIcon className="h-4 w-4 text-blue-500" />, text: 'New enrollment: Full Stack Web Dev — Brian Odhiambo', time: '6 hours ago', type: 'blue' },
-                    { icon: <TrophyIcon className="h-4 w-4 text-amber-500" />, text: 'Certificate pending review: Sarah Namutebi — UI/UX Design', time: '1 day ago', type: 'amber' },
-                  ].map((n, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-sm">
-                      <span className="flex-shrink-0">{n.icon}</span>
-                      <div className="flex-1">
-                        <div className="text-gray-700">{n.text}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{n.time}</div>
-                      </div>
-                    </div>
-                  ))}
+      {/* Main Content */}
+      <main className="flex-1 p-8">
+        {tab === 'overview' && (
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-6" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              System Analytics Overview
+            </h1>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {[
+                { label: 'Total Students', val: '5,248', color: '#1A4095' },
+                { label: 'Active Tutors', val: '48', color: '#28C0F4' },
+                { label: 'Revenue (PesaPal)', val: 'UGX 186M', color: '#10B981' },
+                { label: 'Success Stories', val: `${testimonials.length}`, color: '#F59E0B' },
+              ].map((s) => (
+                <div key={s.label} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                  <div className="text-2xl font-extrabold" style={{ color: s.color }}>{s.val}</div>
+                  <div className="text-xs text-gray-400 mt-1">{s.label}</div>
                 </div>
-              </div>
-
-              {/* Tutor Performance */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h2 className="font-700 text-gray-900 mb-4">Top Tutor Performance</h2>
-                <div className="space-y-4">
-                  {TUTORS.map((t, i) => (
-                    <div key={t.name} className="flex items-center gap-4">
-                      <span className="text-sm font-700 text-gray-200 w-5">{i + 1}</span>
-                      <img src={t.avatar} alt="" className="w-9 h-9 rounded-full object-cover" />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-600 text-gray-900">{t.name}</span>
-                          <span className="text-xs text-gray-400">{t.students} students</span>
-                        </div>
-                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${(t.students / 600) * 100}%`, background: 'linear-gradient(to right, #1A4095, #28C0F4)' }} />
-                        </div>
-                      </div>
-                      <StarRating rating={t.rating} />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
-          )}
+          </div>
+        )}
 
-          {tab === 'tutors' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Manage Tutors</h1>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                  <div className="flex gap-2">
-                    {['All', 'Active', 'Suspended', 'Pending'].map(s => (
-                      <button key={s} className={`text-xs font-600 px-3 py-1.5 rounded-full border transition-all ${s === 'All' ? 'text-white border-transparent' : 'border-gray-200 text-gray-500'}`} style={s === 'All' ? { background: '#1A4095' } : undefined}>{s}</button>
-                    ))}
-                  </div>
+        {tab === 'stories' && (
+          <div className="space-y-6">
+            <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Publish & Manage Student Success Stories
+            </h1>
+
+            {/* Create Story Form */}
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Post New Student Testimonial</h3>
+              <form onSubmit={handleAddStory} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    required
+                    value={newStoryName}
+                    onChange={(e) => setNewStoryName(e.target.value)}
+                    placeholder="Student Full Name (e.g. Sandra Asiimwe)"
+                    className="border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                  />
+                  <input
+                    type="text"
+                    value={newStoryRole}
+                    onChange={(e) => setNewStoryRole(e.target.value)}
+                    placeholder="Current Job / Company (e.g. Data Lead at SafeBoda)"
+                    className="border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                  />
                 </div>
-                <div className="divide-y divide-gray-50">
-                  {[
-                    { ...TUTORS[0], status: 'Active', courses: 4, joined: 'Jan 2024' },
-                    { ...TUTORS[1], status: 'Active', courses: 3, joined: 'Feb 2024' },
-                    { ...TUTORS[2], status: 'Suspended', courses: 2, joined: 'Mar 2024' },
-                    { ...TUTORS[3], status: 'Pending', courses: 0, joined: 'Aug 2024' },
-                  ].map((tutor, i) => (
-                    <div key={i} className="px-5 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <img src={tutor.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-                        <div>
-                          <div className="font-600 text-sm text-gray-900">{tutor.name}</div>
-                          <div className="text-xs text-gray-400">{tutor.specialty} · {tutor.courses} courses · Joined {tutor.joined}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Badge color={tutor.status === 'Active' ? 'green' : tutor.status === 'Suspended' ? 'red' : 'amber'}>{tutor.status}</Badge>
-                        <div className="flex gap-2">
-                          {tutor.status === 'Pending' && <button className="text-xs font-600 text-white px-3 py-1.5 rounded-lg hover:opacity-90" style={{ background: '#10B981' }}>Activate</button>}
-                          {tutor.status === 'Active' && <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50">Suspend</button>}
-                          {tutor.status === 'Suspended' && <button className="text-xs font-600 text-white px-3 py-1.5 rounded-lg" style={{ background: '#28C0F4' }}>Reactivate</button>}
-                          <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">Edit</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                <textarea
+                  required
+                  rows={3}
+                  value={newStoryText}
+                  onChange={(e) => setNewStoryText(e.target.value)}
+                  placeholder="Write the full success story or testimonial..."
+                  className="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:border-[#1A4095]"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-[#28C0F4] text-white font-bold text-xs hover:opacity-90 cursor-pointer shadow-sm"
+                >
+                  Publish Story to Homepage
+                </button>
+              </form>
             </div>
-          )}
 
-          {tab === 'students' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Manage Students</h1>
-              <div className="flex gap-3 mb-5">
-                <input type="text" placeholder="Search students..." className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-400 transition-colors" />
-                <button className="text-sm font-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90" style={{ background: '#28C0F4' }}>+ Enroll Student</button>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ background: '#f8faff' }}>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Student</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider hidden md:table-cell">Courses</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-600 text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {[
-                      { name: 'Sarah Namutebi', phone: '+256 772 123 456', courses: 3, status: 'Active' },
-                      { name: 'Brian Odhiambo', phone: '+256 701 234 567', courses: 1, status: 'Active' },
-                      { name: 'Patricia Auma', phone: '+256 756 345 678', courses: 2, status: 'Active' },
-                      { name: 'Moses Kibirige', phone: '+256 712 456 789', courses: 1, status: 'Suspended' },
-                    ].map((s, i) => (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4">
-                          <div className="font-600 text-sm text-gray-900">{s.name}</div>
-                          <div className="text-xs text-gray-400">{s.phone}</div>
-                        </td>
-                        <td className="px-5 py-4 hidden md:table-cell text-sm text-gray-500">{s.courses} enrolled</td>
-                        <td className="px-5 py-4"><Badge color={s.status === 'Active' ? 'green' : 'red'}>{s.status}</Badge></td>
-                        <td className="px-5 py-4">
-                          <div className="flex gap-2">
-                            <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">View</button>
-                            <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50">Delete</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {tab === 'certificates' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Certificate Approvals</h1>
-              <div className="space-y-4">
-                {[
-                  { student: 'Sarah Namutebi', course: 'UI/UX Design Fundamentals with Figma', completion: 100, submitted: '3 Aug 2024', status: 'Pending' },
-                  { student: 'Moses Kibirige', course: 'Full Stack Web Development', completion: 100, submitted: '1 Aug 2024', status: 'Pending' },
-                  { student: 'Patricia Auma', course: 'Digital Marketing Strategy', completion: 100, submitted: '28 Jul 2024', status: 'Approved' },
-                ].map((cert, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#fef3c7' }}><TrophyIcon className="h-6 w-6 text-amber-500" /></div>
+            {/* Stories List */}
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Published Testimonials ({testimonials.length})</h3>
+              <div className="space-y-3">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <img src={t.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
                       <div>
-                        <div className="font-700 text-gray-900">{cert.student}</div>
-                        <div className="text-sm text-gray-500 mt-0.5">{cert.course}</div>
-                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                          <span><CheckCircleIcon className="h-4 w-4 text-green-500 inline mr-1" /> {cert.completion}% complete</span>
-                          <span>Submitted {cert.submitted}</span>
-                        </div>
+                        <div className="text-xs font-bold text-gray-900">{t.name}</div>
+                        <div className="text-[11px] text-gray-500">{t.role}</div>
+                        <p className="text-xs text-gray-600 mt-1 max-w-xl italic">"{t.text}"</p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                      <Badge color={cert.status === 'Approved' ? 'green' : 'amber'}>{cert.status}</Badge>
-                      {cert.status === 'Pending' && (
-                        <div className="flex gap-2">
-                          <button className="text-xs font-600 text-white px-4 py-2 rounded-lg hover:opacity-90" style={{ background: '#10B981' }}>Approve</button>
-                          <button className="text-xs font-600 px-3 py-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">Reject</button>
-                        </div>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => handleDeleteStory(t.id)}
+                      className="text-xs text-red-500 font-bold hover:underline p-2"
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {tab === 'applications' && (
-            <div>
-              <h1 className="text-2xl font-800 text-gray-900 mb-6">Live Class Applications</h1>
-              <div className="space-y-4">
-                {[
-                  { name: 'Brian Odhiambo', course: 'Certified Cloud Practitioner', phone: '+256 701 234 567', days: 'Mon, Wed, Fri', time: 'Evening (5PM – 9PM)', submitted: '4 Aug 2024', status: 'New' },
-                  { name: 'Patricia Auma', course: 'Project Management Professional', phone: '+256 756 345 678', days: 'Sat, Sun', time: 'Morning (6AM – 12PM)', submitted: '3 Aug 2024', status: 'Contacted' },
-                  { name: 'Annet Nampijja', course: 'Advanced Excel & Data Analysis', phone: '+256 745 456 789', days: 'Tue, Thu', time: 'Evening (5PM – 9PM)', submitted: '2 Aug 2024', status: 'Enrolled' },
-                ].map((app, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <div className="font-700 text-gray-900">{app.name}</div>
-                        <div className="text-sm font-600 mt-0.5" style={{ color: '#28C0F4' }}>{app.course}</div>
-                        <div className="text-sm text-gray-400 mt-0.5">{app.phone}</div>
-                      </div>
-                      <Badge color={app.status === 'New' ? 'amber' : app.status === 'Contacted' ? 'blue' : 'green'}>{app.status}</Badge>
-                    </div>
-                    <div className="grid sm:grid-cols-3 gap-3 text-sm bg-gray-50 rounded-xl p-4">
-                      <div><span className="text-gray-400">Preferred days: </span><span className="font-500 text-gray-700">{app.days}</span></div>
-                      <div><span className="text-gray-400">Study time: </span><span className="font-500 text-gray-700">{app.time}</span></div>
-                      <div><span className="text-gray-400">Applied: </span><span className="font-500 text-gray-700">{app.submitted}</span></div>
-                    </div>
-                    {app.status !== 'Enrolled' && (
-                      <div className="flex gap-2 mt-4">
-                        <button className="text-xs font-600 text-white px-4 py-2 rounded-lg hover:opacity-90" style={{ background: '#28C0F4' }}>Contact via SMS</button>
-                        <button className="text-xs font-600 text-white px-4 py-2 rounded-lg hover:opacity-90" style={{ background: '#10B981' }}>Mark as Enrolled</button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        {tab === 'withdrawals' && (
+          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <h2 className="text-base font-bold text-gray-900 mb-4">PesaPal Payouts & Tutors Ledger</h2>
+            <p className="text-xs text-gray-500">Connected to PesaPal API v3 (Live Environment).</p>
+          </div>
+        )}
       </main>
     </div>
   )
 }
 
-// ─── LESSON PLAYER ─────────────────────────────────────────────────────────────
-function LessonPlayerPage() {
-  const [activeLesson, setActiveLesson] = useState(0)
-  const [completed, setCompleted] = useState<Set<number>>(new Set([0, 1]))
-  const [activeTab, setActiveTab] = useState<'overview' | 'questions' | 'resources'>('overview')
-  const [question, setQuestion] = useState('')
-  const [replyTo, setReplyTo] = useState<number | null>(null)
+// ─── PRINCIPAL DASHBOARD (Super Admin: Admin Management) ──────────────────────
+function PrincipalDashboard({
+  admins,
+  setAdmins,
+}: {
+  admins: AdminUser[]
+  setAdmins: React.Dispatch<React.SetStateAction<AdminUser[]>>
+}) {
+  const [tab, setTab] = useState<'admins' | 'tutors' | 'certs'>('admins')
+  const [adminName, setAdminName] = useState('')
+  const [adminEmail, setAdminEmail] = useState('')
+  const [adminPhone, setAdminPhone] = useState('')
+  const [adminRole, setAdminRole] = useState('Course Operations Admin')
 
-  const lessons = [
-    { title: 'Introduction & Course Setup', duration: '12:34', module: 'Module 1: Getting Started' },
-    { title: 'Setting Up Your Development Environment', duration: '18:20', module: 'Module 1: Getting Started' },
-    { title: 'Understanding HTML Structure', duration: '22:10', module: 'Module 2: HTML5' },
-    { title: 'Semantic HTML5 Tags', duration: '15:45', module: 'Module 2: HTML5' },
-    { title: 'Building a Complete Web Page', duration: '31:02', module: 'Module 2: HTML5' },
-    { title: 'CSS Selectors & Specificity', duration: '19:30', module: 'Module 3: CSS3' },
-    { title: 'Flexbox Layout System', duration: '25:14', module: 'Module 3: CSS3' },
-    { title: 'CSS Grid Layout', duration: '28:40', module: 'Module 3: CSS3' },
-  ]
-
-  const questions = [
-    {
-      id: 0,
-      student: 'Sarah Namutebi',
-      avatar: '/images/pexels-photo-8384894.jpeg',
-      text: 'How do I connect React to Supabase for authentication?',
-      time: '2 hours ago',
-      isBest: false,
-      replies: [
-        { author: 'David Ssekandi', istutor: true, text: 'Great question! You install the @supabase/supabase-js package and initialize the client with your project URL and anon key. Then wrap your app with a context provider. I\'ll cover this in detail in Module 7!', time: '1 hour ago' },
-        { author: 'Brian Odhiambo', istutor: false, text: 'Also check out the Supabase docs at supabase.com/docs — they have a Next.js quickstart guide.', time: '45 min ago' },
-      ],
-    },
-    {
-      id: 1,
-      student: 'Moses Kibirige',
-      avatar: '/images/pexels-photo-35638373.jpeg',
-      text: 'What\'s the difference between flexbox and CSS grid? When should I use which?',
-      time: '5 hours ago',
-      isBest: true,
-      replies: [
-        { author: 'David Ssekandi', istutor: true, text: 'Use Flexbox for one-dimensional layouts (row OR column). Use Grid for two-dimensional layouts (rows AND columns simultaneously). As a rule: components use Flexbox, page layouts use Grid.', time: '4 hours ago' },
-      ],
-    },
-  ]
-
-  const currentLesson = lessons[activeLesson]
-  const progress = Math.round((completed.size / lessons.length) * 100)
-
-  const modules = [...new Set(lessons.map(l => l.module))]
-
-  return (
-    <div className="min-h-screen bg-gray-950 flex flex-col">
-      {/* Top bar */}
-      <div className="bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center gap-4">
-        <div className="font-700 text-white text-sm" style={{ color: '#28C0F4' }}>Digtech Academy</div>
-        <div className="h-4 w-px bg-gray-700" />
-        <div className="text-white/60 text-sm truncate flex-1">Full Stack Web Development with React & Node.js</div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-24 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-            <div className="h-full rounded-full" style={{ width: `${progress}%`, background: '#28C0F4' }} />
-          </div>
-          <span className="text-xs text-gray-400">{progress}% complete</span>
-        </div>
-      </div>
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-72 bg-gray-900 border-r border-gray-800 flex flex-col overflow-y-auto hidden lg:flex">
-          <div className="p-4 border-b border-gray-800">
-            <div className="text-xs font-600 text-gray-400 uppercase tracking-wider">Course Content</div>
-            <div className="text-xs text-gray-500 mt-1">{lessons.length} lessons · 24 hours total</div>
-          </div>
-          {modules.map(mod => (
-            <div key={mod}>
-              <div className="px-4 py-3 text-xs font-700 text-gray-400 bg-gray-850 border-b border-gray-800 sticky top-0 bg-gray-900">
-                {mod}
-              </div>
-              {lessons.filter(l => l.module === mod).map((lesson, idx) => {
-                const globalIdx = lessons.indexOf(lesson)
-                const isDone = completed.has(globalIdx)
-                const isActive = globalIdx === activeLesson
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveLesson(globalIdx)}
-                    className={`w-full text-left px-4 py-3 flex items-start gap-3 text-sm transition-colors border-b border-gray-800/50 ${isActive ? 'bg-gray-800' : 'hover:bg-gray-800/50'}`}
-                  >
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs ${isDone ? 'bg-emerald-500' : isActive ? 'border-2' : 'border border-gray-600'}`} style={isActive && !isDone ? { borderColor: '#28C0F4' } : undefined}>
-                      {isDone ? <span className="text-emerald-500"><CheckIcon className="h-4 w-4 inline" /></span> : isActive ? <div className="w-2 h-2 rounded-full" style={{ background: '#28C0F4' }} /> : null}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={`leading-snug ${isActive ? 'text-white font-600' : isDone ? 'text-gray-400' : 'text-gray-300'}`}>{lesson.title}</div>
-                      <div className="text-xs text-gray-500 mt-0.5"><TimerIcon className="h-3.5 w-3.5 text-gray-400 inline mr-1" /> {lesson.duration}</div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          {/* Video */}
-          <div className="relative bg-black" style={{ aspectRatio: '16/9', maxHeight: '55vh' }}>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(40,192,244,0.2)', border: '2px solid #28C0F4' }}>
-                  <PlayIcon className="h-10 w-10 text-white ml-1" />
-                </div>
-                <div className="text-white/60 text-sm">YouTube Privacy Enhanced Mode</div>
-                <div className="text-white/40 text-xs mt-1">youtu.be/embed — no tracking, no suggested videos</div>
-              </div>
-            </div>
-            {/* Fake video bar */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3">
-              <div className="h-1 bg-white/20 rounded-full mb-2 cursor-pointer">
-                <div className="h-full bg-red-500 rounded-full w-1/3" />
-              </div>
-              <div className="flex items-center gap-3 text-white/80 text-sm">
-                <button className="hover:text-white"><PlayIcon className="h-4 w-4" /></button>
-                <span className="text-xs">7:24 / {currentLesson.duration}</span>
-                <div className="flex-1" />
-                <button className="text-xs hover:text-white">0.75×</button>
-                <button className="text-xs hover:text-white">1×</button>
-                <button className="text-xs hover:text-white">1.5×</button>
-                <button className="hover:text-white text-xs"><MaximizeIcon className="h-4 w-4" /></button>
-              </div>
-            </div>
-          </div>
-
-          {/* Lesson info & tabs */}
-          <div className="bg-white flex-1 p-6">
-            <div className="flex items-start justify-between gap-4 mb-5">
-              <div>
-                <div className="text-xs text-gray-400 mb-1">{currentLesson.module}</div>
-                <h2 className="text-xl font-800 text-gray-900">{currentLesson.title}</h2>
-              </div>
-              <button
-                onClick={() => {
-                  const next = new Set(completed)
-                  next.add(activeLesson)
-                  setCompleted(next)
-                  if (activeLesson < lessons.length - 1) setActiveLesson(activeLesson + 1)
-                }}
-                className="flex-shrink-0 text-sm font-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all"
-                style={{ background: completed.has(activeLesson) ? '#10B981' : '#28C0F4' }}
-              >
-                {completed.has(activeLesson) ? <span className="flex items-center gap-1"><CheckCircleIcon className="h-4 w-4 text-emerald-500" /> Completed</span> : 'Mark Complete →'}
-              </button>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-4 border-b border-gray-100 mb-6">
-              {(['overview', 'questions', 'resources'] as const).map(t => (
-                <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
-                  className={`pb-3 text-sm font-600 capitalize border-b-2 transition-all ${activeTab === t ? 'border-b-2' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
-                  style={activeTab === t ? { borderColor: '#1A4095', color: '#1A4095' } : undefined}
-                >
-                  {t} {t === 'questions' && `(${questions.length})`}
-                </button>
-              ))}
-            </div>
-
-            {activeTab === 'overview' && (
-              <div className="max-w-2xl">
-                <p className="text-gray-600 leading-relaxed mb-4">
-                  In this lesson, you'll learn the core concepts of {currentLesson.title.toLowerCase()}. By the end, you'll have a solid understanding that will carry you through the rest of the course.
-                </p>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  We cover practical examples using real-world scenarios relevant to the Ugandan and East African market, so the skills you learn here are immediately applicable.
-                </p>
-                <h3 className="font-700 text-gray-900 mb-3">What you'll learn in this lesson</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  {['Core concepts and terminology', 'Hands-on implementation', 'Common mistakes to avoid', 'Best practices from industry'].map(item => (
-                    <li key={item} className="flex items-center gap-2"><span className="text-emerald-500"><CheckIcon className="h-4 w-4 inline" /></span> {item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {activeTab === 'questions' && (
-              <div className="max-w-2xl">
-                <div className="mb-6">
-                  <textarea
-                    value={question}
-                    onChange={e => setQuestion(e.target.value)}
-                    placeholder="Ask a question about this lesson..."
-                    rows={3}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 transition-colors resize-none"
-                  />
-                  <button
-                    disabled={!question.trim()}
-                    className="mt-2 text-sm font-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 disabled:opacity-40 transition-all"
-                    style={{ background: '#1A4095' }}
-                  >
-                    Post Question
-                  </button>
-                </div>
-
-                <div className="space-y-6">
-                  {questions.map(q => (
-                    <div key={q.id} className="border border-gray-100 rounded-2xl overflow-hidden">
-                      <div className="p-5">
-                        <div className="flex items-start gap-3">
-                          <img src={q.avatar} alt="" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-600 text-sm text-gray-900">{q.student}</span>
-                              {q.isBest && <span className="text-xs font-700 bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-full flex items-center gap-1"><StarIconAlt className="h-3.5 w-3.5" /> Best Answer</span>}
-                              <span className="text-xs text-gray-400">{q.time}</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mt-1.5">{q.text}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {q.replies.length > 0 && (
-                        <div className="border-t border-gray-50">
-                          {q.replies.map((r, i) => (
-                            <div key={i} className={`px-5 py-4 flex gap-3 ${r.istutor ? 'bg-blue-50/40' : ''}`}>
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-700 flex-shrink-0 ${r.istutor ? 'text-white' : 'bg-gray-100 text-gray-600'}`} style={r.istutor ? { background: '#1A4095' } : undefined}>
-                                {r.author.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-600 text-sm">{r.author}</span>
-                                  {r.istutor && <Badge color="blue">Tutor</Badge>}
-                                  <span className="text-xs text-gray-400">{r.time}</span>
-                                </div>
-                                <p className="text-sm text-gray-600 mt-1">{r.text}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="px-5 py-3 border-t border-gray-50 bg-gray-50/50">
-                        <button onClick={() => setReplyTo(replyTo === q.id ? null : q.id)} className="text-xs font-600 hover:opacity-70" style={{ color: '#1A4095' }}>
-                          ↩ Reply
-                        </button>
-                        {replyTo === q.id && (
-                          <div className="mt-3 flex gap-2">
-                            <input type="text" placeholder="Write a reply..." className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-400 transition-colors" />
-                            <button className="text-xs font-600 text-white px-3 py-2 rounded-xl hover:opacity-90" style={{ background: '#28C0F4' }}>Send</button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'resources' && (
-              <div className="max-w-lg">
-                <p className="text-sm text-gray-500 mb-4">Downloadable materials for this lesson:</p>
-                {[
-                  { name: 'Lesson 3 — Slides.pdf', size: '2.4 MB', type: 'PDF' },
-                  { name: 'Starter Code — HTML Templates.zip', size: '18 KB', type: 'ZIP' },
-                ].map((r, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 mb-3 hover:border-blue-200 hover:bg-blue-50/30 transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: r.type === 'PDF' ? '#fee2e2' : '#e8f0fb' }}>
-                        {r.type === 'PDF' ? <FileTypeIcon className="h-5 w-5 text-red-500" /> : <FileArchiveIcon className="h-5 w-5 text-action" />}
-                      </div>
-                      <div>
-                        <div className="text-sm font-600 text-gray-900">{r.name}</div>
-                        <div className="text-xs text-gray-400">{r.size}</div>
-                      </div>
-                    </div>
-                    <button className="text-xs font-600 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5"><DownloadIcon className="h-3.5 w-3.5" /> Download</button>
-                  </div>
-                ))}
-                <p className="text-xs text-gray-400 mt-4">No additional resources for this lesson? Ask the tutor in the Questions tab.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── LOGIN PAGE ─────────────────────────────────────────────────────────────
-function LoginPage({ onLoginSuccess, setFrame }: { onLoginSuccess: (email: string, role: string) => void; setFrame: (f: Frame) => void }) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'admin' | 'tutor' | 'student'>('admin')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isShaking, setIsShaking] = useState(false)
-  const [successMsg, setSuccessMsg] = useState('')
-  const [mode, setMode] = useState<'login' | 'register'>('login')
-  const [name, setName] = useState('')
-
-  const handleQuickFill = () => {
-    setEmail('admin@digtechacademy.ug')
-    setPassword('Digtech@2024')
-    setError('')
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCreateAdmin = (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setSuccessMsg('')
-
-    if (!email || !password || (mode === 'register' && !name)) {
-      setError(mode === 'register' ? 'Please fill in all fields.' : 'Please enter both email and password.')
-      triggerShake()
-      return
+    if (!adminName || !adminEmail) return
+    const newAdmin: AdminUser = {
+      id: Date.now(),
+      name: adminName,
+      email: adminEmail,
+      phone: adminPhone || '+256 700 000 000',
+      role: adminRole,
+      createdAt: new Date().toISOString().split('T')[0],
     }
-
-    setIsLoading(true)
-
-    setTimeout(() => {
-      setIsLoading(false)
-      
-      if (mode === 'register') {
-        setSuccessMsg(`Account created successfully! Welcome to Digtech Academy, ${name.split(' ')[0]}.`)
-        setTimeout(() => {
-          onLoginSuccess(email, role)
-        }, 1500)
-        return
-      }
-
-      // Check admin credentials
-      if (role === 'admin' && email.trim().toLowerCase() === 'admin@digtechacademy.ug' && password === 'Digtech@2024') {
-        setSuccessMsg('Authentication successful! Redirecting to Admin Portal...')
-        setTimeout(() => {
-          onLoginSuccess(email, role)
-        }, 1000)
-      } else if (role !== 'admin') {
-         setSuccessMsg(`Authentication successful! Redirecting to ${role} portal...`)
-         setTimeout(() => {
-           onLoginSuccess(email, role)
-         }, 1000)
-      } else {
-        setError('Invalid credentials! Hint: Use admin@digtechacademy.ug / Digtech@2024')
-        triggerShake()
-      }
-    }, 700)
-  }
-
-  const triggerShake = () => {
-    setIsShaking(true)
-    setTimeout(() => setIsShaking(false), 500)
+    setAdmins([...admins, newAdmin])
+    setAdminName('')
+    setAdminEmail('')
+    setAdminPhone('')
   }
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f2660 0%, #1A4095 50%, #0a1940 100%)' }}>
-      {/* Background Animated Orbs */}
-      <div className="absolute top-10 left-10 w-96 h-96 rounded-full bg-cyan-400/20 blur-3xl floating-orb pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl floating-orb-reverse pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(#28C0F4_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+    <div className="min-h-screen bg-gray-50 flex">
+      <aside className="w-64 bg-white border-r border-gray-100 p-5 hidden md:flex flex-col">
+        <div className="pb-4 border-b border-gray-100">
+          <img src="/digitechlogo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
+          <div className="text-[10px] font-bold text-purple-600 uppercase tracking-wider mt-1">Super Admin / Principal</div>
+        </div>
 
-      {/* Main Login Card */}
-      <div className={`relative w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden animate-scale-in ${isShaking ? 'animate-shake' : ''}`}>
-        {/* Top Header Accent */}
-        <div className="p-1.5" style={{ background: 'linear-gradient(90deg, #1A4095, #28C0F4, #1A4095)' }} />
-
-        <div className="p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <button onClick={() => setFrame('home')} className="inline-flex items-center gap-2.5 mb-4 group hover:scale-105 transition-transform">
-              <img src="/digitechlogo.png" alt="Digtech Academy Logo" className="h-10 w-auto object-contain shadow-sm rounded-lg" />
+        <nav className="flex-1 py-4 space-y-1">
+          {[
+            { id: 'admins', label: 'Admin Accounts Provisioning', icon: 'lucide:shield-alert' },
+            { id: 'tutors', label: 'Faculty & Tutors', icon: 'lucide:user-check' },
+            { id: 'certs', label: 'Certificate Approvals', icon: 'lucide:award' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setTab(item.id as any)}
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left ${
+                tab === item.id ? 'bg-[#1A4095] text-white' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Icon icon={item.icon} className="w-4 h-4" />
+              {item.label}
             </button>
-            <h1 className="text-2xl font-800 text-gray-900 tracking-tight" style={{ fontFamily: 'Montserrat, sans-serif' }}>Portal {mode === 'login' ? 'Sign In' : 'Register'}</h1>
-            <p className="text-xs text-gray-500 mt-1 font-500">Access your Digtech Academy admin control center</p>
-          </div>
+          ))}
+        </nav>
+      </aside>
 
-          {/* Quick Admin Auto-fill Pill */}
-          {mode === 'login' && (
-            <div className="mb-6 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100/80 rounded-2xl p-3.5 flex items-center justify-between text-xs shadow-sm">
-              <div>
-                <span className="font-700 text-blue-900 block flex items-center gap-1.5"><SparklesIcon className="h-3.5 w-3.5" /> Demo Admin Account</span>
-                <span className="text-blue-700/80 text-[11px]">admin@digtechacademy.ug</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleQuickFill}
-                className="px-3 py-1.5 rounded-xl font-700 text-white shadow-sm hover:scale-105 transition-all text-xs"
-                style={{ background: '#28C0F4' }}
-              >
-                Fill Credentials
-              </button>
-            </div>
-          )}
+      <main className="flex-1 p-8">
+        {tab === 'admins' && (
+          <div className="space-y-6">
+            <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Principal Admin Provisioning Portal
+            </h1>
+            <p className="text-xs text-gray-500">
+              Only the Principal (Super Admin) is authorized to create, configure, and deactivate Admin accounts.
+            </p>
 
-          {/* Role selector tabs */}
-          <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-            {(['admin', 'tutor', 'student'] as const).map(r => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`flex-1 py-1.5 text-xs font-600 capitalize rounded-lg transition-all flex items-center justify-center gap-1 ${role === r ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${mode === 'register' && r === 'admin' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={mode === 'register' && r === 'admin'}
-              >
-                {r === 'admin' ? <><ShieldIcon className="h-3.5 w-3.5" /> Admin</> : r === 'tutor' ? <><UserCheckIcon className="h-3.5 w-3.5" /> Tutor</> : <><GraduationCapIcon className="h-3.5 w-3.5" /> Student</>}
-              </button>
-            ))}
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-500 flex items-start gap-2 animate-bounce-in">
-              <AlertCircleIcon className="h-4 w-4 flex-shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {successMsg && (
-            <div className="mb-6 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-600 flex items-center gap-2 animate-scale-in">
-              <CheckIcon className="h-4 w-4 flex-shrink-0" />
-              <span>{successMsg}</span>
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === 'register' && (
-              <div>
-                <label className="block text-xs font-700 text-gray-700 mb-1.5 uppercase tracking-wider">Full Name</label>
-                <div className="relative">
+            {/* Create Admin Form */}
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Provision New Administrator</h3>
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
                   <input
                     type="text"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Your Full Name"
-                    className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none transition-all input-glow focus:border-blue-500 bg-gray-50/50 focus:bg-white"
+                    required
+                    value={adminName}
+                    onChange={(e) => setAdminName(e.target.value)}
+                    placeholder="Admin Full Name"
+                    className="border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
                   />
-                  <span className="absolute left-3.5 top-3.5 text-gray-400"><UserIcon className="h-4 w-4" /></span>
+                  <input
+                    type="email"
+                    required
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="admin.name@digtechacademy.ug"
+                    className="border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
+                  />
+                  <input
+                    type="tel"
+                    value={adminPhone}
+                    onChange={(e) => setAdminPhone(e.target.value)}
+                    placeholder="+256 700 000 000"
+                    className="border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
+                  />
                 </div>
-              </div>
-            )}
-            <div>
-              <label className="block text-xs font-700 text-gray-700 mb-1.5 uppercase tracking-wider">Email Address</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="admin@digtechacademy.ug"
-                  className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none transition-all input-glow focus:border-blue-500 bg-gray-50/50 focus:bg-white"
-                />
-                <span className="absolute left-3.5 top-3.5 text-gray-400"><MailIcon className="h-4 w-4" /></span>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-700 text-gray-700 uppercase tracking-wider">Password</label>
-                <a href="#" onClick={(e) => { e.preventDefault(); alert('Password hint: Digtech@2024') }} className="text-xs font-600 text-blue-600 hover:underline">Forgot?</a>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full border border-gray-200 rounded-xl pl-10 pr-10 py-3 text-sm outline-none transition-all input-glow focus:border-blue-500 bg-gray-50/50 focus:bg-white"
-                />
-                <span className="absolute left-3.5 top-3.5 text-gray-400"><LockIcon className="h-4 w-4" /></span>
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-gray-600"
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-[#1A4095] text-white font-bold text-xs hover:opacity-90"
                 >
-                  {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                  Create Admin Account
                 </button>
+              </form>
+            </div>
+
+            {/* List of Admins */}
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Configured Administrators ({admins.length})</h3>
+              <div className="space-y-3">
+                {admins.map((a) => (
+                  <div key={a.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
+                    <div>
+                      <div className="text-xs font-bold text-gray-900">{a.name}</div>
+                      <div className="text-[11px] text-gray-500">{a.email} • {a.phone}</div>
+                      <Badge color="blue">{a.role}</Badge>
+                    </div>
+                    <span className="text-[11px] text-gray-400">Created: {a.createdAt}</span>
+                  </div>
+                ))}
               </div>
             </div>
-
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-gray-600 font-500">
-                <input type="checkbox" defaultChecked className="rounded border-gray-300 accent-blue-600" />
-                Remember this browser
-              </label>
-              <button type="button" onClick={() => {setMode(mode === 'login' ? 'register' : 'login'); setError(''); setSuccessMsg(''); if(role === 'admin') setRole('student')}} className="text-blue-600 font-600 hover:underline">
-                {mode === 'login' ? 'Create an account' : 'Already have an account?'}
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3.5 rounded-xl text-white font-700 text-sm transition-all shadow-lg shadow-blue-900/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 mt-4 cursor-pointer"
-              style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
-            >
-              {isLoading ? (
-                <>
-                  <RefreshCwIcon className="animate-spin h-4 w-4 text-white" />
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  {mode === 'login' ? 'Sign In to Portal →' : 'Register Account →'}
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Footer Back */}
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <button
-              onClick={() => setFrame('home')}
-              className="text-xs font-600 text-gray-500 hover:text-gray-800 transition-colors inline-flex items-center gap-1"
-            >
-              ← Return to Academy Homepage
-            </button>
           </div>
-        </div>
+        )}
+      </main>
+    </div>
+  )
+}
+
+// ─── STUDENT & TUTOR DASHBOARDS & ABOUT & CONTACT ─────────────────────────────
+function StudentDashboard() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-2xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        Student Learning Portal
+      </h1>
+      <p className="text-xs text-gray-500 mb-8">Access your enrolled courses and verifiable certificates</p>
+      <div className="grid md:grid-cols-2 gap-6">
+        <CourseCard course={INITIAL_COURSES[0]} onClick={() => {}} />
       </div>
     </div>
   )
 }
 
-// ─── FRAME NAV (Demo switcher) ─────────────────────────────────────────────────
-function FrameNav({ frame, setFrame }: { frame: Frame; setFrame: (f: Frame) => void }) {
-  const frames: { key: Frame; label: string; icon: string }[] = [
-    { key: 'home', label: 'Home', icon: 'lucide:home' },
-    { key: 'courses', label: 'Courses', icon: 'lucide:book-open' },
-    { key: 'live-courses', label: 'Live Classes', icon: 'lucide:video' },
-    { key: 'about', label: 'About', icon: 'lucide:info' },
-    { key: 'contact', label: 'Contact', icon: 'lucide:mail' },
-    { key: 'login', label: 'Login', icon: 'lucide:lock' },
-    { key: 'admin-dashboard', label: 'Admin', icon: 'lucide:settings' },
-  ]
+function TutorDashboard() {
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] flex gap-1 bg-white/95 backdrop-blur border border-gray-200 rounded-2xl shadow-xl p-1.5 max-w-[calc(100vw-32px)] overflow-x-auto">
-      {frames.map(f => (
-        <button
-          key={f.key}
-          onClick={() => setFrame(f.key)}
-          className={`whitespace-nowrap text-xs font-600 px-3 py-2 rounded-xl transition-all flex-shrink-0 flex items-center gap-1.5 ${
-            frame === f.key ? 'text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-          }`}
-          style={frame === f.key ? { background: '#1A4095' } : undefined}
-        >
-          <Icon icon={f.icon} className="w-3.5 h-3.5" />
-          {f.label}
-        </button>
-      ))}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-2xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        Tutor Studio & Curriculum
+      </h1>
+      <p className="text-xs text-gray-500 mb-8">Manage course modules, grade assignments, and request PesaPal payouts</p>
     </div>
   )
 }
 
-// ─── ROOT ──────────────────────────────────────────────────────────────────────
+function AboutPage() {
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-3xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        About Digtech Academy
+      </h1>
+      <p className="text-gray-600 text-sm leading-relaxed mb-6">
+        Digtech Academy is Uganda's flagship technology learning hub, located in Grand West Arcade, Mbarara City. We empower African talent with practical, real-world skills in software engineering, data science, cybersecurity, and creative design.
+      </p>
+    </div>
+  )
+}
+
+function ContactPage() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <h1 className="text-3xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        Contact Digtech Academy
+      </h1>
+      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4 text-xs text-gray-600">
+        <p><strong>Campus Location:</strong> Level 2 Grand West Arcade, High Street Mbarara City - Uganda</p>
+        <p><strong>Phone:</strong> +256 (0) 770 613 201</p>
+        <p><strong>Email:</strong> info@digtechsolutionshub.com</p>
+      </div>
+    </div>
+  )
+}
+
+// ─── MAIN APP COMPONENT ───────────────────────────────────────────────────────
 export default function App() {
   const [frame, setFrame] = useState<Frame>('home')
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
+  const [currentUser, setCurrentUser] = useState<{ email: string; role: string; name?: string } | null>(null)
+  const [testimonials, setTestimonials] = useState<SuccessStory[]>(INITIAL_TESTIMONIALS)
+  const [admins, setAdmins] = useState<AdminUser[]>(INITIAL_ADMINS)
 
-  const handleAdminLogin = (email: string, role: string) => {
-    setIsAdminLoggedIn(true) // We will treat any logged in user as having admin rights for the demo
+  const handleLoginSuccess = (email: string, role: string, name: string) => {
+    setCurrentUser({ email, role, name })
     if (role === 'admin') setFrame('admin-dashboard')
     else if (role === 'tutor') setFrame('tutor-dashboard')
-    else if (role === 'student') setFrame('student-dashboard')
+    else if (role === 'principal') setFrame('principal-dashboard')
+    else setFrame('student-dashboard')
   }
 
-  const handleAdminLogout = () => {
-    setIsAdminLoggedIn(false)
+  const handleLogout = () => {
+    setCurrentUser(null)
     setFrame('home')
   }
 
-  const handleFrameChange = (targetFrame: Frame) => {
-    if (targetFrame === 'admin-dashboard' && !isAdminLoggedIn) {
-      setFrame('login')
-      return
-    }
-    setFrame(targetFrame)
-  }
-
-  const isDashboard = ['student-dashboard', 'tutor-dashboard', 'admin-dashboard', 'principal-dashboard', 'lesson-player', 'login'].includes(frame)
+  const isFullDashboard = ['admin-dashboard', 'principal-dashboard'].includes(frame)
 
   return (
-    <div className="min-h-screen bg-white">
-      {!isDashboard && (
-        <PublicNav frame={frame} setFrame={handleFrameChange} isAdminLoggedIn={isAdminLoggedIn} onLogout={handleAdminLogout} />
+    <div className="min-h-screen bg-white flex flex-col justify-between font-sans">
+      {!isFullDashboard && (
+        <PublicNav
+          frame={frame}
+          setFrame={setFrame}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+        />
       )}
 
-      <div key={frame} className="page-enter">
-        {frame === 'home' && <HomePage setFrame={handleFrameChange} />}
-        {frame === 'courses' && <CoursesPage setFrame={handleFrameChange} />}
+      <div className="flex-1">
+        {frame === 'home' && <HomePage setFrame={setFrame} testimonials={testimonials} />}
+        {frame === 'courses' && <CoursesPage setFrame={setFrame} />}
         {frame === 'course-detail' && <CourseDetailPage />}
         {frame === 'live-courses' && <LiveCoursesPage />}
         {frame === 'about' && <AboutPage />}
         {frame === 'contact' && <ContactPage />}
-        {frame === 'lesson-player' && <LessonPlayerPage />}
+        {frame === 'faq' && <FaqPage />}
+        {frame === 'login' && <LoginPage onLoginSuccess={handleLoginSuccess} setFrame={setFrame} />}
+        {frame === 'register' && <RegisterPage onRegisterSuccess={handleLoginSuccess} setFrame={setFrame} />}
+        {frame === 'admin-dashboard' && (
+          <AdminDashboard
+            testimonials={testimonials}
+            setTestimonials={setTestimonials}
+            onLogout={handleLogout}
+          />
+        )}
+        {frame === 'principal-dashboard' && (
+          <PrincipalDashboard admins={admins} setAdmins={setAdmins} />
+        )}
         {frame === 'student-dashboard' && <StudentDashboard />}
         {frame === 'tutor-dashboard' && <TutorDashboard />}
-        {frame === 'principal-dashboard' && <PrincipalDashboard />}
-        {frame === 'login' && <LoginPage onLoginSuccess={handleAdminLogin} setFrame={handleFrameChange} />}
-        {frame === 'admin-dashboard' && <AdminDashboard onLogout={handleAdminLogout} setFrame={handleFrameChange} />}
       </div>
 
-      {/* Demo frame switcher */}
-      <div className="pb-20">
-        <FrameNav frame={frame} setFrame={handleFrameChange} />
-      </div>
+      {!isFullDashboard && <Footer setFrame={setFrame} />}
     </div>
   )
 }
-
