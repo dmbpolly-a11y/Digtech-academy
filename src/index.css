@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Poppins', sans-serif;
+  --font-display: 'Montserrat', sans-serif;
+
+  --color-brand-primary: #1A4095;
+  --color-brand-accent: #28C0F4;
+  --color-brand-dark: #0f2660;
+  --color-brand-light: #e8f0fb;
+
+  --animate-fade-in: fadeIn 0.5s ease-in-out both;
+  --animate-fade-in-up: fadeInUp 0.6s ease-in-out both;
+  --animate-fade-in-down: fadeInDown 0.5s ease-in-out both;
+  --animate-fade-in-left: fadeInLeft 0.6s ease-in-out both;
+  --animate-fade-in-right: fadeInRight 0.6s ease-in-out both;
+  --animate-scale-in: scaleIn 0.5s ease-in-out both;
+  --animate-slide-up: slideUp 0.6s ease-in-out both;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
+  --animate-shake: shake 0.5s ease-in-out;
+  --animate-bounce-in: bounceIn 0.6s ease-in-out both;
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 192, 244, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(40, 192, 244, 0.6), 0 0 40px rgba(40, 192, 244, 0.2); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ─── Stagger Utilities ──────────────────────────────────────────────────────── */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-in-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+
+.stagger-scale > * {
+  opacity: 0;
+  animation: scaleIn 0.5s ease-in-out forwards;
+}
+.stagger-scale > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-scale > *:nth-child(2) { animation-delay: 100ms; }
+.stagger-scale > *:nth-child(3) { animation-delay: 200ms; }
+.stagger-scale > *:nth-child(4) { animation-delay: 300ms; }
+.stagger-scale > *:nth-child(5) { animation-delay: 400ms; }
+.stagger-scale > *:nth-child(6) { animation-delay: 500ms; }
+
+/* ─── Page Transitions ───────────────────────────────────────────────────────── */
+.page-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ─── Floating Effects ───────────────────────────────────────────────────────── */
+.floating-orb {
+  animation: float 6s ease-in-out infinite;
+}
+.floating-orb-reverse {
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+/* ─── Login Gradient Animation ───────────────────────────────────────────────── */
+.gradient-animate {
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* ─── Interactive Enhancements ───────────────────────────────────────────────── */
+.input-glow:focus {
+  box-shadow: 0 0 0 3px rgba(40, 192, 244, 0.15);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(26, 64, 149, 0.12);
+}
+
+* {
+  transition-timing-function: ease-in-out;
+}
+
+/* ─── Base Styles ────────────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #28C0F4 transparent;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+  color: #1F2937;
+}
