@@ -91,7 +91,7 @@ function SignupForm() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-16">
       <Link href="/" className="flex items-center justify-center">
-        <Image src="/images/digitechlogo.png" alt="Digtech Academy" width={200} height={50} className="h-12 w-auto object-contain" priority />
+        <Image src="/images/Digtech Academy Logo.png" alt="Digtech Academy" width={200} height={50} className="h-12 w-auto object-contain" priority />
       </Link>
 
       <h1 className="mt-8 text-center font-display text-2xl font-extrabold text-ink">Create your account</h1>

@@ -21,9 +21,9 @@ module.exports = {
         ink: '#1F2937'
       },
       fontFamily: {
-        display: ['var(--font-sora)', 'sans-serif'],
-        body: ['var(--font-inter)', 'sans-serif'],
-        mono: ['var(--font-plex-mono)', 'monospace']
+        display: ['var(--font-montserrat)', 'sans-serif'],
+        body: ['var(--font-poppins)', 'sans-serif'],
+        mono: ['Consolas', 'monospace']
       },
       borderRadius: {
         xl2: '1.25rem'

@@ -46,16 +46,26 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       query = query.order('fee', { ascending: false });
       break;
     default:
+      // Order by enrollment count, but prioritize courses with emojis in title
       query = query.order('enrollment_count', { ascending: false });
   }
 
   const { data: courses } = await query.limit(24);
 
+  // Sort courses to prioritize emoji-marked ones
+  const hasEmoji = (text: string) => /[\p{Emoji}]/u.test(text);
+  
   const mapped = (courses ?? []).map((c: any) => ({
     ...c,
     tutor_name: c.tutors?.users?.full_name,
-    category_name: c.categories?.name
-  }));
+    category_name: c.categories?.name,
+    has_emoji: hasEmoji(c.title)
+  })).sort((a, b) => {
+    // Emoji-marked courses come first
+    if (a.has_emoji && !b.has_emoji) return -1;
+    if (!a.has_emoji && b.has_emoji) return 1;
+    return 0;
+  });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">

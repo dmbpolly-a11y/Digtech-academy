@@ -3,6 +3,7 @@ import Image from 'next/image';
 import IconifyIcon from '@/components/icons/IconifyIcon';
 import { createClient } from '@/lib/supabase/server';
 import { CourseCard } from '@/components/CourseCard';
+import { TestimonialCard } from '@/components/TestimonialCard';
 
 export const revalidate = 60;
 
@@ -162,15 +163,28 @@ export default async function HomePage() {
 
       {(testimonials ?? []).length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-14 md:px-8">
-          <h2 className="font-display text-2xl font-bold text-ink">What students say</h2>
+          <div className="flex items-center gap-2">
+            <IconifyIcon icon="lucide:message-square-quote" className="h-5 w-5 text-action" />
+            <h2 className="font-display text-2xl font-bold text-ink">What students say</h2>
+          </div>
+          <p className="mt-1 text-sm text-ink/60">Real reviews from students who completed our courses.</p>
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             {(testimonials!).map((t: any) => (
-              <blockquote key={t.id} className="rounded-xl2 border border-brand-light p-5">
-                <p className="text-sm italic text-ink/80">&ldquo;{t.quote}&rdquo;</p>
-                <footer className="mt-4 text-sm font-semibold text-brand">{t.student_name}</footer>
-                {t.course_title && <p className="text-xs text-ink/50">{t.course_title}</p>}
-              </blockquote>
+              <TestimonialCard
+                key={t.id}
+                id={t.id}
+                quote={t.quote}
+                student_name={t.student_name}
+                course_title={t.course_title}
+                full_review={t.full_review}
+              />
             ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/testimonials" className="inline-flex items-center gap-1.5 text-sm font-semibold text-action hover:text-action-dark">
+              View all testimonials
+              <IconifyIcon icon="lucide:arrow-right" className="h-4 w-4" />
+            </Link>
           </div>
         </section>
       )}

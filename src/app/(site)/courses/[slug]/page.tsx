@@ -80,6 +80,28 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 )}
               </div>
             )}
+
+            {/* Live Course Option */}
+            <div className="mt-6 rounded-xl border border-white/20 bg-white/5 p-4 backdrop-blur-sm">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-action/20 p-2">
+                  <IconifyIcon icon="lucide:video" className="h-5 w-5 text-action" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-bold text-white">Want Live Instruction?</h3>
+                  <p className="mt-1 text-xs text-white/70">
+                    This course may be available as a live, tutor-led online class. Check our live schedule.
+                  </p>
+                  <a
+                    href="/live-courses"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-action px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-action-dark"
+                  >
+                    <IconifyIcon icon="lucide:calendar" className="h-4 w-4" />
+                    View Live Classes
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           <EnrollPanel course={course as any} />

@@ -1,10 +1,20 @@
 import type { Metadata } from 'next';
-import { Sora, Inter, IBM_Plex_Mono } from 'next/font/google';
+import { Poppins, Montserrat } from 'next/font/google';
 import './globals.css';
 
-const sora = Sora({ subsets: ['latin'], variable: '--font-sora', display: 'swap' });
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-plex-mono', display: 'swap' });
+const poppins = Poppins({ 
+  subsets: ['latin'], 
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins', 
+  display: 'swap' 
+});
+
+const montserrat = Montserrat({ 
+  subsets: ['latin'], 
+  weight: ['600', '700', '800'],
+  variable: '--font-montserrat', 
+  display: 'swap' 
+});
 
 export const metadata: Metadata = {
   title: {
@@ -13,7 +23,7 @@ export const metadata: Metadata = {
   },
   description: "Uganda's multi-tenant academy for live and self-paced courses. Learn from tutors you trust, track your progress, and earn verifiable certificates.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  icons: { icon: '/images/digitechlogo.png', shortcut: '/images/digitechlogo.png', apple: '/images/digitechlogo.png' },
+  icons: { icon: '/images/Digtech Academy Logo Icon.png', shortcut: '/images/Digtech Academy Logo Icon.png', apple: '/images/Digtech Academy Logo Icon.png' },
   openGraph: {
     title: 'Digtech Academy — Skills that pay',
     description: "Uganda's multi-tenant academy for live and self-paced courses.",
@@ -23,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sora.variable} ${inter.variable} ${plexMono.variable}`}>
+    <html lang="en" className={`${poppins.variable} ${montserrat.variable}`}>
       <body className="font-body">{children}</body>
     </html>
   );

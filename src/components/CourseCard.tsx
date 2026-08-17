@@ -45,6 +45,12 @@ export function CourseCard({ course }: { course: Course & { tutor_name?: string;
             <IconifyIcon icon="lucide:bar-chart-3" className="h-3.5 w-3.5" /> {course.level}
           </span>
         </div>
+        
+        {/* Delivery mode indicator */}
+        <div className="mt-1 flex items-center gap-1.5 text-xs text-ink/60">
+          <IconifyIcon icon="lucide:map-pin" className="h-3.5 w-3.5 text-action" />
+          <span>Online • Self-paced</span>
+        </div>
 
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-mono text-lg font-bold text-brand">

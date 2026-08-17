@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import IconifyIcon from '@/components/icons/IconifyIcon';
+import { SearchBar } from '@/components/SearchBar';
 
 const LINKS = [
   { href: '/courses', label: 'Courses' },
@@ -16,13 +18,20 @@ const LINKS = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSearch = (query: string) => {
+    router.push(`/courses?search=${encodeURIComponent(query)}`);
+    setSearchOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-40 border-y border-slate-200 bg-white/95 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-8">
         <Link href="/" className="flex items-center">
           <Image
-            src="/images/digitechlogo.png"
+            src="/images/Digtech Academy Logo.png"
             alt="Digtech Academy"
             width={176}
             height={44}
@@ -37,6 +46,13 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
+          <button
+            onClick={() => setSearchOpen(!searchOpen)}
+            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 transition-colors"
+            aria-label="Search"
+          >
+            <IconifyIcon icon="lucide:search" className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -66,6 +82,13 @@ export function Navbar() {
           )}
         </button>
       </nav>
+
+      {/* Search bar overlay */}
+      {searchOpen && (
+        <div className="border-t border-slate-100 bg-white px-4 py-4 shadow-lg md:px-8">
+          <SearchBar onSearch={handleSearch} className="mx-auto max-w-2xl" />
+        </div>
+      )}
 
       {open && (
         <div className="flex flex-col gap-2 border-t border-slate-100 bg-white px-4 py-4 md:hidden">

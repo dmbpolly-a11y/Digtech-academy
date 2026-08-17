@@ -34,11 +34,11 @@ export function DashboardSidebar({ items, roleLabel }: { items: NavItem[]; roleL
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
         <Link href="/">
           <Image
-            src="/images/digitechlogo.png"
+            src="/images/Digtech Academy Logo White.png"
             alt="Digtech Academy"
             width={140}
             height={35}
-            className="h-8 w-auto object-contain rounded bg-white/90 p-0.5"
+            className="h-8 w-auto object-contain"
           />
         </Link>
         <button className="md:hidden text-[#9AA7C7]" onClick={() => setOpen(false)} aria-label="Close menu">
@@ -90,11 +90,11 @@ export function DashboardSidebar({ items, roleLabel }: { items: NavItem[]; roleL
     <>
       <div className="flex items-center justify-between border-b border-slate-200 bg-[#0F2A5E] px-4 py-3 md:hidden">
         <Image
-          src="/images/digitechlogo.png"
+          src="/images/Digtech Academy Logo White.png"
           alt="Digtech Academy"
           width={130}
           height={33}
-          className="h-7 w-auto object-contain rounded bg-white/90 p-0.5"
+          className="h-7 w-auto object-contain"
         />
         <button onClick={() => setOpen(true)} aria-label="Open menu">
           <IconifyIcon icon="lucide:menu" className="h-6 w-6 text-white" />

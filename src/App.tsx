@@ -349,7 +349,7 @@ function PublicNav({
           title="Digtech Academy Homepage"
         >
           <img
-            src="/digitechlogo.png"
+            src="/images/Digtech Academy Logo.png"
             alt="Digtech Academy"
             className="h-10 w-auto object-contain group-hover:scale-105 transition-transform"
           />
@@ -501,22 +501,22 @@ function PublicNav({
 // ─── Footer Component (White Theme & Complete Specs) ──────────────────────────
 function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
   return (
-    <footer className="bg-white border-t border-gray-200 text-gray-700 py-12">
+    <footer className="bg-[#04263A] border-t border-gray-700 text-gray-300 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & Socials */}
         <div className="space-y-4">
           <div className="flex items-center">
             <img
-              src="/digitechlogo.png"
+              src="/images/Digtech Academy Logo White.png"
               alt="Digtech Academy"
               className="h-10 w-auto object-contain"
             />
           </div>
-          <p className="text-gray-500 text-xs leading-relaxed max-w-sm">
+          <p className="text-gray-400 text-xs leading-relaxed max-w-sm">
             Uganda's premier digital skills academy. Practical, tutor-led courses in tech, business, and trades — learn on any connection, pay in UGX via PesaPal.
           </p>
           <div className="pt-2">
-            <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">Connect With Us</p>
+            <p className="text-xs font-bold text-white mb-2 uppercase tracking-wider">Connect With Us</p>
             <div className="flex flex-wrap gap-2">
               {[
                 { icon: 'lucide:facebook', href: 'https://facebook.com/digtechacademy', label: 'Facebook' },
@@ -533,7 +533,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.label}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#1A4095] hover:scale-110 transition-all shadow-sm"
+                  className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#28C0F4] hover:scale-110 transition-all shadow-sm"
                 >
                   <Icon icon={s.icon} className="w-4 h-4" />
                 </a>
@@ -544,37 +544,37 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
         {/* Quick Links */}
         <div>
-          <h4 className="text-gray-900 font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <h4 className="text-white font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Quick Links
           </h4>
           <ul className="space-y-2.5 text-xs">
             <li>
-              <button onClick={() => setFrame('home')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+              <button onClick={() => setFrame('home')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                 Home
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('courses')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+              <button onClick={() => setFrame('courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                 Browse Courses
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('live-courses')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+              <button onClick={() => setFrame('live-courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                 Live Classes
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('about')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+              <button onClick={() => setFrame('about')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                 About Academy
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('faq')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+              <button onClick={() => setFrame('faq')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                 Frequently Asked Questions
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('contact')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+              <button onClick={() => setFrame('contact')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                 Contact & Support
               </button>
             </li>
@@ -583,13 +583,13 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
         {/* Course Categories */}
         <div>
-          <h4 className="text-gray-900 font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <h4 className="text-white font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Course Categories
           </h4>
           <ul className="space-y-2.5 text-xs">
             {['Web Development', 'Data Science', 'UI/UX Design', 'Digital Marketing', 'Cybersecurity', 'Mobile App Development'].map((cat) => (
               <li key={cat}>
-                <button onClick={() => setFrame('courses')} className="text-gray-600 hover:text-[#1A4095] transition-colors">
+                <button onClick={() => setFrame('courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
                   {cat}
                 </button>
               </li>
@@ -599,26 +599,26 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
         {/* Support & Admin Only Link */}
         <div>
-          <h4 className="text-gray-900 font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <h4 className="text-white font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Support & Academy Desk
           </h4>
-          <ul className="space-y-3 text-xs text-gray-600">
+          <ul className="space-y-3 text-xs text-gray-400">
             <li className="flex items-start gap-2.5">
-              <Icon icon="lucide:map-pin" className="w-4 h-4 text-[#1A4095] flex-shrink-0 mt-0.5" />
+              <Icon icon="lucide:map-pin" className="w-4 h-4 text-[#28C0F4] flex-shrink-0 mt-0.5" />
               <span>Level 2 Grand West Arcade, High Street Mbarara City - Uganda</span>
             </li>
             <li className="flex items-center gap-2.5">
-              <Icon icon="lucide:phone" className="w-4 h-4 text-[#1A4095] flex-shrink-0" />
+              <Icon icon="lucide:phone" className="w-4 h-4 text-[#28C0F4] flex-shrink-0" />
               <a href="tel:+256770613201" className="hover:underline">+256 (0) 770 613 201</a>
             </li>
             <li className="flex items-center gap-2.5">
-              <Icon icon="lucide:mail" className="w-4 h-4 text-[#1A4095] flex-shrink-0" />
+              <Icon icon="lucide:mail" className="w-4 h-4 text-[#28C0F4] flex-shrink-0" />
               <a href="mailto:info@digtechsolutionshub.com" className="hover:underline">info@digtechsolutionshub.com</a>
             </li>
-            <li className="pt-2 border-t border-gray-100">
+            <li className="pt-2 border-t border-gray-700">
               <button
                 onClick={() => setFrame('login')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1A4095] hover:text-[#28C0F4] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#28C0F4] hover:text-white transition-colors"
               >
                 <Icon icon="lucide:shield-check" className="w-4 h-4" />
                 Admin Portal Login
@@ -630,7 +630,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
       {/* Embedded Google Map */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div className="rounded-2xl overflow-hidden border border-gray-200 h-44 shadow-sm">
+        <div className="rounded-2xl overflow-hidden border border-gray-600 h-44 shadow-sm">
           <iframe
             src="https://www.google.com/maps?ll=-0.606781,30.661901&z=15&t=m&hl=en-US&gl=US&mapclient=embed&cid=8763999400868403491"
             className="h-full w-full border-0"
@@ -641,11 +641,11 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
       </div>
 
       {/* Automatic Year Copyright Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
         <p className="flex items-center gap-2">
           <span>Official Payment Partner:</span>
-          <span className="font-bold text-[#1A4095]">PesaPal Payments Uganda</span>
+          <span className="font-bold text-[#28C0F4]">PesaPal Payments Uganda</span>
         </p>
       </div>
     </footer>
@@ -1500,7 +1500,7 @@ function LoginPage({
         {/* Logo only - strictly without repeating text */}
         <div className="text-center mb-6">
           <button onClick={() => setFrame('home')} className="inline-block">
-            <img src="/digitechlogo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
+            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
           </button>
           <h1 className="text-2xl font-extrabold text-gray-900 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Portal Sign In
@@ -1629,7 +1629,7 @@ function RegisterPage({
         {/* Logo only - strictly without repeating text */}
         <div className="text-center mb-6">
           <button onClick={() => setFrame('home')} className="inline-block">
-            <img src="/digitechlogo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
+            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
           </button>
           <h1 className="text-2xl font-extrabold text-gray-900 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Create Your Account
@@ -1794,7 +1794,7 @@ function AdminDashboard({
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex p-5">
         <div className="pb-4 border-b border-gray-100">
-          <img src="/digitechlogo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
+          <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
           <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mt-1">Admin Operations</div>
         </div>
 
@@ -1965,7 +1965,7 @@ function PrincipalDashboard({
     <div className="min-h-screen bg-gray-50 flex">
       <aside className="w-64 bg-white border-r border-gray-100 p-5 hidden md:flex flex-col">
         <div className="pb-4 border-b border-gray-100">
-          <img src="/digitechlogo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
+          <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
           <div className="text-[10px] font-bold text-purple-600 uppercase tracking-wider mt-1">Super Admin / Principal</div>
         </div>
 
