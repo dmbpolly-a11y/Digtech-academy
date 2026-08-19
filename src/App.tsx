@@ -372,7 +372,7 @@ function PublicNav({
           <img
             src="/images/Digtech Academy Logo.png"
             alt="Digtech Academy"
-            className="h-16 w-auto object-contain group-hover:scale-105 transition-transform"
+            className="h-8 w-auto object-contain group-hover:scale-105 transition-transform"
           />
         </button>
 
@@ -1348,7 +1348,7 @@ function LiveCoursesPage() {
 }
 
 // ─── COURSE DETAIL & PESAPAL PAYMENT ──────────────────────────────────────────
-function CourseDetailPage() {
+function CourseDetailPage({ onEnroll }: { onEnroll: (course?: { id: number; title: string }) => void }) {
   const course = INITIAL_COURSES[0]
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -1438,14 +1438,11 @@ function CourseDetailPage() {
               UGX {course.price.toLocaleString()}
             </div>
             <button
-              onClick={() => {
-                setShowPaymentModal(true)
-                setPaymentSuccess(false)
-              }}
+              onClick={() => onEnroll({ id: course.id, title: course.title })}
               className="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all mb-3 cursor-pointer"
               style={{ background: '#28C0F4' }}
             >
-              Enroll with PesaPal
+              Apply Now - Complete Enrollment Form
             </button>
             <div className="space-y-2 text-xs text-gray-600 pt-3 border-t border-gray-100">
               <div className="flex items-center gap-2"><Icon icon="lucide:check-circle" className="w-4 h-4 text-emerald-500" /> Instant access to all modules</div>
@@ -1742,11 +1739,13 @@ function FaqPage() {
 function LoginPage({
   onLoginSuccess,
   setFrame,
+  initialMode = 'login',
 }: {
   onLoginSuccess: (email: string, role: string, name: string) => void
   setFrame: (f: Frame) => void
+  initialMode?: 'login' | 'register' | 'reset'
 }) {
-  const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login')
+  const [mode, setMode] = useState<'login' | 'register' | 'reset'>(initialMode)
   const [accountType, setAccountType] = useState<'student' | 'tutor' | 'admin' | 'principal'>('student')
   
   // Login fields
@@ -2401,8 +2400,8 @@ function RegisterPage({
   onRegisterSuccess: (email: string, role: string, name: string) => void
   setFrame: (f: Frame) => void
 }) {
-  // This function is kept for compatibility but we now use LoginPage with mode='register'
-  return <LoginPage onLoginSuccess={onRegisterSuccess} setFrame={setFrame} />
+  // This function sets the initial mode to 'register' so users see the registration form immediately
+  return <LoginPage onLoginSuccess={onRegisterSuccess} setFrame={setFrame} initialMode="register" />
 }
 
 // ─── ADMIN DASHBOARD (With Success Stories Manager) ───────────────────────────
@@ -3563,7 +3562,7 @@ export default function App() {
       <div className="flex-1">
         {frame === 'home' && <HomePage setFrame={setFrame} testimonials={testimonials} onEnroll={handleEnrollClick} />}
         {frame === 'courses' && <CoursesPage setFrame={setFrame} onEnroll={handleEnrollClick} />}
-        {frame === 'course-detail' && <CourseDetailPage />}
+        {frame === 'course-detail' && <CourseDetailPage onEnroll={handleEnrollClick} />}
         {frame === 'live-courses' && <LiveCoursesPage />}
         {frame === 'about' && <AboutPage />}
         {frame === 'contact' && <ContactPage />}

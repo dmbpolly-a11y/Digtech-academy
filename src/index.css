@@ -389,7 +389,7 @@
 /* ─── Marquee Banner ───────────────────────────────────────────────────────── */
 .marquee-banner {
   background: linear-gradient(135deg, #1A4095 0%, #28C0F4 100%);
-  border-radius: 0 0 50% 50% / 0 0 20px 20px;
+  border-radius: 0;
   padding: 12px 0;
   overflow: hidden;
   position: relative;
@@ -415,7 +415,7 @@
 /* ─── Magnetic Field Animation ────────────────────────────────────────────── */
 .magnetic-field-container {
   position: relative;
-  height: 80px;
+  height: 0px;
   background: linear-gradient(180deg, rgba(40, 192, 244, 0.03) 0%, rgba(26, 64, 149, 0.03) 100%);
   overflow: hidden;
   display: flex;
