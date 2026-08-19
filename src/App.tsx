@@ -1780,23 +1780,6 @@ function LoginPage({
   
   const passwordStrength = getPasswordStrength(regPassword)
 
-  const handleQuickDemo = (demoRole: 'admin' | 'tutor' | 'student' | 'principal') => {
-    setAccountType(demoRole)
-    if (demoRole === 'admin') {
-      setLoginEmail('admin@digtechacademy.ug')
-      setLoginPassword('Digtech@2024')
-    } else if (demoRole === 'principal') {
-      setLoginEmail('principal@digtechacademy.ug')
-      setLoginPassword('Principal@2024')
-    } else if (demoRole === 'tutor') {
-      setLoginEmail('tutor@digtechacademy.ug')
-      setLoginPassword('Tutor@2024')
-    } else {
-      setLoginEmail('student@digtechacademy.ug')
-      setLoginPassword('Student@2024')
-    }
-  }
-
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
@@ -1988,7 +1971,7 @@ function LoginPage({
       // Success
       setSuccess('Account created successfully! Redirecting to dashboard...')
       setTimeout(() => {
-        onRegisterSuccess(regEmail, registerRole, `${firstName} ${lastName}`)
+        onLoginSuccess(regEmail, registerRole, `${firstName} ${lastName}`)
       }, 1500)
     } catch (err) {
       console.error('Registration error:', err)
@@ -2026,7 +2009,7 @@ function LoginPage({
         {/* Logo */}
         <div className="text-center mb-6">
           <button onClick={() => setFrame('home')} className="inline-block">
-            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-12 w-auto object-contain mx-auto hover:scale-105 transition-transform" />
+            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto hover:scale-105 transition-transform" />
           </button>
         </div>
 
@@ -2092,38 +2075,25 @@ function LoginPage({
                 </h2>
                 <p className="text-xs text-gray-500 mb-6">Select your role and sign in to continue</p>
 
-                {/* Role Selector */}
-                <div className="grid grid-cols-4 gap-2 bg-gray-100 p-1 rounded-xl mb-5">
-                  {(['student', 'tutor', 'admin', 'principal'] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => {
-                        setAccountType(r)
+                {/* Role Selector Dropdown */}
+                <div className="mb-5">
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Account Type</label>
+                  <div className="relative">
+                    <select
+                      value={accountType}
+                      onChange={(e) => {
+                        setAccountType(e.target.value as 'student' | 'tutor' | 'admin' | 'principal')
                         setError('')
                       }}
-                      className={`py-2 px-1 text-[11px] font-bold capitalize rounded-lg transition-all ${
-                        accountType === r ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                      }`}
+                      className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input appearance-none bg-white cursor-pointer pr-10"
                     >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Demo Auto-fill */}
-                <div className="mb-5 p-3 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-blue-950 block capitalize">Demo {accountType}</span>
-                    <span className="text-[11px] text-blue-700">{accountType}@digtechacademy.ug</span>
+                      <option value="student">Student</option>
+                      <option value="tutor">Tutor</option>
+                      <option value="admin">Admin</option>
+                      <option value="principal">Principal</option>
+                    </select>
+                    <Icon icon="lucide:chevron-down" className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemo(accountType)}
-                    className="text-[11px] font-bold px-3 py-1 rounded-lg bg-[#1A4095] text-white hover:opacity-90"
-                  >
-                    Auto-fill
-                  </button>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
