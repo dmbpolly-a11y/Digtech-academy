@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Digtech Academy</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        iframe { border: 2px solid #ccc; margin-top: 20px; }
+        #console { background: #000; color: #0f0; padding: 10px; font-family: monospace; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Digtech Academy Deployment Test</h1>
+    <button onclick="testSite()">Test Site Loading</button>
+    <button onclick="openSite()">Open in New Tab</button>
+    <div id="results"></div>
+    <div id="console"></div>
+    <hr>
+    <h2>Live Site Preview:</h2>
+    <iframe src="https://digtech-academy.vercel.app/" width="100%" height="600px" onload="iframeLoaded()" onerror="iframeError()"></iframe>
+    
+    <script>
+        function log(msg) {
+            document.getElementById('console').innerHTML += msg + '<br>';
+        }
+        
+        function testSite() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Testing...</h3>';
+            
+            fetch('https://digtech-academy.vercel.app/')
+                .then(r => r.text())
+                .then(html => {
+                    log('✓ HTML loaded: ' + html.length + ' bytes');
+                    results.innerHTML += '<p>✓ HTML Status: 200</p>';
+                    results.innerHTML += '<p>HTML Size: ' + html.length + ' bytes</p>';
+                    
+                    const jsMatch = html.match(/assets\/(index-[^"]+\.js)/);
+                    const cssMatch = html.match(/assets\/(index-[^"]+\.css)/);
+                    
+                    if (jsMatch) {
+                        results.innerHTML += '<p>JS File: ' + jsMatch[1] + '</p>';
+                        log('Found JS: ' + jsMatch[1]);
+                    }
+                    if (cssMatch) {
+                        results.innerHTML += '<p>CSS File: ' + cssMatch[1] + '</p>';
+                        log('Found CSS: ' + cssMatch[1]);
+                    }
+                })
+                .catch(e => {
+                    results.innerHTML += '<p style="color:red">✗ Error: ' + e.message + '</p>';
+                    log('ERROR: ' + e.message);
+                });
+        }
+        
+        function openSite() {
+            window.open('https://digtech-academy.vercel.app/', '_blank');
+        }
+        
+        function iframeLoaded() {
+            log('✓ Iframe loaded successfully');
+            try {
+                const iframe = document.querySelector('iframe');
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                log('Iframe document title: ' + iframeDoc.title);
+                log('Iframe body content length: ' + (iframeDoc.body ? iframeDoc.body.innerHTML.length : 'N/A'));
+            } catch(e) {
+                log('Cannot access iframe content (CORS): ' + e.message);
+            }
+        }
+        
+        function iframeError() {
+            log('✗ Iframe failed to load');
+        }
+        
+        // Auto-test on load
+        window.onload = () => {
+            log('Page loaded. Testing deployment...');
+            setTimeout(testSite, 1000);
+        };
+    </script>
+</body>
+</html>

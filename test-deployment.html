@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Digtech Academy Test</title>
+</head>
+<body>
+    <h1>Testing Vercel Deployment</h1>
+    <div id="test-results"></div>
+    <script>
+        const results = document.getElementById('test-results');
+        
+        // Test 1: Can we load the main page HTML?
+        fetch('https://digtech-academy.vercel.app/')
+            .then(r => {
+                results.innerHTML += '<p>✓ HTML loads: ' + r.status + '</p>';
+                return r.text();
+            })
+            .then(html => {
+                results.innerHTML += '<p>HTML length: ' + html.length + '</p>';
+                
+                // Test 2: Extract JS file name
+                const jsMatch = html.match(/assets\/(index-[^"]+\.js)/);
+                if (jsMatch) {
+                    results.innerHTML += '<p>JS file: ' + jsMatch[1] + '</p>';
+                    
+                    // Test 3: Can we load the JS?
+                    return fetch('https://digtech-academy.vercel.app/assets/' + jsMatch[1]);
+                }
+            })
+            .then(r => {
+                if (r) {
+                    results.innerHTML += '<p>✓ JS loads: ' + r.status + '</p>';
+                    results.innerHTML += '<p>JS size: ' + (r.headers.get('content-length') || 'unknown') + '</p>';
+                }
+            })
+            .catch(e => {
+                results.innerHTML += '<p style="color:red">✗ Error: ' + e.message + '</p>';
+            });
+            
+        // Test 4: Try loading the actual site in an iframe
+        setTimeout(() => {
+            results.innerHTML += '<hr><h2>Actual Site:</h2>';
+            results.innerHTML += '<iframe src="https://digtech-academy.vercel.app/" width="100%" height="600px"></iframe>';
+        }, 2000);
+    </script>
+</body>
+</html>
