@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digtech Academy - Diagnostic Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #1A4095 0%, #28C0F4 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.loading { background: #FFA500; }
+        .status.success { background: #10B981; }
+        .status.error { background: #EF4444; }
+        button {
+            background: white;
+            color: #1A4095;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: white;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Digtech Academy Deployment Diagnostic</h1>
+        
+        <div class="test-section">
+            <h3>Test 1: HTML Loading <span class="status loading" id="test1">Testing...</span></h3>
+            <p>Checking if the main HTML page loads...</p>
+            <pre id="test1-result">Waiting...</pre>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: JavaScript Bundle <span class="status loading" id="test2">Testing...</span></h3>
+            <p>Checking if JavaScript assets load...</p>
+            <pre id="test2-result">Waiting...</pre>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: CSS Stylesheet <span class="status loading" id="test3">Testing...</span></h3>
+            <p>Checking if CSS assets load...</p>
+            <pre id="test3-result">Waiting...</pre>
+        </div>
+
+        <div class="test-section">
+            <h3>Quick Actions</h3>
+            <div class="links">
+                <button onclick="window.open('https://digtech-academy.vercel.app', '_blank')">
+                    🌐 Open Live Site (New Tab)
+                </button>
+                <button onclick="window.open('http://localhost:8444', '_blank')">
+                    💻 Open Local Version
+                </button>
+                <button onclick="testAgain()">
+                    🔄 Run Tests Again
+                </button>
+                <button onclick="clearBrowserCache()">
+                    🗑️ Clear Cache Instructions
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Live Preview (If Tests Pass)</h3>
+            <p>If the site is working, you should see it below:</p>
+            <iframe id="preview" src="about:blank"></iframe>
+            <button onclick="loadPreview()">Load Preview</button>
+        </div>
+    </div>
+
+    <script>
+        const SITE_URL = 'https://digtech-academy.vercel.app';
+        
+        async function runTests() {
+            // Test 1: HTML
+            try {
+                const response = await fetch(SITE_URL + '/?t=' + Date.now());
+                const html = await response.text();
+                
+                if (response.ok && html.length > 0) {
+                    document.getElementById('test1').textContent = 'PASS';
+                    document.getElementById('test1').className = 'status success';
+                    document.getElementById('test1-result').textContent = 
+                        `✓ Status: ${response.status}\n✓ Size: ${html.length} bytes\n✓ Title Found: ${html.includes('Digtech Academy')}`;
+                    
+                    // Test 2: JavaScript
+                    const jsMatch = html.match(/assets\/(index-[^"]+\.js)/);
+                    if (jsMatch) {
+                        const jsUrl = `${SITE_URL}/assets/${jsMatch[1]}`;
+                        const jsResponse = await fetch(jsUrl);
+                        
+                        if (jsResponse.ok) {
+                            document.getElementById('test2').textContent = 'PASS';
+                            document.getElementById('test2').className = 'status success';
+                            document.getElementById('test2-result').textContent = 
+                                `✓ Status: ${jsResponse.status}\n✓ File: ${jsMatch[1]}\n✓ Size: ${(jsResponse.headers.get('content-length') / 1024).toFixed(2)} KB`;
+                        } else {
+                            throw new Error('JS failed to load');
+                        }
+                    }
+
+                    // Test 3: CSS
+                    const cssMatch = html.match(/assets\/(index-[^"]+\.css)/);
+                    if (cssMatch) {
+                        const cssUrl = `${SITE_URL}/assets/${cssMatch[1]}`;
+                        const cssResponse = await fetch(cssUrl);
+                        
+                        if (cssResponse.ok) {
+                            document.getElementById('test3').textContent = 'PASS';
+                            document.getElementById('test3').className = 'status success';
+                            document.getElementById('test3-result').textContent = 
+                                `✓ Status: ${cssResponse.status}\n✓ File: ${cssMatch[1]}\n✓ Size: ${(cssResponse.headers.get('content-length') / 1024).toFixed(2)} KB`;
+                            
+                            // If all tests pass, auto-load preview
+                            setTimeout(() => loadPreview(), 1000);
+                        } else {
+                            throw new Error('CSS failed to load');
+                        }
+                    }
+                } else {
+                    throw new Error('HTML failed to load');
+                }
+            } catch (error) {
+                document.getElementById('test1').textContent = 'FAIL';
+                document.getElementById('test1').className = 'status error';
+                document.getElementById('test1-result').textContent = '✗ Error: ' + error.message;
+                
+                document.getElementById('test2').textContent = 'SKIPPED';
+                document.getElementById('test2').className = 'status error';
+                document.getElementById('test2-result').textContent = 'Previous test failed';
+                
+                document.getElementById('test3').textContent = 'SKIPPED';
+                document.getElementById('test3').className = 'status error';
+                document.getElementById('test3-result').textContent = 'Previous test failed';
+            }
+        }
+
+        function loadPreview() {
+            document.getElementById('preview').src = SITE_URL + '/?t=' + Date.now();
+        }
+
+        function testAgain() {
+            location.reload();
+        }
+
+        function clearBrowserCache() {
+            alert('To clear your browser cache:\n\n1. Press Ctrl + Shift + Delete\n2. Select "Cached images and files"\n3. Click "Clear data"\n4. Refresh this page');
+        }
+
+        // Run tests on page load
+        window.onload = () => {
+            runTests();
+        };
+    </script>
+</body>
+</html>
