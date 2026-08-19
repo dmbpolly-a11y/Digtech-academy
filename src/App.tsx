@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Icon } from '@iconify/react'
+import { simulateCompletePaymentFlow, validatePaymentDetails, getMerchantAccount } from './utils/pesapal'
+import { auth, db, logActivity } from './lib/supabase'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Frame =
@@ -48,7 +50,7 @@ const INITIAL_COURSES = [
     duration: '18 hours',
     level: 'Beginner',
     category: 'Data Science',
-    image: '/images/pexels-photo-3183150.jpeg',
+    image: '/images/liveclass2.png',
     free: false,
   },
   {
@@ -61,7 +63,7 @@ const INITIAL_COURSES = [
     duration: '24 hours',
     level: 'Intermediate',
     category: 'Web Development',
-    image: '/images/pexels-photo-3184339.jpeg',
+    image: '/images/liveclass3.png',
     free: false,
   },
   {
@@ -74,7 +76,7 @@ const INITIAL_COURSES = [
     duration: '10 hours',
     level: 'Beginner',
     category: 'Marketing',
-    image: '/images/pexels-photo-3184291.jpeg',
+    image: '/images/liveclass1.png',
     free: false,
   },
   {
@@ -87,7 +89,7 @@ const INITIAL_COURSES = [
     duration: '20 hours',
     level: 'Advanced',
     category: 'Security',
-    image: '/images/pexels-photo-3184360.jpeg',
+    image: '/images/liveclass2.png',
     free: false,
   },
   {
@@ -100,7 +102,7 @@ const INITIAL_COURSES = [
     duration: '12 hours',
     level: 'Beginner',
     category: 'Design',
-    image: '/images/pexels-photo-3183197.jpeg',
+    image: '/images/liveclass4.png',
     free: true,
   },
   {
@@ -113,17 +115,17 @@ const INITIAL_COURSES = [
     duration: '16 hours',
     level: 'Intermediate',
     category: 'Mobile Dev',
-    image: '/images/pexels-photo-3771511.jpeg',
+    image: '/images/liveclass5.png',
     free: false,
   },
 ]
 
 const TUTORS = [
-  { name: 'Grace Nakato', specialty: 'Data Science', students: 548, rating: 4.9, avatar: '/images/pexels-photo-12293164.jpeg' },
-  { name: 'David Ssekandi', specialty: 'Web Development', students: 312, rating: 4.8, avatar: '/images/pexels-photo-34786947.jpeg' },
-  { name: 'Ronald Kato', specialty: 'Digital Marketing', students: 274, rating: 4.6, avatar: '/images/pexels-photo-35638373.jpeg' },
-  { name: 'Peter Musoke', specialty: 'Cybersecurity', students: 201, rating: 4.8, avatar: '/images/pexels-photo-3184360.jpeg' },
-  { name: 'Amina Nalule', specialty: 'UI/UX Design', students: 189, rating: 4.7, avatar: '/images/pexels-photo-36338866.jpeg' },
+  { name: 'Grace Nakato', specialty: 'Data Science', students: 548, rating: 4.9, avatar: '/images/liveclass1.png' },
+  { name: 'David Ssekandi', specialty: 'Web Development', students: 312, rating: 4.8, avatar: '/images/liveclass2.png' },
+  { name: 'Ronald Kato', specialty: 'Digital Marketing', students: 274, rating: 4.6, avatar: '/images/liveclass3.png' },
+  { name: 'Peter Musoke', specialty: 'Cybersecurity', students: 201, rating: 4.8, avatar: '/images/liveclass4.png' },
+  { name: 'Amina Nalule', specialty: 'UI/UX Design', students: 189, rating: 4.7, avatar: '/images/liveclass5.png' },
 ]
 
 const LIVE_COURSES = [
@@ -139,6 +141,9 @@ const LIVE_COURSES = [
     platform: 'Google Meet',
     platformIcon: 'logos:google-meet',
     joinLink: 'https://meet.google.com/new',
+    whatsappLink: 'https://wa.me/256770613201?text=I%20want%20to%20join%20Cloud%20Practitioner%20Masterclass',
+    youtubeLink: 'https://youtube.com/@digtechacademy',
+    emailLink: 'mailto:info@digtechsolutionshub.com?subject=Cloud Practitioner Masterclass Enrollment',
     badgeColor: 'blue',
   },
   {
@@ -153,6 +158,9 @@ const LIVE_COURSES = [
     platform: 'Zoom',
     platformIcon: 'logos:zoom-icon',
     joinLink: 'https://zoom.us/join',
+    whatsappLink: 'https://wa.me/256770613201?text=I%20want%20to%20join%20Financial%20Modeling%20Course',
+    youtubeLink: 'https://youtube.com/@digtechacademy',
+    emailLink: 'mailto:info@digtechsolutionshub.com?subject=Financial Modeling Course Enrollment',
     badgeColor: 'cyan',
   },
   {
@@ -164,9 +172,12 @@ const LIVE_COURSES = [
     fee: 140000,
     duration: '3 weeks',
     spots: 5,
-    platform: 'TikTok Live',
-    platformIcon: 'logos:tiktok-icon',
-    joinLink: 'https://www.tiktok.com/live',
+    platform: 'YouTube Live',
+    platformIcon: 'logos:youtube-icon',
+    joinLink: 'https://youtube.com/@digtechacademy/live',
+    whatsappLink: 'https://wa.me/256770613201?text=I%20want%20to%20join%20Content%20Creation%20Course',
+    youtubeLink: 'https://youtube.com/@digtechacademy',
+    emailLink: 'mailto:info@digtechsolutionshub.com?subject=Content Creation Course Enrollment',
     badgeColor: 'purple',
   },
 ]
@@ -177,7 +188,7 @@ const INITIAL_TESTIMONIALS: SuccessStory[] = [
     name: 'Sarah Namutebi',
     text: 'Digtech Academy transformed my career completely. I went from zero coding knowledge to landing a junior developer job in Kampala in 6 months.',
     role: 'Junior Developer at Tecno Uganda',
-    avatar: '/images/pexels-photo-8384894.jpeg',
+    avatar: '/images/liveclass1.png',
     rating: 5,
   },
   {
@@ -185,7 +196,7 @@ const INITIAL_TESTIMONIALS: SuccessStory[] = [
     name: 'Brian Odhiambo',
     text: 'The Data Science course was exceptionally practical. Every project directly matched what I now do daily at work. Worth every shilling!',
     role: 'Data Analyst at MTN Uganda',
-    avatar: '/images/pexels-photo-33128556.jpeg',
+    avatar: '/images/liveclass2.png',
     rating: 5,
   },
   {
@@ -193,7 +204,7 @@ const INITIAL_TESTIMONIALS: SuccessStory[] = [
     name: 'Patricia Auma',
     text: 'Flexible learning that fit my busy schedule. I completed the UI/UX course in 4 weeks and immediately started winning international freelance clients.',
     role: 'Freelance Product Designer',
-    avatar: '/images/pexels-photo-33128558.jpeg',
+    avatar: '/images/liveclass3.png',
     rating: 5,
   },
 ]
@@ -262,7 +273,7 @@ function CourseCard({
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover-lift transition-all cursor-pointer group animate-fade-in-up flex flex-col justify-between"
+      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover-lift transition-all cursor-pointer group animate-fade-in-up flex flex-col justify-between click-zoom"
     >
       <div>
         <div className="relative overflow-hidden bg-gray-100">
@@ -351,7 +362,7 @@ function PublicNav({
           <img
             src="/images/Digtech Academy Logo.png"
             alt="Digtech Academy"
-            className="h-10 w-auto object-contain group-hover:scale-105 transition-transform"
+            className="h-16 w-auto object-contain group-hover:scale-105 transition-transform"
           />
         </button>
 
@@ -381,8 +392,8 @@ function PublicNav({
                   else if (currentUser.role === 'principal') setFrame('principal-dashboard')
                   else setFrame('student-dashboard')
                 }}
-                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all shadow-sm hover:opacity-90 flex items-center gap-2 hover:scale-105 cursor-pointer"
-                style={{ background: '#1A4095' }}
+                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all shadow-sm hover:opacity-90 flex items-center gap-2 hover:scale-105 cursor-pointer blue-btn-gradient-hover"
+                style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
               >
                 <Icon icon="lucide:layout-dashboard" className="w-4 h-4" />
                 {currentUser.role.toUpperCase()} DASHBOARD
@@ -406,8 +417,8 @@ function PublicNav({
               </button>
               <button
                 onClick={() => setFrame('register')}
-                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all hover:opacity-90 hover:scale-105 shadow-sm cursor-pointer"
-                style={{ background: '#1A4095' }}
+                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all hover:opacity-90 hover:scale-105 shadow-sm cursor-pointer blue-btn-gradient-hover"
+                style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
               >
                 Create Account
               </button>
@@ -453,8 +464,8 @@ function PublicNav({
                     else setFrame('student-dashboard')
                     setMobileOpen(false)
                   }}
-                  className="w-full text-xs font-bold py-3 rounded-xl text-white flex items-center justify-center gap-1.5"
-                  style={{ background: '#1A4095' }}
+                  className="w-full text-xs font-bold py-3 rounded-xl text-white flex items-center justify-center gap-1.5 blue-btn-gradient-hover"
+                  style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
                 >
                   <Icon icon="lucide:layout-dashboard" className="w-4 h-4" /> Go to Dashboard
                 </button>
@@ -484,8 +495,8 @@ function PublicNav({
                     setFrame('register')
                     setMobileOpen(false)
                   }}
-                  className="w-full text-xs font-bold py-2.5 rounded-xl text-white"
-                  style={{ background: '#1A4095' }}
+                  className="w-full text-xs font-bold py-2.5 rounded-xl text-white blue-btn-gradient-hover"
+                  style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
                 >
                   Create Account
                 </button>
@@ -500,11 +511,45 @@ function PublicNav({
 
 // ─── Footer Component (White Theme & Complete Specs) ──────────────────────────
 function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
+  const [currentTime, setCurrentTime] = useState('')
+  const [currentDate, setCurrentDate] = useState('')
+
+  // Update East African Time (EAT) every second
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      // EAT is UTC+3
+      const eatTime = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }))
+      
+      // Format time
+      const timeFormatted = eatTime.toLocaleString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      })
+      
+      // Format date
+      const dateFormatted = eatTime.toLocaleString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+      
+      setCurrentTime(timeFormatted)
+      setCurrentDate(dateFormatted)
+    }
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <footer className="bg-[#04263A] border-t border-gray-700 text-gray-300 py-12">
+    <footer className="bg-[#04263A] border-t border-gray-700 text-gray-300 py-12 footer-animate">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & Socials */}
-        <div className="space-y-4">
+        <div className="space-y-4 footer-section">
           <div className="flex items-center">
             <img
               src="/images/Digtech Academy Logo White.png"
@@ -519,13 +564,14 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
             <p className="text-xs font-bold text-white mb-2 uppercase tracking-wider">Connect With Us</p>
             <div className="flex flex-wrap gap-2">
               {[
-                { icon: 'lucide:facebook', href: 'https://facebook.com/digtechacademy', label: 'Facebook' },
+                { icon: 'lucide:facebook', href: 'https://www.facebook.com/digtechsolutionshub/', label: 'Facebook' },
                 { icon: 'lucide:instagram', href: 'https://instagram.com/digtechacademy', label: 'Instagram' },
-                { icon: 'lucide:twitter', href: 'https://x.com/digtechacademy', label: 'X (Twitter)' },
-                { icon: 'mdi:tiktok', href: 'https://tiktok.com/@digtechacademy', label: 'TikTok' },
-                { icon: 'lucide:linkedin', href: 'https://linkedin.com/company/digtechacademy', label: 'LinkedIn' },
+                { icon: 'lucide:twitter', href: 'https://x.com/Digtech1', label: 'X (Twitter)' },
+                { icon: 'mdi:tiktok', href: 'https://www.tiktok.com/@korabusiness/video/7543967921161112888', label: 'TikTok' },
+                { icon: 'lucide:linkedin', href: 'https://ug.linkedin.com/company/digtech-solutions-hub', label: 'LinkedIn' },
                 { icon: 'lucide:youtube', href: 'https://youtube.com/@digtechacademy', label: 'YouTube' },
                 { icon: 'mdi:whatsapp', href: 'https://wa.me/256770613201', label: 'WhatsApp' },
+                { icon: 'lucide:mail', href: 'mailto:info@digtechsolutionshub.com', label: 'Email' },
               ].map((s, i) => (
                 <a
                   key={i}
@@ -533,7 +579,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.label}
-                  className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#28C0F4] hover:scale-110 transition-all shadow-sm"
+                  className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#28C0F4] transition-all shadow-sm footer-social-icon"
                 >
                   <Icon icon={s.icon} className="w-4 h-4" />
                 </a>
@@ -543,38 +589,38 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
 
         {/* Quick Links */}
-        <div>
+        <div className="footer-section">
           <h4 className="text-white font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Quick Links
           </h4>
           <ul className="space-y-2.5 text-xs">
             <li>
-              <button onClick={() => setFrame('home')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+              <button onClick={() => setFrame('home')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                 Home
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+              <button onClick={() => setFrame('courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                 Browse Courses
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('live-courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+              <button onClick={() => setFrame('live-courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                 Live Classes
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('about')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+              <button onClick={() => setFrame('about')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                 About Academy
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('faq')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+              <button onClick={() => setFrame('faq')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                 Frequently Asked Questions
               </button>
             </li>
             <li>
-              <button onClick={() => setFrame('contact')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+              <button onClick={() => setFrame('contact')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                 Contact & Support
               </button>
             </li>
@@ -582,14 +628,14 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
 
         {/* Course Categories */}
-        <div>
+        <div className="footer-section">
           <h4 className="text-white font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
             Course Categories
           </h4>
           <ul className="space-y-2.5 text-xs">
             {['Web Development', 'Data Science', 'UI/UX Design', 'Digital Marketing', 'Cybersecurity', 'Mobile App Development'].map((cat) => (
               <li key={cat}>
-                <button onClick={() => setFrame('courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors">
+                <button onClick={() => setFrame('courses')} className="text-gray-400 hover:text-[#28C0F4] transition-colors footer-link">
                   {cat}
                 </button>
               </li>
@@ -597,10 +643,10 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
           </ul>
         </div>
 
-        {/* Support & Admin Only Link */}
-        <div>
+        {/* Support & Contact Details */}
+        <div className="footer-section">
           <h4 className="text-white font-bold text-sm mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Support & Academy Desk
+            Support
           </h4>
           <ul className="space-y-3 text-xs text-gray-400">
             <li className="flex items-start gap-2.5">
@@ -609,16 +655,19 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
             </li>
             <li className="flex items-center gap-2.5">
               <Icon icon="lucide:phone" className="w-4 h-4 text-[#28C0F4] flex-shrink-0" />
-              <a href="tel:+256770613201" className="hover:underline">+256 (0) 770 613 201</a>
+              <div className="flex flex-col gap-0.5">
+                <a href="tel:+256702524736" className="hover:underline footer-link">Airtel: +256 702 524 736</a>
+                <a href="tel:+256770613201" className="hover:underline footer-link">MTN: +256 770 613 201</a>
+              </div>
             </li>
             <li className="flex items-center gap-2.5">
               <Icon icon="lucide:mail" className="w-4 h-4 text-[#28C0F4] flex-shrink-0" />
-              <a href="mailto:info@digtechsolutionshub.com" className="hover:underline">info@digtechsolutionshub.com</a>
+              <a href="mailto:info@digtechsolutionshub.com" className="hover:underline footer-link">info@digtechsolutionshub.com</a>
             </li>
             <li className="pt-2 border-t border-gray-700">
               <button
                 onClick={() => setFrame('login')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#28C0F4] hover:text-white transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#28C0F4] hover:text-white transition-all footer-link"
               >
                 <Icon icon="lucide:shield-check" className="w-4 h-4" />
                 Admin Portal Login
@@ -628,20 +677,38 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
       </div>
 
-      {/* Embedded Google Map */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div className="rounded-2xl overflow-hidden border border-gray-600 h-44 shadow-sm">
+      {/* Embedded Google Map for Mbarara Location */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 animate-slide-in-bottom">
+        <div className="rounded-2xl overflow-hidden border-2 border-[#28C0F4]/30 h-64 shadow-lg hover:shadow-2xl transition-all ease-in-out" style={{ boxShadow: '0 10px 40px rgba(40, 192, 244, 0.2)' }}>
           <iframe
-            src="https://www.google.com/maps?ll=-0.606781,30.661901&z=15&t=m&hl=en-US&gl=US&mapclient=embed&cid=8763999400868403491"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.7608791885!2d30.659711!3d-0.606781!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x176584af1e2a08ff%3A0x79a3e7bc3b8f5123!2sMbarara%2C%20Uganda!5e0!3m2!1sen!2sug!4v1234567890"
             className="h-full w-full border-0"
             loading="lazy"
-            title="Digtech Academy Mbarara Location"
+            allowFullScreen
+            title="Digtech Academy Mbarara Location - Grand West Arcade, High Street"
+            style={{ border: 0 }}
           />
         </div>
       </div>
 
+      {/* Live East African Time Display */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
+        <div className="live-clock flex flex-col items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <Icon icon="lucide:clock" className="w-5 h-5 text-[#28C0F4] animate-pulse" />
+            <span className="text-xs font-bold text-[#28C0F4] uppercase tracking-wider">Live Time - East African Time (EAT)</span>
+          </div>
+          <div className="live-clock-time text-2xl md:text-3xl">
+            {currentTime}
+          </div>
+          <div className="text-xs text-gray-400 font-medium">
+            {currentDate}
+          </div>
+        </div>
+      </div>
+
       {/* Automatic Year Copyright Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 pt-6 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
         <p className="flex items-center gap-2">
           <span>Official Payment Partner:</span>
@@ -687,9 +754,35 @@ function HomePage({
 
   return (
     <div>
+      {/* Marquee Banner */}
+      <div className="marquee-banner">
+        <div className="marquee-content">
+          <span><Icon icon="lucide:graduation-cap" className="inline w-4 h-4 mr-2" />Uganda's Leading Online Digital Academy</span>
+          <span><Icon icon="lucide:book-open" className="inline w-4 h-4 mr-2" />Expert-Led Courses</span>
+          <span><Icon icon="lucide:laptop" className="inline w-4 h-4 mr-2" />Learn Tech, Business & Trades</span>
+          <span><Icon icon="lucide:award" className="inline w-4 h-4 mr-2" />Accredited Certificates</span>
+          <span><Icon icon="lucide:credit-card" className="inline w-4 h-4 mr-2" />Pay in UGX via PesaPal</span>
+          <span><Icon icon="lucide:graduation-cap" className="inline w-4 h-4 mr-2" />Uganda's Leading Online Digital Academy</span>
+          <span><Icon icon="lucide:book-open" className="inline w-4 h-4 mr-2" />Expert-Led Courses</span>
+          <span><Icon icon="lucide:laptop" className="inline w-4 h-4 mr-2" />Learn Tech, Business & Trades</span>
+          <span><Icon icon="lucide:award" className="inline w-4 h-4 mr-2" />Accredited Certificates</span>
+          <span><Icon icon="lucide:credit-card" className="inline w-4 h-4 mr-2" />Pay in UGX via PesaPal</span>
+        </div>
+      </div>
+
+      {/* Magnetic Field Animation */}
+      <div className="magnetic-field-container">
+        <div className="magnetic-field-orb orb-1"></div>
+        <div className="magnetic-field-orb orb-2"></div>
+        <div className="magnetic-field-orb orb-3"></div>
+        <div className="magnetic-field-orb orb-4"></div>
+        <div className="magnetic-field-orb orb-5"></div>
+        <div className="magnetic-field-orb orb-6"></div>
+      </div>
+
       {/* Hero Section */}
       <section
-        className="relative overflow-hidden"
+        className="relative overflow-hidden click-zoom"
         style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 60%, #1A4095 100%)' }}
       >
         <div className="absolute inset-0 opacity-10">
@@ -734,7 +827,7 @@ function HomePage({
                 />
                 <button
                   onClick={() => setFrame('courses')}
-                  className="text-white text-xs font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+                  className="text-white text-xs font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer click-zoom"
                   style={{ background: '#28C0F4' }}
                 >
                   Search
@@ -781,13 +874,21 @@ function HomePage({
           </div>
 
           <div className="hidden md:block animate-fade-in-right">
-            <div className="relative">
-              <img
-                src="/images/pexels-photo-3184339.jpeg"
-                alt="Students learning tech"
-                className="rounded-3xl shadow-2xl border-4 border-white/20 object-cover w-full h-[420px]"
-              />
-              <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 animate-float">
+            <div className="relative section-zoom-animate">
+              <button 
+                onClick={() => setFrame('courses')}
+                className="block w-full cursor-pointer group"
+              >
+                <img
+                  src="/images/liveclass1.png"
+                  alt="Students learning tech in live class"
+                  className="rounded-3xl shadow-2xl border-4 border-[#28C0F4]/40 object-cover w-full h-[420px] image-with-blue-border transition-transform group-hover:scale-105"
+                />
+              </button>
+              <button 
+                onClick={() => setFrame('about')}
+                className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 animate-float hover:scale-110 transition-transform cursor-pointer"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
                     <Icon icon="lucide:award" className="w-6 h-6" />
@@ -797,14 +898,14 @@ function HomePage({
                     <div className="text-xs text-gray-500">Recognized by Top Employers</div>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Categories Grid */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 section-zoom-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Explore Skills</p>
@@ -817,7 +918,7 @@ function HomePage({
               <button
                 key={cat.name}
                 onClick={() => setFrame('courses')}
-                className="bg-white p-5 rounded-2xl border border-gray-100 text-center hover-lift transition-all group cursor-pointer shadow-sm"
+                className="bg-white p-5 rounded-2xl border-2 border-[#28C0F4]/30 text-center hover-lift transition-all group cursor-pointer shadow-sm blue-accent-overlay click-zoom card-flip-hover"
               >
                 <div
                   className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-sm"
@@ -862,7 +963,7 @@ function HomePage({
       {/* Success Stories (Admin Managed) */}
       <section
         style={{ background: 'linear-gradient(135deg, #1A4095 0%, #0f2660 100%)' }}
-        className="py-20 text-white"
+        className="py-20 text-white section-zoom-animate"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
@@ -879,7 +980,7 @@ function HomePage({
             {testimonials.map((t) => (
               <div
                 key={t.id}
-                className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col justify-between"
+                className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col justify-between card-flip-hover"
               >
                 <div>
                   <div className="flex gap-1 mb-4">
@@ -889,13 +990,16 @@ function HomePage({
                   </div>
                   <p className="text-white/90 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
                 </div>
-                <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+                <button 
+                  onClick={() => setFrame('courses')}
+                  className="flex items-center gap-3 pt-4 border-t border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <img src={t.avatar} alt={t.name} className="w-11 h-11 rounded-full object-cover border-2 border-[#28C0F4]" />
-                  <div>
+                  <div className="text-left">
                     <div className="font-bold text-sm text-white">{t.name}</div>
                     <div className="text-xs text-white/60">{t.role}</div>
                   </div>
-                </div>
+                </button>
               </div>
             ))}
           </div>
@@ -994,7 +1098,7 @@ function CoursesPage({ setFrame }: { setFrame: (f: Frame) => void }) {
           </button>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 section-zoom-animate">
           {filtered.map((c) => (
             <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} />
           ))}
@@ -1022,11 +1126,11 @@ function LiveCoursesPage() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
+      <div className="grid md:grid-cols-3 gap-6 mb-12 section-zoom-animate">
         {LIVE_COURSES.map((lc) => (
           <div
             key={lc.id}
-            className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between"
+            className="bg-white rounded-3xl border-2 border-[#28C0F4]/30 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between card-hover click-zoom card-flip-hover"
           >
             <div className="p-1" style={{ background: 'linear-gradient(135deg, #1A4095, #28C0F4)' }}>
               <div className="bg-white rounded-[22px] p-6">
@@ -1073,6 +1177,51 @@ function LiveCoursesPage() {
                   </div>
                 </div>
 
+                {/* Live Platform Links */}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="text-[11px] font-bold text-gray-400 uppercase mb-2">Join Via:</div>
+                  <div className="flex flex-wrap gap-2">
+                    <a
+                      href={lc.joinLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                      title={lc.platform}
+                    >
+                      <Icon icon={lc.platformIcon} className="w-4 h-4" />
+                      {lc.platform}
+                    </a>
+                    <a
+                      href={lc.whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                      title="WhatsApp"
+                    >
+                      <Icon icon="mdi:whatsapp" className="w-4 h-4" />
+                      WhatsApp
+                    </a>
+                    <a
+                      href={lc.youtubeLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                      title="YouTube"
+                    >
+                      <Icon icon="lucide:youtube" className="w-4 h-4" />
+                      YouTube
+                    </a>
+                    <a
+                      href={lc.emailLink}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                      title="Email"
+                    >
+                      <Icon icon="lucide:mail" className="w-4 h-4" />
+                      Email
+                    </a>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between mt-6 pt-5 border-t border-gray-100">
                   <div>
                     <div className="text-[11px] text-gray-400 uppercase font-semibold">Tuition Fee</div>
@@ -1086,8 +1235,8 @@ function LiveCoursesPage() {
                       setShowApplyModal(true)
                       setAppliedSuccess(false)
                     }}
-                    className="text-xs font-bold text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-sm cursor-pointer"
-                    style={{ background: '#1A4095' }}
+                    className="text-xs font-bold text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-sm cursor-pointer blue-btn-gradient-hover"
+                    style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
                   >
                     Apply Now
                   </button>
@@ -1172,8 +1321,8 @@ function LiveCoursesPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl text-white font-bold text-xs shadow-md mt-2"
-                  style={{ background: '#1A4095' }}
+                  className="w-full py-3 rounded-xl text-white font-bold text-xs shadow-md mt-2 blue-btn-gradient-hover"
+                  style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
                 >
                   Submit & Get Live Link
                 </button>
@@ -1191,8 +1340,61 @@ function CourseDetailPage() {
   const course = INITIAL_COURSES[0]
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [paymentProcessing, setPaymentProcessing] = useState(false)
+  const [paymentReference, setPaymentReference] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [method, setMethod] = useState<'momo' | 'airtel' | 'card' | 'bank'>('momo')
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPaymentProcessing(true)
+    setErrorMessage('')
+
+    try {
+      // Validate payment details using PesaPal utility
+      const validation = validatePaymentDetails(
+        phone,
+        email,
+        firstName,
+        lastName,
+        method === 'momo' ? 'MTN' : method === 'airtel' ? 'AIRTEL' : 'MTN'
+      )
+      
+      if (!validation.valid) {
+        throw new Error(validation.errors.join('. '))
+      }
+
+      // Map method to PesaPal format
+      const paymentMethod = method === 'momo' ? 'MTN' : method === 'airtel' ? 'AIRTEL' : 'MTN'
+      const merchantAccount = getMerchantAccount(paymentMethod)
+      
+      // Initiate phone payment via PesaPal
+      const paymentResult = await simulateCompletePaymentFlow(
+        course.price,
+        phone,
+        paymentMethod,
+        `Enrollment: ${course.title}`
+      )
+
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.message)
+      }
+
+      setPaymentReference(paymentResult.reference)
+      setPaymentSuccess(true)
+      
+      // Show merchant account info in success message
+      alert(`✅ SMS with PIN prompt sent to ${phone}!\n\n${paymentResult.message}\n\nPlease check your phone and enter PIN to authorize payment.\n\nMerchant Account: ${merchantAccount}`)
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Payment failed. Please try again.')
+    } finally {
+      setPaymentProcessing(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1266,36 +1468,90 @@ function CourseDetailPage() {
                     <Icon icon="lucide:check-circle" className="w-10 h-10" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                    Payment Successful!
+                    PIN Prompt Sent!
                   </h3>
                   <p className="text-xs text-gray-500 mb-4">
-                    Reference ID: <strong className="text-gray-800">PESA-UG-{Math.floor(100000 + Math.random() * 900000)}</strong>
+                    Reference ID: <strong className="text-gray-800">{paymentReference}</strong>
                     <br />
-                    Confirmation SMS dispatched to {phone || '+256 770 613 201'}.
+                    📱 SMS with PIN prompt sent to <strong>{phone}</strong>
+                    <br />
+                    💰 Please check your phone and enter PIN to authorize payment
+                    <br />
+                    📧 Receipt will be emailed to {email}.
+                    <br />
+                    <br />
+                    <strong>Merchant Account:</strong> {method === 'momo' ? 'MTN: 0770613201' : method === 'airtel' ? 'Airtel: 0702524736' : 'Check SMS for details'}
                   </p>
                   <button
                     onClick={() => setShowPaymentModal(false)}
                     className="w-full py-3 rounded-xl bg-[#1A4095] text-white font-bold text-xs"
                   >
-                    Start Learning Now
+                    Close & Wait for SMS
                   </button>
                 </div>
               ) : (
                 <form
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    setPaymentSuccess(true)
-                  }}
+                  onSubmit={handlePayment}
                   className="space-y-4"
                 >
                   <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-100 flex items-center justify-between">
                     <div>
                       <div className="text-xs text-gray-500">Course Enrollment</div>
-                      <div className="text-xs font-bold text-gray-900">{course.title}</div>
+                      <div className="text-xs font-bold text-gray-900 line-clamp-1">{course.title}</div>
                     </div>
                     <div className="text-base font-extrabold text-[#1A4095]">
                       UGX {course.price.toLocaleString()}
                     </div>
+                  </div>
+
+                  {errorMessage && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl text-xs flex items-center gap-2">
+                      <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                        First Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="e.g. John"
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="e.g. Doe"
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g. john@example.com"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
+                    />
                   </div>
 
                   <div>
@@ -1304,23 +1560,28 @@ function CourseDetailPage() {
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { id: 'momo', label: 'MTN MoMo', icon: 'lucide:smartphone' },
-                        { id: 'airtel', label: 'Airtel Money', icon: 'lucide:phone-call' },
-                        { id: 'card', label: 'Visa / Card', icon: 'lucide:credit-card' },
-                        { id: 'bank', label: 'Bank Transfer', icon: 'lucide:building-2' },
+                        { id: 'momo', label: 'MTN MoMo', icon: 'lucide:smartphone', note: '0770613201' },
+                        { id: 'airtel', label: 'Airtel Money', icon: 'lucide:phone-call', note: '0702524736' },
+                        { id: 'card', label: 'Visa / Card', icon: 'lucide:credit-card', note: '' },
+                        { id: 'bank', label: 'Bank Transfer', icon: 'lucide:building-2', note: '' },
                       ].map((m) => (
                         <button
                           key={m.id}
                           type="button"
                           onClick={() => setMethod(m.id as any)}
-                          className={`p-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                          className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-start gap-0.5 transition-all ${
                             method === m.id
                               ? 'border-[#1A4095] bg-blue-50 text-[#1A4095]'
                               : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                         >
-                          <Icon icon={m.icon} className="w-4 h-4" />
-                          {m.label}
+                          <div className="flex items-center gap-2">
+                            <Icon icon={m.icon} className="w-4 h-4" />
+                            {m.label}
+                          </div>
+                          {m.note && (
+                            <span className="text-[10px] text-gray-500 font-normal">{m.note}</span>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -1328,29 +1589,40 @@ function CourseDetailPage() {
 
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
-                      Mobile Money / Account Number
+                      Mobile Number / Account *
                     </label>
                     <input
                       type="tel"
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. 0770 000 000"
+                      placeholder="e.g. 0770123456"
                       className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-lg hover:opacity-90 transition-all mt-2"
-                    style={{ background: '#1A4095' }}
+                    disabled={paymentProcessing}
+                    className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-lg hover:opacity-90 transition-all mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed blue-btn-gradient-hover"
+                    style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
                   >
-                    Pay UGX {course.price.toLocaleString()} via PesaPal
+                    {paymentProcessing ? (
+                      <>
+                        <Icon icon="lucide:loader-2" className="w-4 h-4 animate-spin" />
+                        Processing Payment...
+                      </>
+                    ) : (
+                      <>Pay UGX {course.price.toLocaleString()} via PesaPal</>
+                    )}
                   </button>
 
                   <div className="text-center text-[10px] text-gray-400 flex items-center justify-center gap-1.5">
                     <Icon icon="lucide:shield-check" className="w-3.5 h-3.5 text-emerald-500" />
-                    256-bit Encrypted PesaPal Consumer API
+                    256-bit Encrypted | PesaPal API v3
+                  </div>
+                  <div className="text-center text-[10px] text-gray-500">
+                    Merchant Accounts: Airtel (0702524736) | MTN (0770613201)
                   </div>
                 </form>
               )}
@@ -1400,59 +1672,61 @@ function FaqPage() {
   const filtered = faqs.filter((f) => activeCategory === 'All' || f.category === activeCategory)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-      <div className="text-center mb-12">
-        <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Help Center</p>
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-          Frequently Asked Questions
-        </h1>
-        <p className="text-gray-500 text-sm">Everything you need to know about Digtech Academy programs, payments, and certificates.</p>
-      </div>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, rgba(26, 64, 149, 0.05) 0%, rgba(40, 192, 244, 0.05) 100%)' }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+        <div className="text-center mb-12">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#28C0F4] mb-2">Help Center</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Frequently Asked Questions
+          </h1>
+          <p className="text-gray-500 text-sm">Everything you need to know about Digtech Academy programs, payments, and certificates.</p>
+        </div>
 
-      {/* Category Pills */}
-      <div className="flex gap-2 flex-wrap justify-center mb-8">
-        {categories.map((c) => (
-          <button
-            key={c}
-            onClick={() => setActiveCategory(c)}
-            className={`text-xs px-4 py-2 rounded-full border font-bold transition-all ${
-              activeCategory === c
-                ? 'bg-[#1A4095] text-white border-[#1A4095] shadow-sm'
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {/* Accordion List */}
-      <div className="space-y-4 max-w-3xl mx-auto">
-        {filtered.map((item, i) => (
-          <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+        {/* Category Pills */}
+        <div className="flex gap-2 flex-wrap justify-center mb-8">
+          {categories.map((c) => (
             <button
-              onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className="w-full text-left p-5 flex items-center justify-between font-bold text-sm text-gray-900 hover:bg-gray-50 transition-colors"
+              key={c}
+              onClick={() => setActiveCategory(c)}
+              className={`text-xs px-4 py-2 rounded-full border font-bold transition-all ${
+                activeCategory === c
+                  ? 'bg-[#1A4095] text-white border-[#1A4095] shadow-sm'
+                  : 'border-gray-200 text-gray-600 hover:bg-gradient-to-r hover:from-[#1A4095] hover:to-[#28C0F4] hover:text-white hover:border-transparent'
+              }`}
             >
-              <span>{item.q}</span>
-              <Icon
-                icon={openIndex === i ? 'lucide:chevron-up' : 'lucide:chevron-down'}
-                className="w-5 h-5 text-[#1A4095] flex-shrink-0 ml-4"
-              />
+              {c}
             </button>
-            {openIndex === i && (
-              <div className="px-5 pb-5 text-xs text-gray-600 leading-relaxed border-t border-gray-50 pt-3">
-                {item.a}
-              </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Accordion List */}
+        <div className="space-y-4 max-w-3xl mx-auto">
+          {filtered.map((item, i) => (
+            <div key={i} className="border-2 border-[#28C0F4]/20 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all">
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full text-left p-5 flex items-center justify-between font-bold text-sm text-gray-900 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-colors"
+              >
+                <span>{item.q}</span>
+                <Icon
+                  icon={openIndex === i ? 'lucide:chevron-up' : 'lucide:chevron-down'}
+                  className="w-5 h-5 text-[#1A4095] flex-shrink-0 ml-4"
+                />
+              </button>
+              {openIndex === i && (
+                <div className="px-5 pb-5 text-xs text-gray-600 leading-relaxed border-t-2 border-[#28C0F4]/10 pt-3 bg-gradient-to-r from-blue-50/30 to-cyan-50/30">
+                  {item.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
 }
 
-// ─── LOGIN PORTAL (Unified with Defined Roles) ────────────────────────────────
+// ─── UNIFIED AUTH PAGE (Single Login with Role Selector) ──────────────────────
 function LoginPage({
   onLoginSuccess,
   setFrame,
@@ -1460,145 +1734,684 @@ function LoginPage({
   onLoginSuccess: (email: string, role: string, name: string) => void
   setFrame: (f: Frame) => void
 }) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'student' | 'tutor' | 'admin'>('student')
+  const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login')
+  const [accountType, setAccountType] = useState<'student' | 'tutor' | 'admin' | 'principal'>('student')
+  
+  // Login fields
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  
+  // Register fields
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regPhone, setRegPhone] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [showRegPassword, setShowRegPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [registerRole, setRegisterRole] = useState<'student' | 'tutor'>('student')
+  
+  // Reset password fields
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetSent, setResetSent] = useState(false)
+  
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  
+  // Password strength calculator
+  const getPasswordStrength = (password: string): { strength: 'weak' | 'medium' | 'strong' | 'very-strong', label: string, color: string } => {
+    if (!password) return { strength: 'weak', label: '', color: '' }
+    
+    let score = 0
+    if (password.length >= 8) score++
+    if (password.length >= 12) score++
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++
+    if (/[0-9]/.test(password)) score++
+    if (/[^a-zA-Z0-9]/.test(password)) score++
+    
+    if (score <= 2) return { strength: 'weak', label: 'Weak', color: '#EF4444' }
+    if (score === 3) return { strength: 'medium', label: 'Medium', color: '#F59E0B' }
+    if (score === 4) return { strength: 'strong', label: 'Strong', color: '#10B981' }
+    return { strength: 'very-strong', label: 'Very Strong', color: '#059669' }
+  }
+  
+  const passwordStrength = getPasswordStrength(regPassword)
 
-  const handleQuickDemo = (demoRole: 'admin' | 'tutor' | 'student') => {
-    setRole(demoRole)
+  const handleQuickDemo = (demoRole: 'admin' | 'tutor' | 'student' | 'principal') => {
+    setAccountType(demoRole)
     if (demoRole === 'admin') {
-      setEmail('admin@digtechacademy.ug')
-      setPassword('Digtech@2024')
+      setLoginEmail('admin@digtechacademy.ug')
+      setLoginPassword('Digtech@2024')
+    } else if (demoRole === 'principal') {
+      setLoginEmail('principal@digtechacademy.ug')
+      setLoginPassword('Principal@2024')
     } else if (demoRole === 'tutor') {
-      setEmail('tutor@digtechacademy.ug')
-      setPassword('Tutor@2024')
+      setLoginEmail('tutor@digtechacademy.ug')
+      setLoginPassword('Tutor@2024')
     } else {
-      setEmail('student@digtechacademy.ug')
-      setPassword('Student@2024')
+      setLoginEmail('student@digtechacademy.ug')
+      setLoginPassword('Student@2024')
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^(\+?256|0)?[7][0-9]{8}$/
+    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))
+  }
+
+  const checkDuplicates = (email: string, phone: string) => {
+    // Simulate checking for existing users
+    const existingEmails = ['admin@digtechacademy.ug', 'test@example.com']
+    const existingPhones = ['0770000000']
+    
+    if (existingEmails.includes(email.toLowerCase())) {
+      return 'This email is already registered. Please login instead.'
+    }
+    
+    if (existingPhones.includes(phone.replace(/[\s\-\(\)]/g, ''))) {
+      return 'This phone number is already registered.'
+    }
+    
+    return null
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password) {
+    setError('')
+    
+    if (!loginEmail || !loginPassword) {
       setError('Please fill in both email and password.')
       return
     }
 
-    if (role === 'admin' && email === 'admin@digtechacademy.ug' && password !== 'Digtech@2024') {
-      setError('Invalid admin credentials. Use admin@digtechacademy.ug / Digtech@2024')
+    if (!validateEmail(loginEmail)) {
+      setError('Please enter a valid email address.')
       return
     }
 
-    onLoginSuccess(email, role, role === 'admin' ? 'System Administrator' : 'User')
+    try {
+      // Sign in with Supabase
+      const { data, error: signInError } = await auth.signIn(loginEmail, loginPassword)
+      
+      if (signInError) {
+        setError('Invalid email or password.')
+        return
+      }
+
+      if (!data.user) {
+        setError('Login failed. Please try again.')
+        return
+      }
+
+      // Get user profile from database
+      const { data: userData, error: userError } = await db.users.getById(data.user.id)
+      
+      if (userError || !userData) {
+        setError('Unable to load user profile. Please contact support.')
+        return
+      }
+
+      // Validate account type matches selected role
+      if (userData.role !== accountType) {
+        setError(`This email is registered as ${userData.role}. Please select the correct account type.`)
+        // Sign out the user since role doesn't match
+        await auth.signOut()
+        return
+      }
+
+      // Check if account is active
+      if (userData.status !== 'active') {
+        setError(`Your account is ${userData.status}. Please contact support.`)
+        await auth.signOut()
+        return
+      }
+
+      // Update last login timestamp
+      await db.users.update(data.user.id, { last_login: new Date().toISOString() })
+
+      // Log the activity
+      await logActivity(data.user.id, 'login', {
+        role: userData.role,
+        timestamp: new Date().toISOString()
+      })
+
+      setSuccess('Login successful! Redirecting...')
+      setTimeout(() => {
+        onLoginSuccess(userData.email, userData.role, userData.full_name)
+      }, 800)
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('An unexpected error occurred. Please try again.')
+    }
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    
+    // Validate all fields
+    if (!firstName || !lastName || !regEmail || !regPhone || !regPassword || !confirmPass) {
+      setError('Please fill in all required fields.')
+      return
+    }
+
+    // Validate names (at least 2 characters)
+    if (firstName.trim().length < 2 || lastName.trim().length < 2) {
+      setError('First name and last name must be at least 2 characters.')
+      return
+    }
+
+    // Validate email
+    if (!validateEmail(regEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    // Validate phone
+    if (!validatePhone(regPhone)) {
+      setError('Invalid phone number. Use format: 0770123456')
+      return
+    }
+
+    // Validate password strength
+    if (regPassword.length < 8) {
+      setError('Password must be at least 8 characters long.')
+      return
+    }
+
+    if (!/[A-Z]/.test(regPassword) || !/[a-z]/.test(regPassword) || !/[0-9]/.test(regPassword)) {
+      setError('Password must contain uppercase, lowercase, and numbers.')
+      return
+    }
+
+    // Check password match
+    if (regPassword !== confirmPass) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    try {
+      // Sign up with Supabase Auth
+      const { data, error: signUpError } = await auth.signUp(
+        regEmail,
+        regPassword,
+        {
+          full_name: `${firstName} ${lastName}`,
+          phone: regPhone,
+          role: registerRole,
+        }
+      )
+
+      if (signUpError) {
+        if (signUpError.message.includes('already registered')) {
+          setError('This email is already registered. Please sign in instead.')
+        } else {
+          setError(signUpError.message || 'Registration failed. Please try again.')
+        }
+        return
+      }
+
+      if (!data.user) {
+        setError('Registration failed. Please try again.')
+        return
+      }
+
+      // Insert user profile into database
+      const { error: insertError } = await db.users.create({
+        id: data.user.id,
+        email: regEmail,
+        full_name: `${firstName} ${lastName}`,
+        phone: regPhone,
+        role: registerRole,
+        status: 'active',
+      })
+
+      if (insertError) {
+        console.error('Profile creation error:', insertError)
+        // Continue anyway since auth account is created
+      }
+
+      // Log the activity
+      await logActivity(data.user.id, 'registration', {
+        role: registerRole,
+        timestamp: new Date().toISOString()
+      })
+
+      // Success
+      setSuccess('Account created successfully! Redirecting to dashboard...')
+      setTimeout(() => {
+        onRegisterSuccess(regEmail, registerRole, `${firstName} ${lastName}`)
+      }, 1500)
+    } catch (err) {
+      console.error('Registration error:', err)
+      setError('An unexpected error occurred. Please try again.')
+    }
+  }
+
+  const handlePasswordReset = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    
+    if (!validateEmail(resetEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    setResetSent(true)
+    setTimeout(() => {
+      setSuccess('Password reset link sent! Check your email.')
+      setTimeout(() => {
+        setMode('login')
+        setResetSent(false)
+        setSuccess('')
+      }, 2000)
+    }, 1000)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-        {/* Logo only - strictly without repeating text */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-[#28C0F4]/10 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated blue background elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#28C0F4]/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#1A4095]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      
+      <div className="w-full max-w-md relative z-10 auth-container">
+        {/* Logo */}
         <div className="text-center mb-6">
           <button onClick={() => setFrame('home')} className="inline-block">
-            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
+            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-12 w-auto object-contain mx-auto hover:scale-105 transition-transform" />
           </button>
-          <h1 className="text-2xl font-extrabold text-gray-900 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Portal Sign In
-          </h1>
-          <p className="text-xs text-gray-500 mt-1">Select your account role to continue</p>
         </div>
 
-        {/* Role Selector Tabs */}
-        <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-          {(['student', 'tutor', 'admin'] as const).map((r) => (
+        {/* Animated Container */}
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-[#28C0F4]/30 overflow-hidden auth-form-slide" style={{ boxShadow: '0 20px 60px rgba(40, 192, 244, 0.25), 0 0 40px rgba(26, 64, 149, 0.1)' }}>
+          {/* Mode Toggle Tabs */}
+          <div className="flex border-b border-[#28C0F4]/20 bg-gradient-to-r from-blue-50/50 to-[#28C0F4]/5">
             <button
-              key={r}
               type="button"
               onClick={() => {
-                setRole(r)
+                setMode('login')
                 setError('')
+                setSuccess('')
               }}
-              className={`flex-1 py-2 text-xs font-bold capitalize rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                role === r ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              className={`flex-1 py-4 text-sm font-bold transition-all ${
+                mode === 'login'
+                  ? 'text-[#1A4095] border-b-2 border-[#1A4095] bg-blue-50/30'
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <Icon
-                icon={r === 'admin' ? 'lucide:shield' : r === 'tutor' ? 'lucide:user-check' : 'lucide:graduation-cap'}
-                className="w-3.5 h-3.5"
-              />
-              {r}
+              <Icon icon="lucide:log-in" className="w-4 h-4 inline mr-1.5" />
+              Sign In
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => {
+                setMode('register')
+                setError('')
+                setSuccess('')
+              }}
+              className={`flex-1 py-4 text-sm font-bold transition-all ${
+                mode === 'register'
+                  ? 'text-[#1A4095] border-b-2 border-[#1A4095] bg-blue-50/30'
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <Icon icon="lucide:user-plus" className="w-4 h-4 inline mr-1.5" />
+              Register
+            </button>
+          </div>
+
+          <div className="p-8">
+            {/* Error/Success Messages */}
+            {error && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2 animate-fade-in-down">
+                <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium flex items-center gap-2 animate-fade-in-down">
+                <Icon icon="lucide:check-circle" className="w-4 h-4 flex-shrink-0" />
+                <span>{success}</span>
+              </div>
+            )}
+
+            {/* Login Form */}
+            {mode === 'login' && (
+              <div className="animate-fade-in-up">
+                <h2 className="text-xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  Welcome Back
+                </h2>
+                <p className="text-xs text-gray-500 mb-6">Select your role and sign in to continue</p>
+
+                {/* Role Selector */}
+                <div className="grid grid-cols-4 gap-2 bg-gray-100 p-1 rounded-xl mb-5">
+                  {(['student', 'tutor', 'admin', 'principal'] as const).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => {
+                        setAccountType(r)
+                        setError('')
+                      }}
+                      className={`py-2 px-1 text-[11px] font-bold capitalize rounded-lg transition-all ${
+                        accountType === r ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Demo Auto-fill */}
+                <div className="mb-5 p-3 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-blue-950 block capitalize">Demo {accountType}</span>
+                    <span className="text-[11px] text-blue-700">{accountType}@digtechacademy.ug</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemo(accountType)}
+                    className="text-[11px] font-bold px-3 py-1 rounded-lg bg-[#1A4095] text-white hover:opacity-90"
+                  >
+                    Auto-fill
+                  </button>
+                </div>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      placeholder="user@digtechacademy.ug"
+                      className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showLoginPassword ? "text" : "password"}
+                        required
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-3 pr-12 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1A4095] transition-colors"
+                      >
+                        <Icon icon={showLoginPassword ? "lucide:eye-off" : "lucide:eye"} className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
+                      <input type="checkbox" className="rounded" />
+                      <span>Remember me</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setMode('reset')}
+                      className="font-bold text-[#1A4095] hover:underline"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all auth-button"
+                    style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
+                  >
+                    Sign In to {accountType.charAt(0).toUpperCase() + accountType.slice(1)} Portal →
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Register Form */}
+            {mode === 'register' && (
+              <div className="animate-fade-in-up">
+                <h2 className="text-xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  Create Account
+                </h2>
+                <p className="text-xs text-gray-500 mb-6">Join as a Student or Certified Tutor</p>
+
+                {/* Role Selector: Student & Tutor only */}
+                <div className="flex bg-gray-100 p-1 rounded-xl mb-5">
+                  <button
+                    type="button"
+                    onClick={() => setRegisterRole('student')}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      registerRole === 'student' ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500'
+                    }`}
+                  >
+                    <Icon icon="lucide:graduation-cap" className="w-4 h-4" /> Student
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRegisterRole('tutor')}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      registerRole === 'tutor' ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500'
+                    }`}
+                  >
+                    <Icon icon="lucide:user-check" className="w-4 h-4" /> Tutor
+                  </button>
+                </div>
+
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">First Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="John"
+                        className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Last Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Doe"
+                        className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      placeholder="john.doe@example.com"
+                      className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Phone Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value)}
+                      placeholder="0770123456"
+                      className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Password *</label>
+                    <div className="relative">
+                      <input
+                        type={showRegPassword ? "text" : "password"}
+                        required
+                        value={regPassword}
+                        onChange={(e) => setRegPassword(e.target.value)}
+                        placeholder="Min. 8 chars, uppercase, lowercase, numbers"
+                        className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegPassword(!showRegPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1A4095] transition-colors"
+                      >
+                        <Icon icon={showRegPassword ? "lucide:eye-off" : "lucide:eye"} className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {/* Password Strength Indicator */}
+                    {regPassword && (
+                      <div className="mt-2 space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full transition-all duration-300"
+                              style={{ 
+                                width: passwordStrength.strength === 'weak' ? '25%' : 
+                                       passwordStrength.strength === 'medium' ? '50%' : 
+                                       passwordStrength.strength === 'strong' ? '75%' : '100%',
+                                backgroundColor: passwordStrength.color
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-bold" style={{ color: passwordStrength.color }}>
+                              {passwordStrength.label}
+                            </span>
+                            {(passwordStrength.strength === 'strong' || passwordStrength.strength === 'very-strong') && (
+                              <Icon icon="lucide:check-circle" className="w-4 h-4" style={{ color: passwordStrength.color }} />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Confirm Password *</label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        required
+                        value={confirmPass}
+                        onChange={(e) => setConfirmPass(e.target.value)}
+                        placeholder="Re-enter your password"
+                        className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1A4095] transition-colors"
+                      >
+                        <Icon icon={showConfirmPassword ? "lucide:eye-off" : "lucide:eye"} className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={!!success}
+                    className="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-60 auth-button"
+                    style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
+                  >
+                    Create {registerRole.charAt(0).toUpperCase() + registerRole.slice(1)} Account
+                  </button>
+
+                  <p className="text-[11px] text-gray-500 text-center">
+                    By registering, you agree to our Terms of Service and Privacy Policy
+                  </p>
+                </form>
+              </div>
+            )}
+
+            {/* Password Reset Form */}
+            {mode === 'reset' && (
+              <div className="animate-fade-in-up">
+                <h2 className="text-xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  Reset Password
+                </h2>
+                <p className="text-xs text-gray-500 mb-6">
+                  Enter your email and we'll send you a password reset link
+                </p>
+
+                {resetSent ? (
+                  <div className="text-center py-6">
+                    <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Icon icon="lucide:mail-check" className="w-8 h-8" />
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Check Your Email</p>
+                    <p className="text-xs text-gray-500">We've sent a password reset link to {resetEmail}</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handlePasswordReset} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        placeholder="user@digtechacademy.ug"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1A4095] focus:ring-2 focus:ring-blue-100 transition-all"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all blue-btn-gradient-hover"
+                      style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
+                    >
+                      Send Reset Link
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setMode('login')}
+                      className="w-full text-xs text-gray-600 hover:text-gray-900 font-semibold"
+                    >
+                      ← Back to Sign In
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Demo Auto-fill Helper */}
-        <div className="mb-5 p-3 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center justify-between text-xs">
-          <div>
-            <span className="font-bold text-blue-950 block capitalize">Demo {role} Access</span>
-            <span className="text-[11px] text-blue-700">{role}@digtechacademy.ug</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleQuickDemo(role)}
-            className="text-[11px] font-bold px-3 py-1 rounded-lg bg-[#1A4095] text-white hover:opacity-90"
-          >
-            Auto-fill
-          </button>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
-            <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@digtechacademy.ug"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#1A4095]"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-md transition-all mt-2"
-            style={{ background: '#1A4095' }}
-          >
-            Sign In to {role.toUpperCase()} Portal →
-          </button>
-        </form>
-
-        <div className="mt-6 pt-4 border-t border-gray-100 text-center text-xs text-gray-500">
-          Need an account?{' '}
-          <button onClick={() => setFrame('register')} className="font-bold text-[#1A4095] hover:underline">
-            Register as Student or Tutor
-          </button>
+        {/* Footer Note */}
+        <div className="text-center mt-6 text-xs text-gray-500">
+          <p>Note: Admin and Principal accounts can only be created by existing Principals</p>
         </div>
       </div>
     </div>
   )
 }
 
-// ─── REGISTRATION PAGE (Students & Tutors) ────────────────────────────────────
+// Keep RegisterPage for backward compatibility (now just redirects to LoginPage in register mode)
 function RegisterPage({
   onRegisterSuccess,
   setFrame,
@@ -1606,151 +2419,8 @@ function RegisterPage({
   onRegisterSuccess: (email: string, role: string, name: string) => void
   setFrame: (f: Frame) => void
 }) {
-  const [role, setRole] = useState<'student' | 'tutor'>('student')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPass, setConfirmPass] = useState('')
-  const [error, setError] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (password !== confirmPass) {
-      setError('Passwords do not match.')
-      return
-    }
-    onRegisterSuccess(email, role, name)
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-        {/* Logo only - strictly without repeating text */}
-        <div className="text-center mb-6">
-          <button onClick={() => setFrame('home')} className="inline-block">
-            <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto" />
-          </button>
-          <h1 className="text-2xl font-extrabold text-gray-900 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Create Your Account
-          </h1>
-          <p className="text-xs text-gray-500 mt-1">Join Digtech Academy as a Student or Certified Tutor</p>
-        </div>
-
-        {/* Role Selector: Student & Tutor only */}
-        <div className="flex bg-gray-100 p-1 rounded-xl mb-5">
-          <button
-            type="button"
-            onClick={() => setRole('student')}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              role === 'student' ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500'
-            }`}
-          >
-            <Icon icon="lucide:graduation-cap" className="w-4 h-4" /> Student Account
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('tutor')}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              role === 'tutor' ? 'bg-white text-[#1A4095] shadow-sm' : 'text-gray-500'
-            }`}
-          >
-            <Icon icon="lucide:user-check" className="w-4 h-4" /> Tutor Account
-          </button>
-        </div>
-
-        <div className="mb-4 p-2.5 rounded-xl bg-amber-50 border border-amber-100 text-[11px] text-amber-800 flex items-center gap-1.5">
-          <Icon icon="lucide:info" className="w-3.5 h-3.5 flex-shrink-0" />
-          <span>Admin accounts are provisioned exclusively by the Academy Principal.</span>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
-            <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Full Name</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. David Mukisa"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="student@example.com"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Phone Number</label>
-            <input
-              type="tel"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+256 700 000 000"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-[#1A4095]"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#1A4095]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Confirm</label>
-              <input
-                type="password"
-                required
-                value={confirmPass}
-                onChange={(e) => setConfirmPass(e.target.value)}
-                placeholder="••••••••"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#1A4095]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-xl text-white font-bold text-xs shadow-md transition-all mt-2"
-            style={{ background: '#1A4095' }}
-          >
-            Create {role.toUpperCase()} Account →
-          </button>
-        </form>
-
-        <div className="mt-5 pt-4 border-t border-gray-100 text-center text-xs text-gray-500">
-          Already registered?{' '}
-          <button onClick={() => setFrame('login')} className="font-bold text-[#1A4095] hover:underline">
-            Sign In here
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+  // This function is kept for compatibility but we now use LoginPage with mode='register'
+  return <LoginPage onLoginSuccess={onRegisterSuccess} setFrame={setFrame} />
 }
 
 // ─── ADMIN DASHBOARD (With Success Stories Manager) ───────────────────────────
@@ -1776,7 +2446,7 @@ function AdminDashboard({
       name: newStoryName,
       role: newStoryRole || 'Academy Graduate',
       text: newStoryText,
-      avatar: '/images/pexels-photo-8384894.jpeg',
+      avatar: '/images/liveclass1.png',
       rating: 5,
     }
     setTestimonials([newStory, ...testimonials])
@@ -2061,27 +2731,558 @@ function PrincipalDashboard({
 }
 
 // ─── STUDENT & TUTOR DASHBOARDS & ABOUT & CONTACT ─────────────────────────────
+// ─── USER PROFILE COMPONENT (Shared between Student & Tutor) ──────────────────
+function UserProfile() {
+  const [profile, setProfile] = useState({
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'student@digtechacademy.ug',
+    phone: '0770123456',
+    role: 'student',
+    bio: 'Passionate learner exploring data science and web development.',
+  })
+  const [profileImage, setProfileImage] = useState('/images/liveclass3.png')
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (JPG, PNG, etc.)')
+      return
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB')
+      return
+    }
+
+    setUploading(true)
+
+    // Simulate upload process
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      setImagePreview(result)
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        setProfileImage(result)
+        setImagePreview(null)
+        setUploading(false)
+        setSuccessMessage('Profile picture updated successfully!')
+        setTimeout(() => setSuccessMessage(''), 3000)
+      }, 1000)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSaveProfile = () => {
+    // Validate phone number format
+    const phoneRegex = /^(\+?256|0)?[7][0-9]{8}$/
+    if (!phoneRegex.test(profile.phone.replace(/[\s\-\(\)]/g, ''))) {
+      alert('Please enter a valid Ugandan phone number (e.g., 0770123456)')
+      return
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(profile.email)) {
+      alert('Please enter a valid email address')
+      return
+    }
+
+    // Validate names
+    if (profile.firstName.trim().length < 2 || profile.lastName.trim().length < 2) {
+      alert('First name and last name must be at least 2 characters each')
+      return
+    }
+
+    setSuccessMessage('Profile updated successfully!')
+    setEditing(false)
+    setTimeout(() => setSuccessMessage(''), 3000)
+  }
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          My Profile
+        </h2>
+        <button
+          onClick={() => editing ? handleSaveProfile() : setEditing(true)}
+          className="text-xs font-bold px-4 py-2 rounded-xl bg-[#1A4095] text-white hover:opacity-90 transition-all"
+        >
+          {editing ? 'Save Changes' : 'Edit Profile'}
+        </button>
+      </div>
+
+      {successMessage && (
+        <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium flex items-center gap-2 animate-fade-in-down">
+          <Icon icon="lucide:check-circle" className="w-4 h-4 flex-shrink-0" />
+          <span>{successMessage}</span>
+        </div>
+      )}
+
+      {/* Profile Photo Upload */}
+      <div className="flex flex-col items-center mb-6">
+        <div className="relative group">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
+            {imagePreview ? (
+              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+            )}
+          </div>
+          <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <div className="text-center">
+              <Icon icon="lucide:camera" className="w-8 h-8 text-white mx-auto mb-1" />
+              <span className="text-xs text-white font-bold">Change Photo</span>
+            </div>
+          </label>
+        </div>
+        
+        {uploading && (
+          <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+            <Icon icon="lucide:loader-2" className="w-3 h-3 animate-spin" />
+            Uploading image...
+          </div>
+        )}
+        
+        <p className="text-xs text-gray-500 mt-2">Click photo to upload (JPG/PNG, max 5MB)</p>
+      </div>
+
+      {/* Profile Form */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+            First Name
+          </label>
+          <input
+            type="text"
+            value={profile.firstName}
+            onChange={(e) => setProfile({...profile, firstName: e.target.value})}
+            disabled={!editing}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095] disabled:bg-gray-50 disabled:text-gray-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+            Last Name
+          </label>
+          <input
+            type="text"
+            value={profile.lastName}
+            onChange={(e) => setProfile({...profile, lastName: e.target.value})}
+            disabled={!editing}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095] disabled:bg-gray-50 disabled:text-gray-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+            Email Address
+          </label>
+          <input
+            type="email"
+            value={profile.email}
+            onChange={(e) => setProfile({...profile, email: e.target.value})}
+            disabled={!editing}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095] disabled:bg-gray-50 disabled:text-gray-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            value={profile.phone}
+            onChange={(e) => setProfile({...profile, phone: e.target.value})}
+            disabled={!editing}
+            placeholder="0770123456"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095] disabled:bg-gray-50 disabled:text-gray-500"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+          Bio / About Me
+        </label>
+        <textarea
+          value={profile.bio}
+          onChange={(e) => setProfile({...profile, bio: e.target.value})}
+          disabled={!editing}
+          rows={3}
+          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-[#1A4095] disabled:bg-gray-50 disabled:text-gray-500"
+        />
+      </div>
+
+      {editing && (
+        <div className="mt-6 pt-4 border-t border-gray-100">
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                setSuccessMessage('Account deletion requested. Please contact support for final confirmation.')
+                setTimeout(() => setSuccessMessage(''), 3000)
+              }
+            }}
+            className="text-xs font-bold text-red-600 hover:text-red-800 px-4 py-2 border border-red-200 rounded-xl hover:bg-red-50 transition-all"
+          >
+            <Icon icon="lucide:trash-2" className="w-3.5 h-3.5 inline mr-1.5" />
+            Delete Account
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function StudentDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
       <h1 className="text-2xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
         Student Learning Portal
       </h1>
-      <p className="text-xs text-gray-500 mb-8">Access your enrolled courses and verifiable certificates</p>
-      <div className="grid md:grid-cols-2 gap-6">
-        <CourseCard course={INITIAL_COURSES[0]} onClick={() => {}} />
+      <p className="text-xs text-gray-500 mb-8">Access your enrolled courses and manage your profile</p>
+      
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* User Profile */}
+        <div className="md:col-span-1">
+          <UserProfile />
+        </div>
+
+        {/* Enrolled Courses */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              My Enrolled Courses
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <CourseCard course={INITIAL_COURSES[0]} onClick={() => {}} />
+              <CourseCard course={INITIAL_COURSES[1]} onClick={() => {}} />
+            </div>
+          </div>
+
+          {/* Certificates */}
+          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              My Certificates
+            </h2>
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
+              <div>
+                <div className="text-xs font-bold text-gray-900">Python for Data Science</div>
+                <div className="text-[11px] text-gray-500">Issued: Jan 15, 2024 • Expires: Never</div>
+              </div>
+              <button className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#1A4095] text-white hover:opacity-90">
+                View Certificate
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 function TutorDashboard() {
+  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'modules' | 'fees' | 'students' | 'exams' | 'marks' | 'certificates' | 'links'>('overview')
+  const [courses, setCourses] = useState(INITIAL_COURSES)
+  const [showCourseModal, setShowCourseModal] = useState(false)
+  const [showModuleModal, setShowModuleModal] = useState(false)
+  const [showExamModal, setShowExamModal] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState<any>(null)
+  
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="text-2xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-        Tutor Studio & Curriculum
-      </h1>
-      <p className="text-xs text-gray-500 mb-8">Manage course modules, grade assignments, and request PesaPal payouts</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-3">
+              <img src="/images/Digtech Academy Logo.png" alt="Digtech" className="h-10 w-auto" />
+              <div>
+                <div className="text-xs font-bold text-[#1A4095]">Tutor Dashboard</div>
+                <div className="text-[10px] text-gray-500">Content & Student Management</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-xs font-bold text-gray-900">Grace Nakato</div>
+                <div className="text-[10px] text-gray-500">Verified Tutor</div>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#1A4095] to-[#28C0F4] flex items-center justify-center text-white font-bold">
+                GN
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex gap-1 overflow-x-auto py-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: 'lucide:layout-dashboard' },
+              { id: 'courses', label: 'My Courses', icon: 'lucide:book-open' },
+              { id: 'modules', label: 'Modules', icon: 'lucide:layers' },
+              { id: 'fees', label: 'Fee Management', icon: 'lucide:dollar-sign' },
+              { id: 'students', label: 'Students', icon: 'lucide:users' },
+              { id: 'exams', label: 'Exams & Tests', icon: 'lucide:file-text' },
+              { id: 'marks', label: 'Marks & Grades', icon: 'lucide:award' },
+              { id: 'certificates', label: 'Certificates', icon: 'lucide:badge-check' },
+              { id: 'links', label: 'Live Links', icon: 'lucide:video' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-[#1A4095] text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Icon icon={tab.icon} className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Welcome Back, Grace!
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">Here's what's happening with your courses today</p>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-2xl border-2 border-[#28C0F4]/30 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Icon icon="lucide:book-open" className="w-6 h-6 text-[#1A4095]" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-extrabold text-[#1A4095]">6</div>
+                    <div className="text-xs text-gray-500">Active Courses</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border-2 border-[#28C0F4]/30 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                    <Icon icon="lucide:users" className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-extrabold text-green-600">548</div>
+                    <div className="text-xs text-gray-500">Total Students</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border-2 border-[#28C0F4]/30 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
+                    <Icon icon="lucide:clock" className="w-6 h-6 text-yellow-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-extrabold text-yellow-600">12</div>
+                    <div className="text-xs text-gray-500">Pending Approvals</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border-2 border-[#28C0F4]/30 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <Icon icon="lucide:dollar-sign" className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-extrabold text-purple-600">12.5M</div>
+                    <div className="text-xs text-gray-500">Total Earnings (UGX)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Quick Actions
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onClick={() => setActiveTab('courses')} className="p-4 rounded-xl border-2 border-[#28C0F4]/30 hover:bg-blue-50 transition-all">
+                  <Icon icon="lucide:plus-circle" className="w-8 h-8 text-[#1A4095] mx-auto mb-2" />
+                  <div className="text-xs font-bold text-gray-900">Create Course</div>
+                </button>
+                <button onClick={() => setActiveTab('modules')} className="p-4 rounded-xl border-2 border-[#28C0F4]/30 hover:bg-blue-50 transition-all">
+                  <Icon icon="lucide:layers" className="w-8 h-8 text-[#1A4095] mx-auto mb-2" />
+                  <div className="text-xs font-bold text-gray-900">Add Module</div>
+                </button>
+                <button onClick={() => setActiveTab('exams')} className="p-4 rounded-xl border-2 border-[#28C0F4]/30 hover:bg-blue-50 transition-all">
+                  <Icon icon="lucide:file-plus" className="w-8 h-8 text-[#1A4095] mx-auto mb-2" />
+                  <div className="text-xs font-bold text-gray-900">Create Exam</div>
+                </button>
+                <button onClick={() => setActiveTab('students')} className="p-4 rounded-xl border-2 border-[#28C0F4]/30 hover:bg-blue-50 transition-all">
+                  <Icon icon="lucide:user-plus" className="w-8 h-8 text-[#1A4095] mx-auto mb-2" />
+                  <div className="text-xs font-bold text-gray-900">Add Student</div>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Courses Tab */}
+        {activeTab === 'courses' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  My Courses
+                </h1>
+                <p className="text-sm text-gray-500 mt-1">Manage your course content and settings</p>
+              </div>
+              <button 
+                onClick={() => setShowCourseModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all"
+              >
+                <Icon icon="lucide:plus" className="w-4 h-4" />
+                Create New Course
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.slice(0, 6).map((course) => (
+                <div key={course.id} className="bg-white rounded-2xl border-2 border-[#28C0F4]/30 overflow-hidden shadow-sm hover:shadow-lg transition-all">
+                  <img src={course.image} alt={course.title} className="w-full h-40 object-cover" />
+                  <div className="p-4">
+                    <h3 className="font-bold text-sm text-gray-900 mb-2">{course.title}</h3>
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                      <span>{course.students} students</span>
+                      <span className="flex items-center gap-1">
+                        <Icon icon="lucide:star" className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        {course.rating}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="flex-1 py-2 px-3 rounded-lg bg-[#1A4095] text-white text-xs font-bold hover:opacity-90">
+                        Edit
+                      </button>
+                      <button className="flex-1 py-2 px-3 rounded-lg border-2 border-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-50">
+                        Modules
+                      </button>
+                      <button className="py-2 px-3 rounded-lg border-2 border-red-200 text-red-600 text-xs font-bold hover:bg-red-50">
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Other tabs with placeholder content */}
+        {activeTab === 'modules' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:layers" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Module Management</h2>
+            <p className="text-sm text-gray-500 mb-4">Create and manage sub-courses/modules under your main courses</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              Create First Module
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'fees' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:dollar-sign" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Fee Management</h2>
+            <p className="text-sm text-gray-500 mb-4">Set, update, and lock course and module fees</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              Configure Fees
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'students' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:users" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Student Management</h2>
+            <p className="text-sm text-gray-500 mb-4">Add, approve, and manage your students</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              View Students
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'exams' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:file-text" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Exam System</h2>
+            <p className="text-sm text-gray-500 mb-4">Create exams, set time limits, and track submissions</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              Create Exam
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'marks' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:award" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Marks & Grading</h2>
+            <p className="text-sm text-gray-500 mb-4">Enter marks, calculate grades, and view analytics</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              Grade Students
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'certificates' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:badge-check" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Certificate Management</h2>
+            <p className="text-sm text-gray-500 mb-4">Generate and issue certificates to students</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              Issue Certificate
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'links' && (
+          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+            <Icon icon="lucide:video" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Live Class Links</h2>
+            <p className="text-sm text-gray-500 mb-4">Add and manage Google Meet, Zoom, and YouTube links</p>
+            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
+              Add Link
+            </button>
+          </div>
+        )}
+
+      </div>
     </div>
   )
 }
@@ -2102,13 +3303,53 @@ function AboutPage() {
 function ContactPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="text-3xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+      <h1 className="text-3xl font-extrabold text-gray-900 mb-8 text-center" style={{ fontFamily: 'Montserrat, sans-serif' }}>
         Contact Digtech Academy
       </h1>
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4 text-xs text-gray-600">
-        <p><strong>Campus Location:</strong> Level 2 Grand West Arcade, High Street Mbarara City - Uganda</p>
-        <p><strong>Phone:</strong> +256 (0) 770 613 201</p>
-        <p><strong>Email:</strong> info@digtechsolutionshub.com</p>
+      <div className="contact-box-animated space-y-6 text-sm text-gray-700">
+        <div className="text-center">
+          <p className="font-bold text-lg text-[#1A4095] mb-2">Campus Location</p>
+          <p>Level 2 Grand West Arcade</p>
+          <p>High Street Mbarara City - Uganda</p>
+          <a 
+            href="https://maps.google.com/?q=Level+2+Grand+West+Arcade+Mbarara" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 mt-2 text-[#28C0F4] hover:text-[#1A4095] font-semibold transition-colors"
+          >
+            <Icon icon="lucide:map-pin" className="w-4 h-4" />
+            View on Map
+          </a>
+        </div>
+        <div className="text-center">
+          <p className="font-bold text-lg text-[#1A4095] mb-2">Phone</p>
+          <a href="tel:+256770613201" className="text-[#28C0F4] hover:text-[#1A4095] font-semibold transition-colors">
+            +256 (0) 770 613 201
+          </a>
+        </div>
+        <div className="text-center">
+          <p className="font-bold text-lg text-[#1A4095] mb-2">Email</p>
+          <a href="mailto:info@digtechsolutionshub.com" className="text-[#28C0F4] hover:text-[#1A4095] font-semibold transition-colors">
+            info@digtechsolutionshub.com
+          </a>
+        </div>
+        <div className="text-center pt-4 border-t border-gray-200">
+          <p className="font-bold text-sm text-[#1A4095] mb-3">Connect With Us</p>
+          <div className="flex justify-center gap-4">
+            <a href="https://facebook.com/digtechacademy" target="_blank" rel="noopener noreferrer" className="text-[#28C0F4] hover:text-[#1A4095] transition-colors">
+              <Icon icon="lucide:facebook" className="w-6 h-6" />
+            </a>
+            <a href="https://twitter.com/digtechacademy" target="_blank" rel="noopener noreferrer" className="text-[#28C0F4] hover:text-[#1A4095] transition-colors">
+              <Icon icon="lucide:twitter" className="w-6 h-6" />
+            </a>
+            <a href="https://instagram.com/digtechacademy" target="_blank" rel="noopener noreferrer" className="text-[#28C0F4] hover:text-[#1A4095] transition-colors">
+              <Icon icon="lucide:instagram" className="w-6 h-6" />
+            </a>
+            <a href="https://linkedin.com/company/digtechacademy" target="_blank" rel="noopener noreferrer" className="text-[#28C0F4] hover:text-[#1A4095] transition-colors">
+              <Icon icon="lucide:linkedin" className="w-6 h-6" />
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -2121,6 +3362,31 @@ export default function App() {
   const [testimonials, setTestimonials] = useState<SuccessStory[]>(INITIAL_TESTIMONIALS)
   const [admins, setAdmins] = useState<AdminUser[]>(INITIAL_ADMINS)
 
+  // Check for existing Supabase session on app load
+  useEffect(() => {
+    const checkSession = async () => {
+      const { session } = await auth.getSession()
+      
+      if (session?.user) {
+        // Get user profile from database
+        const { data: userData, error } = await db.users.getById(session.user.id)
+        
+        if (userData && !error) {
+          setCurrentUser({
+            email: userData.email,
+            role: userData.role,
+            name: userData.full_name
+          })
+          
+          // Update last login
+          await db.users.update(session.user.id, { last_login: new Date().toISOString() })
+        }
+      }
+    }
+    
+    checkSession()
+  }, [])
+
   const handleLoginSuccess = (email: string, role: string, name: string) => {
     setCurrentUser({ email, role, name })
     if (role === 'admin') setFrame('admin-dashboard')
@@ -2129,7 +3395,9 @@ export default function App() {
     else setFrame('student-dashboard')
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Sign out from Supabase
+    await auth.signOut()
     setCurrentUser(null)
     setFrame('home')
   }

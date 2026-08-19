@@ -19,11 +19,11 @@ export function Footer() {
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-gray-400">
             {[
-              { icon: 'lucide:facebook', href: 'https://facebook.com/digtechacademy', label: 'Facebook' },
+              { icon: 'lucide:facebook', href: 'https://www.facebook.com/digtechsolutionshub/', label: 'Facebook' },
               { icon: 'lucide:instagram', href: 'https://instagram.com/digtechacademy', label: 'Instagram' },
-              { icon: 'lucide:twitter', href: 'https://x.com/digtechacademy', label: 'X (Twitter)' },
-              { icon: 'mdi:tiktok', href: 'https://tiktok.com/@digtechacademy', label: 'TikTok' },
-              { icon: 'lucide:linkedin', href: 'https://linkedin.com/company/digtechacademy', label: 'LinkedIn' },
+              { icon: 'lucide:twitter', href: 'https://x.com/Digtech1', label: 'X (Twitter)' },
+              { icon: 'mdi:tiktok', href: 'https://www.tiktok.com/@korabusiness/video/7543967921161112888', label: 'TikTok' },
+              { icon: 'lucide:linkedin', href: 'https://ug.linkedin.com/company/digtech-solutions-hub', label: 'LinkedIn' },
               { icon: 'lucide:youtube', href: 'https://youtube.com/@digtechacademy', label: 'YouTube' },
               { icon: 'mdi:whatsapp', href: 'https://wa.me/256770613201', label: 'WhatsApp' },
             ].map((s, i) => (
