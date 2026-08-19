@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react'
 import { simulateCompletePaymentFlow, validatePaymentDetails, getMerchantAccount } from './utils/pesapal'
 import { auth, db, logActivity } from './lib/supabase'
 import { CourseForm } from './components/CourseForm'
+import { EnrollmentForm } from './components/EnrollmentForm'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Frame =
@@ -267,9 +268,11 @@ function Badge({ children, color = 'blue' }: { children: React.ReactNode; color?
 function CourseCard({
   course,
   onClick,
+  onEnroll,
 }: {
   course: typeof INITIAL_COURSES[0]
   onClick: () => void
+  onEnroll?: (course: any) => void
 }) {
   return (
     <div
@@ -319,10 +322,16 @@ function CourseCard({
           {course.free ? 'Free' : `UGX ${course.price.toLocaleString()}`}
         </span>
         <button
+          onClick={(e) => {
+            e.stopPropagation()
+            if (onEnroll) {
+              onEnroll({ id: course.id, title: course.title })
+            }
+          }}
           className="text-xs font-bold px-4 py-2 rounded-xl text-white transition-all hover:scale-105 active:scale-95 shadow-sm"
           style={{ background: '#28C0F4' }}
         >
-          Enroll Now
+          Apply Now
         </button>
       </div>
     </div>
@@ -724,9 +733,11 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 function HomePage({
   setFrame,
   testimonials,
+  onEnroll,
 }: {
   setFrame: (f: Frame) => void
   testimonials: SuccessStory[]
+  onEnroll: (course?: { id: number; title: string }) => void
 }) {
   const [searchQ, setSearchQ] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -955,7 +966,7 @@ function HomePage({
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedCourses.slice(0, 6).map((c) => (
-              <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} />
+              <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} onEnroll={onEnroll} />
             ))}
           </div>
         </div>
@@ -1011,7 +1022,7 @@ function HomePage({
 }
 
 // ─── COURSES PAGE ──────────────────────────────────────────────────────────────
-function CoursesPage({ setFrame }: { setFrame: (f: Frame) => void }) {
+function CoursesPage({ setFrame, onEnroll }: { setFrame: (f: Frame) => void; onEnroll: (course?: { id: number; title: string }) => void }) {
   const [selectedCat, setSelectedCat] = useState('All')
   const [selectedLevel, setSelectedLevel] = useState('All')
   const [searchQ, setSearchQ] = useState('')
@@ -1101,7 +1112,7 @@ function CoursesPage({ setFrame }: { setFrame: (f: Frame) => void }) {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 section-zoom-animate">
           {filtered.map((c) => (
-            <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} />
+            <CourseCard key={c.id} course={c} onClick={() => setFrame('course-detail')} onEnroll={onEnroll} />
           ))}
         </div>
       )}
@@ -2951,8 +2962,8 @@ function StudentDashboard() {
               My Enrolled Courses
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
-              <CourseCard course={INITIAL_COURSES[0]} onClick={() => {}} />
-              <CourseCard course={INITIAL_COURSES[1]} onClick={() => {}} />
+              <CourseCard course={INITIAL_COURSES[0]} onClick={() => {}} onEnroll={() => {}} />
+              <CourseCard course={INITIAL_COURSES[1]} onClick={() => {}} onEnroll={() => {}} />
             </div>
           </div>
 
@@ -3470,6 +3481,8 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<{ email: string; role: string; name?: string } | null>(null)
   const [testimonials, setTestimonials] = useState<SuccessStory[]>(INITIAL_TESTIMONIALS)
   const [admins, setAdmins] = useState<AdminUser[]>(INITIAL_ADMINS)
+  const [showEnrollmentForm, setShowEnrollmentForm] = useState(false)
+  const [selectedCourseForEnrollment, setSelectedCourseForEnrollment] = useState<{ id: number; title: string } | undefined>(undefined)
 
   // Check for existing Supabase session on app load
   useEffect(() => {
@@ -3511,6 +3524,29 @@ export default function App() {
     setFrame('home')
   }
 
+  const handleEnrollClick = (course?: { id: number; title: string }) => {
+    // If user is not logged in, redirect to login/register
+    if (!currentUser) {
+      setFrame('login')
+      return
+    }
+    
+    // Open enrollment form
+    setSelectedCourseForEnrollment(course)
+    setShowEnrollmentForm(true)
+  }
+
+  const handleEnrollmentSuccess = () => {
+    setShowEnrollmentForm(false)
+    setSelectedCourseForEnrollment(undefined)
+    alert('Application submitted successfully! We\'ll review your application and contact you within 24-48 hours.')
+  }
+
+  const handleEnrollmentClose = () => {
+    setShowEnrollmentForm(false)
+    setSelectedCourseForEnrollment(undefined)
+  }
+
   const isFullDashboard = ['admin-dashboard', 'principal-dashboard'].includes(frame)
 
   return (
@@ -3525,8 +3561,8 @@ export default function App() {
       )}
 
       <div className="flex-1">
-        {frame === 'home' && <HomePage setFrame={setFrame} testimonials={testimonials} />}
-        {frame === 'courses' && <CoursesPage setFrame={setFrame} />}
+        {frame === 'home' && <HomePage setFrame={setFrame} testimonials={testimonials} onEnroll={handleEnrollClick} />}
+        {frame === 'courses' && <CoursesPage setFrame={setFrame} onEnroll={handleEnrollClick} />}
         {frame === 'course-detail' && <CourseDetailPage />}
         {frame === 'live-courses' && <LiveCoursesPage />}
         {frame === 'about' && <AboutPage />}
@@ -3549,6 +3585,15 @@ export default function App() {
       </div>
 
       {!isFullDashboard && <Footer setFrame={setFrame} />}
+
+      {/* Enrollment Form Modal */}
+      {showEnrollmentForm && (
+        <EnrollmentForm
+          onClose={handleEnrollmentClose}
+          onSuccess={handleEnrollmentSuccess}
+          preSelectedCourse={selectedCourseForEnrollment}
+        />
+      )}
     </div>
   )
 }

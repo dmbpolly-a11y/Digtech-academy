@@ -211,7 +211,7 @@ export const db = {
       const { data, error } = await supabase
         .from('media_links')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false})
       return { data, error }
     },
 
@@ -238,6 +238,69 @@ export const db = {
         .delete()
         .eq('id', id)
       return { error }
+    },
+  },
+
+  // Enrollments
+  enrollments: {
+    getAll: async () => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .select('*, courses(*)')
+        .order('created_at', { ascending: false })
+      return { data, error }
+    },
+
+    getById: async (id: number) => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .select('*, courses(*)')
+        .eq('id', id)
+        .single()
+      return { data, error }
+    },
+
+    create: async (enrollment: any) => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .insert([enrollment])
+        .select()
+      return { data, error }
+    },
+
+    update: async (id: number, updates: any) => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .update(updates)
+        .eq('id', id)
+        .select()
+      return { data, error }
+    },
+
+    delete: async (id: number) => {
+      const { error } = await supabase
+        .from('enrollments')
+        .delete()
+        .eq('id', id)
+      return { error }
+    },
+
+    getByStatus: async (status: string) => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .select('*, courses(*)')
+        .eq('status', status)
+        .order('created_at', { ascending: false })
+      return { data, error }
+    },
+
+    getByCourse: async (courseId: number) => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: false })
+      return { data, error }
     },
   },
 }
