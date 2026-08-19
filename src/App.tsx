@@ -2460,12 +2460,12 @@ function AdminDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%)' }}>
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen hidden md:flex p-5">
-        <div className="pb-4 border-b border-gray-100">
-          <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
-          <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mt-1">Admin Operations</div>
+      <aside className="w-64 flex flex-col sticky top-0 h-screen hidden md:flex p-5" style={{ background: 'linear-gradient(180deg, #1A4095 0%, #0d2556 100%)' }}>
+        <div className="pb-4 border-b border-blue-400/20">
+          <img src="/images/Digtech Academy Logo White.png" alt="Digtech Academy" className="h-8 w-auto object-contain" />
+          <div className="text-[10px] font-bold text-blue-200 uppercase tracking-wider mt-1">Admin Operations</div>
         </div>
 
         <nav className="flex-1 py-4 space-y-1">
@@ -2478,7 +2478,7 @@ function AdminDashboard({
               key={item.id}
               onClick={() => setTab(item.id as any)}
               className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-left transition-all ${
-                tab === item.id ? 'bg-[#1A4095] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'
+                tab === item.id ? 'bg-white/20 text-white shadow-lg backdrop-blur' : 'text-blue-200 hover:bg-white/10'
               }`}
             >
               <Icon icon={item.icon} className="w-4 h-4" />
@@ -2489,7 +2489,7 @@ function AdminDashboard({
 
         <button
           onClick={onLogout}
-          className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl"
+          className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-300 hover:bg-red-500/20 rounded-xl transition-all"
         >
           <Icon icon="lucide:log-out" className="w-4 h-4" /> Sign Out
         </button>
@@ -2499,19 +2499,25 @@ function AdminDashboard({
       <main className="flex-1 p-8">
         {tab === 'overview' && (
           <div>
-            <h1 className="text-2xl font-extrabold text-gray-900 mb-6" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              System Analytics Overview
-            </h1>
+            <div className="bg-gradient-to-r from-[#1A4095] to-[#28C0F4] rounded-2xl p-6 mb-6 text-white shadow-lg">
+              <h1 className="text-2xl font-extrabold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                System Analytics Overview
+              </h1>
+              <p className="text-blue-100 text-sm">Real-time performance metrics for DigiTech Academy</p>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {[
-                { label: 'Total Students', val: '5,248', color: '#1A4095' },
-                { label: 'Active Tutors', val: '48', color: '#28C0F4' },
-                { label: 'Revenue (PesaPal)', val: 'UGX 186M', color: '#10B981' },
-                { label: 'Success Stories', val: `${testimonials.length}`, color: '#F59E0B' },
+                { label: 'Total Students', val: '5,248', color: '#1A4095', icon: 'lucide:users' },
+                { label: 'Active Tutors', val: '48', color: '#28C0F4', icon: 'lucide:user-check' },
+                { label: 'Revenue (PesaPal)', val: 'UGX 186M', color: '#10B981', icon: 'lucide:banknote' },
+                { label: 'Success Stories', val: `${testimonials.length}`, color: '#F59E0B', icon: 'lucide:star' },
               ].map((s) => (
-                <div key={s.label} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                  <div className="text-2xl font-extrabold" style={{ color: s.color }}>{s.val}</div>
-                  <div className="text-xs text-gray-400 mt-1">{s.label}</div>
+                <div key={s.label} className="bg-white p-5 rounded-2xl border-2 border-blue-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-2xl font-extrabold" style={{ color: s.color }}>{s.val}</div>
+                    <Icon icon={s.icon} className="w-8 h-8 opacity-20" style={{ color: s.color }} />
+                  </div>
+                  <div className="text-xs text-gray-600 font-medium">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -2520,9 +2526,12 @@ function AdminDashboard({
 
         {tab === 'stories' && (
           <div className="space-y-6">
-            <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Publish & Manage Student Success Stories
-            </h1>
+            <div className="bg-gradient-to-r from-[#1A4095] to-[#28C0F4] rounded-2xl p-6 text-white shadow-lg">
+              <h1 className="text-2xl font-extrabold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Publish & Manage Student Success Stories
+              </h1>
+              <p className="text-blue-100 text-sm">Share inspiring student achievements with the world</p>
+            </div>
 
             {/* Create Story Form */}
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
@@ -3006,24 +3015,24 @@ function TutorDashboard() {
   const [selectedCourse, setSelectedCourse] = useState<any>(null)
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%)' }}>
       {/* Top Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
+      <div className="sticky top-0 z-40 shadow-sm" style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <img src="/images/Digtech Academy Logo.png" alt="Digtech" className="h-10 w-auto" />
+              <img src="/images/Digtech Academy Logo White.png" alt="Digtech" className="h-10 w-auto" />
               <div>
-                <div className="text-xs font-bold text-[#1A4095]">Tutor Dashboard</div>
-                <div className="text-[10px] text-gray-500">Content & Student Management</div>
+                <div className="text-xs font-bold text-white">Tutor Dashboard</div>
+                <div className="text-[10px] text-blue-100">Content & Student Management</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <div className="text-xs font-bold text-gray-900">Grace Nakato</div>
-                <div className="text-[10px] text-gray-500">Verified Tutor</div>
+                <div className="text-xs font-bold text-white">Grace Nakato</div>
+                <div className="text-[10px] text-blue-100">Verified Tutor</div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#1A4095] to-[#28C0F4] flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold border-2 border-white/30">
                 GN
               </div>
             </div>
@@ -3032,7 +3041,7 @@ function TutorDashboard() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-white/80 backdrop-blur border-b border-blue-100 sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto py-2">
             {[
@@ -3051,8 +3060,8 @@ function TutorDashboard() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                   activeTab === tab.id
-                    ? 'bg-[#1A4095] text-white shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white shadow-lg'
+                    : 'text-gray-600 hover:bg-blue-50'
                 }`}
               >
                 <Icon icon={tab.icon} className="w-4 h-4" />
@@ -3069,11 +3078,11 @@ function TutorDashboard() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            <div className="bg-gradient-to-r from-[#1A4095] to-[#28C0F4] rounded-2xl p-6 text-white shadow-lg">
+              <h1 className="text-2xl font-extrabold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                 Welcome Back, Grace!
               </h1>
-              <p className="text-sm text-gray-500 mt-1">Here's what's happening with your courses today</p>
+              <p className="text-sm text-blue-100">Here's what's happening with your courses today</p>
             </div>
 
             {/* Stats Grid */}
