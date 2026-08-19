@@ -372,7 +372,7 @@ function PublicNav({
           <img
             src="/images/Digtech Academy Logo.png"
             alt="Digtech Academy"
-            className="h-8 w-auto object-contain group-hover:scale-105 transition-transform"
+            className="h-16 w-auto object-contain group-hover:scale-105 transition-transform"
           />
         </button>
 
@@ -1348,7 +1348,7 @@ function LiveCoursesPage() {
 }
 
 // ─── COURSE DETAIL & PESAPAL PAYMENT ──────────────────────────────────────────
-function CourseDetailPage({ onEnroll }: { onEnroll: (course?: { id: number; title: string }) => void }) {
+function CourseDetailPage() {
   const course = INITIAL_COURSES[0]
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -1438,11 +1438,14 @@ function CourseDetailPage({ onEnroll }: { onEnroll: (course?: { id: number; titl
               UGX {course.price.toLocaleString()}
             </div>
             <button
-              onClick={() => onEnroll({ id: course.id, title: course.title })}
+              onClick={() => {
+                setShowPaymentModal(true)
+                setPaymentSuccess(false)
+              }}
               className="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all mb-3 cursor-pointer"
               style={{ background: '#28C0F4' }}
             >
-              Apply Now - Complete Enrollment Form
+              Enroll with PesaPal
             </button>
             <div className="space-y-2 text-xs text-gray-600 pt-3 border-t border-gray-100">
               <div className="flex items-center gap-2"><Icon icon="lucide:check-circle" className="w-4 h-4 text-emerald-500" /> Instant access to all modules</div>
@@ -3560,7 +3563,7 @@ export default function App() {
       <div className="flex-1">
         {frame === 'home' && <HomePage setFrame={setFrame} testimonials={testimonials} onEnroll={handleEnrollClick} />}
         {frame === 'courses' && <CoursesPage setFrame={setFrame} onEnroll={handleEnrollClick} />}
-        {frame === 'course-detail' && <CourseDetailPage onEnroll={handleEnrollClick} />}
+        {frame === 'course-detail' && <CourseDetailPage />}
         {frame === 'live-courses' && <LiveCoursesPage />}
         {frame === 'about' && <AboutPage />}
         {frame === 'contact' && <ContactPage />}
