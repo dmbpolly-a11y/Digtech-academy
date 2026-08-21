@@ -1121,7 +1121,7 @@ function CoursesPage({ setFrame, onEnroll }: { setFrame: (f: Frame) => void; onE
 }
 
 // ─── LIVE COURSES PAGE (With Platform Links & Details) ────────────────────────
-function LiveCoursesPage() {
+function LiveCoursesPage({ onEnroll }: { onEnroll?: (course?: { id: number; title: string; price?: number }) => void }) {
   const [selectedCourse, setSelectedCourse] = useState<typeof LIVE_COURSES[0] | null>(null)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [appliedSuccess, setAppliedSuccess] = useState(false)
@@ -1243,9 +1243,13 @@ function LiveCoursesPage() {
                   </div>
                   <button
                     onClick={() => {
-                      setSelectedCourse(lc)
-                      setShowApplyModal(true)
-                      setAppliedSuccess(false)
+                      if (onEnroll) {
+                        onEnroll({ id: lc.id, title: lc.title, price: lc.fee })
+                      } else {
+                        setSelectedCourse(lc)
+                        setShowApplyModal(true)
+                        setAppliedSuccess(false)
+                      }
                     }}
                     className="text-xs font-bold text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-sm cursor-pointer blue-btn-gradient-hover"
                     style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
@@ -3523,14 +3527,7 @@ export default function App() {
     setFrame('home')
   }
 
-  const handleEnrollClick = (course?: { id: number; title: string }) => {
-    // If user is not logged in, redirect to login/register
-    if (!currentUser) {
-      setFrame('login')
-      return
-    }
-    
-    // Open enrollment form
+  const handleEnrollClick = (course?: { id: number; title: string; price?: number }) => {
     setSelectedCourseForEnrollment(course)
     setShowEnrollmentForm(true)
   }
@@ -3538,7 +3535,6 @@ export default function App() {
   const handleEnrollmentSuccess = () => {
     setShowEnrollmentForm(false)
     setSelectedCourseForEnrollment(undefined)
-    alert('Application submitted successfully! We\'ll review your application and contact you within 24-48 hours.')
   }
 
   const handleEnrollmentClose = () => {
@@ -3563,7 +3559,7 @@ export default function App() {
         {frame === 'home' && <HomePage setFrame={setFrame} testimonials={testimonials} onEnroll={handleEnrollClick} />}
         {frame === 'courses' && <CoursesPage setFrame={setFrame} onEnroll={handleEnrollClick} />}
         {frame === 'course-detail' && <CourseDetailPage onEnroll={handleEnrollClick} />}
-        {frame === 'live-courses' && <LiveCoursesPage />}
+        {frame === 'live-courses' && <LiveCoursesPage onEnroll={handleEnrollClick} />}
         {frame === 'about' && <AboutPage />}
         {frame === 'contact' && <ContactPage />}
         {frame === 'faq' && <FaqPage />}
@@ -3585,7 +3581,7 @@ export default function App() {
 
       {!isFullDashboard && <Footer setFrame={setFrame} />}
 
-      {/* Enrollment Form Modal */}
+      {/* Enrollment Form Modal with Mobile Money Payment Flow */}
       {showEnrollmentForm && (
         <EnrollmentForm
           onClose={handleEnrollmentClose}

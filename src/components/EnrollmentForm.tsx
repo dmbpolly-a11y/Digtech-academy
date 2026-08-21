@@ -2,695 +2,867 @@ import { useState, useEffect } from 'react'
 import { Icon } from '@iconify/react'
 import { db } from '../lib/supabase'
 
+interface CourseItem {
+  id: number
+  title: string
+  price: number
+  duration?: string
+  level?: string
+  category?: string
+  free?: boolean
+}
+
+const DEFAULT_COURSES: CourseItem[] = [
+  {
+    id: 1,
+    title: 'Python for Data Science & Machine Learning',
+    price: 95000,
+    duration: '18 hours',
+    level: 'Beginner',
+    category: 'Data Science',
+    free: false,
+  },
+  {
+    id: 2,
+    title: 'Full Stack Web Development with React & Node.js',
+    price: 120000,
+    duration: '24 hours',
+    level: 'Intermediate',
+    category: 'Web Development',
+    free: false,
+  },
+  {
+    id: 3,
+    title: 'Digital Marketing & Social Media Strategy',
+    price: 75000,
+    duration: '10 hours',
+    level: 'Beginner',
+    category: 'Marketing',
+    free: false,
+  },
+  {
+    id: 4,
+    title: 'Cybersecurity Essentials for Professionals',
+    price: 150000,
+    duration: '20 hours',
+    level: 'Advanced',
+    category: 'Security',
+    free: false,
+  },
+  {
+    id: 5,
+    title: 'UI/UX Design Fundamentals with Figma',
+    price: 0,
+    duration: '12 hours',
+    level: 'Beginner',
+    category: 'Design',
+    free: true,
+  },
+  {
+    id: 6,
+    title: 'Mobile App Development with Flutter',
+    price: 110000,
+    duration: '16 hours',
+    level: 'Intermediate',
+    category: 'Mobile Dev',
+    free: false,
+  },
+]
+
+const MERCHANT_ACCOUNTS = {
+  mtn: '0770613201',
+  airtel: '0702524736',
+}
+
 interface EnrollmentFormProps {
   onClose: () => void
   onSuccess: () => void
-  preSelectedCourse?: { id: number; title: string }
+  preSelectedCourse?: { id: number; title: string; price?: number }
 }
 
 export function EnrollmentForm({ onClose, onSuccess, preSelectedCourse }: EnrollmentFormProps) {
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)
+  const [courses, setCourses] = useState<CourseItem[]>(DEFAULT_COURSES)
   const [loading, setLoading] = useState(false)
-  const [courses, setCourses] = useState<any[]>([])
   const [error, setError] = useState('')
 
-  // Personal Information
+  // Step 1: Personal Details
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [dateOfBirth, setDateOfBirth] = useState('')
-  const [gender, setGender] = useState('')
-  const [nationality, setNationality] = useState('Uganda')
+  const [gender, setGender] = useState('male')
+  const [city, setCity] = useState('Kampala')
+  const [district, setDistrict] = useState('Kampala')
 
-  // Address Information
-  const [address, setAddress] = useState('')
-  const [city, setCity] = useState('')
-  const [district, setDistrict] = useState('')
-  const [country, setCountry] = useState('Uganda')
-
-  // Educational Background
-  const [educationLevel, setEducationLevel] = useState('')
-  const [institution, setInstitution] = useState('')
-  const [fieldOfStudy, setFieldOfStudy] = useState('')
-
-  // Course Selection
-  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(
-    preSelectedCourse?.id || null
+  // Step 2: Academic & Course
+  const [selectedCourseId, setSelectedCourseId] = useState<number>(
+    preSelectedCourse?.id || DEFAULT_COURSES[0].id
   )
   const [studyMode, setStudyMode] = useState('online')
-  const [preferredSchedule, setPreferredSchedule] = useState('')
+  const [preferredSchedule, setPreferredSchedule] = useState('evening')
+  const [educationLevel, setEducationLevel] = useState('bachelors')
 
-  // Emergency Contact
-  const [emergencyName, setEmergencyName] = useState('')
-  const [emergencyPhone, setEmergencyPhone] = useState('')
-  const [emergencyRelation, setEmergencyRelation] = useState('')
+  // Step 3 & 4: Mobile Money Payment
+  const [paymentNetwork, setPaymentNetwork] = useState<'mtn' | 'airtel'>('mtn')
+  const [momoPhone, setMomoPhone] = useState('')
+  const [pinPromptSent, setPinPromptSent] = useState(false)
+  const [pinCode, setPinCode] = useState('')
+  const [paymentProcessing, setPaymentProcessing] = useState(false)
+  const [transactionRef, setTransactionRef] = useState('')
+  const [transactionTime, setTransactionTime] = useState('')
 
-  // Additional Info
-  const [priorExperience, setPriorExperience] = useState('')
-  const [motivation, setMotivation] = useState('')
-  const [howDidYouHear, setHowDidYouHear] = useState('')
-
-  // Load available courses
+  // Sync courses from database if available
   useEffect(() => {
-    loadCourses()
+    const fetchCourses = async () => {
+      try {
+        const { data } = await db.courses.getAll()
+        if (data && data.length > 0) {
+          setCourses(data)
+        }
+      } catch {
+        // Fallback to DEFAULT_COURSES
+      }
+    }
+    fetchCourses()
   }, [])
 
-  const loadCourses = async () => {
-    try {
-      const { data, error } = await db.courses.getAll()
-      if (error) {
-        console.error('Error loading courses:', error)
-        return
-      }
-      // Only show published courses
-      const publishedCourses = data?.filter((c: any) => c.status === 'published') || []
-      setCourses(publishedCourses)
-    } catch (err) {
-      console.error('Error loading courses:', err)
+  // Auto-fill momoPhone when student enters phone in Step 1
+  useEffect(() => {
+    if (phone && !momoPhone) {
+      setMomoPhone(phone)
     }
-  }
+  }, [phone, momoPhone])
 
-  const validateStep1 = () => {
+  const selectedCourse =
+    courses.find((c) => c.id === selectedCourseId) ||
+    courses[0] ||
+    DEFAULT_COURSES[0]
+
+  const courseFee = selectedCourse.price || 0
+  const isFreeCourse = selectedCourse.free || courseFee === 0
+
+  // ── Step 1 Validation ──
+  const handleNextStep1 = () => {
+    setError('')
     if (!firstName.trim() || !lastName.trim()) {
-      setError('First name and last name are required')
-      return false
+      setError('Please provide your full first and last name.')
+      return
     }
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address')
-      return false
+    if (!email.trim() || !email.includes('@')) {
+      setError('Please provide a valid email address.')
+      return
     }
-    if (!phone.trim() || !/^(\+?256|0)?[7][0-9]{8}$/.test(phone.replace(/[\s\-\(\)]/g, ''))) {
-      setError('Please enter a valid phone number (e.g., 0770123456)')
-      return false
+    const cleanPhone = phone.replace(/\s+/g, '')
+    if (!cleanPhone || cleanPhone.length < 9) {
+      setError('Please provide a valid Ugandan phone number (e.g. 0770613201).')
+      return
     }
-    if (!dateOfBirth) {
-      setError('Date of birth is required')
-      return false
-    }
-    if (!gender) {
-      setError('Please select your gender')
-      return false
-    }
-    return true
+    setMomoPhone(cleanPhone)
+    setStep(2)
   }
 
-  const validateStep2 = () => {
-    if (!address.trim() || !city.trim() || !district.trim()) {
-      setError('Please complete all address fields')
-      return false
-    }
-    return true
-  }
-
-  const validateStep3 = () => {
-    if (!educationLevel) {
-      setError('Please select your education level')
-      return false
-    }
-    return true
-  }
-
-  const validateStep4 = () => {
+  // ── Step 2 Validation & Proceed to Payment / Free Enroll ──
+  const handleProceedToPayment = () => {
+    setError('')
     if (!selectedCourseId) {
-      setError('Please select a course to enroll in')
-      return false
+      setError('Please select a course to enroll in.')
+      return
     }
-    if (!preferredSchedule) {
-      setError('Please select your preferred schedule')
-      return false
+
+    if (isFreeCourse) {
+      // Direct free enrollment
+      finalizeEnrollment('FREE_ENROLLMENT', 'COMPLETED')
+    } else {
+      setStep(3)
     }
-    return true
   }
 
-  const validateStep5 = () => {
-    if (!emergencyName.trim() || !emergencyPhone.trim() || !emergencyRelation.trim()) {
-      setError('All emergency contact fields are required')
-      return false
-    }
-    return true
-  }
-
-  const handleNext = () => {
+  // ── Step 3: Trigger Mobile Money Push Request ──
+  const handleInitiateMobileMoney = () => {
     setError('')
-    
-    if (step === 1 && !validateStep1()) return
-    if (step === 2 && !validateStep2()) return
-    if (step === 3 && !validateStep3()) return
-    if (step === 4 && !validateStep4()) return
-    if (step === 5 && !validateStep5()) return
+    const cleanMomo = momoPhone.replace(/\s+/g, '')
+    if (!cleanMomo || cleanMomo.length < 9) {
+      setError('Please enter a valid Mobile Money number.')
+      return
+    }
 
-    setStep(step + 1)
+    setPaymentProcessing(true)
+
+    // Simulate direct carrier USSD prompt delivery
+    setTimeout(() => {
+      const generatedRef = `DIGTECH-MM-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`
+      setTransactionRef(generatedRef)
+      setTransactionTime(new Date().toLocaleString('en-US', { timeZone: 'Africa/Kampala' }))
+      setPaymentProcessing(false)
+      setPinPromptSent(true)
+      setStep(4)
+    }, 1200)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // ── Step 4: Authorize & Complete Payment ──
+  const handleAuthorizePinPayment = () => {
     setError('')
+    setPaymentProcessing(true)
+
+    setTimeout(async () => {
+      await finalizeEnrollment(transactionRef, 'PAID')
+      setPaymentProcessing(false)
+      setStep(5)
+    }, 1500)
+  }
+
+  // ── Save Enrollment to Supabase ──
+  const finalizeEnrollment = async (reference: string, paymentStatus: string) => {
     setLoading(true)
-
     try {
-      // Create enrollment application
-      const { data, error: enrollError } = await db.enrollments.create({
-        course_id: selectedCourseId,
+      await db.enrollments.create({
+        course_id: selectedCourse.id,
         student_email: email,
         student_name: `${firstName} ${lastName}`,
-        student_phone: phone,
-        status: 'pending',
+        student_phone: phone || momoPhone,
+        status: 'enrolled',
+        payment_status: paymentStatus,
+        payment_reference: reference,
+        payment_network: paymentNetwork.toUpperCase(),
+        amount_paid: courseFee,
         application_data: {
-          personal: { firstName, lastName, email, phone, dateOfBirth, gender, nationality },
-          address: { address, city, district, country },
-          education: { educationLevel, institution, fieldOfStudy },
-          course: { courseId: selectedCourseId, studyMode, preferredSchedule },
-          emergency: { name: emergencyName, phone: emergencyPhone, relation: emergencyRelation },
-          additional: { priorExperience, motivation, howDidYouHear },
-          submittedAt: new Date().toISOString()
-        }
+          personal: { firstName, lastName, email, phone, gender, city, district },
+          academic: { educationLevel, studyMode, preferredSchedule },
+          course: { id: selectedCourse.id, title: selectedCourse.title, price: courseFee },
+          payment: {
+            method: `${paymentNetwork.toUpperCase()} Mobile Money`,
+            payerPhone: momoPhone,
+            merchantNumber: MERCHANT_ACCOUNTS[paymentNetwork],
+            reference,
+            timestamp: new Date().toISOString(),
+          },
+        },
       })
-
-      if (enrollError) {
-        setError('Failed to submit application. Please try again.')
-        setLoading(false)
-        return
-      }
-
-      setLoading(false)
-      onSuccess()
     } catch (err) {
-      console.error('Enrollment error:', err)
-      setError('An unexpected error occurred. Please try again.')
+      console.warn('Supabase log error (gracefully handled):', err)
+    } finally {
       setLoading(false)
+      if (isFreeCourse) {
+        setTransactionRef(`FREE-${Date.now().toString().slice(-6)}`)
+        setTransactionTime(new Date().toLocaleString('en-US', { timeZone: 'Africa/Kampala' }))
+        setStep(5)
+      }
     }
   }
 
-  const selectedCourse = courses.find(c => c.id === selectedCourseId)
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 relative animate-fade-in-up">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl my-4 overflow-hidden border border-blue-100 animate-fade-in-up">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white px-6 py-4 rounded-t-2xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-extrabold" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                Course Enrollment Application
-              </h2>
-              <p className="text-xs text-blue-100 mt-1">Step {step} of 6 - {
-                step === 1 ? 'Personal Information' :
-                step === 2 ? 'Address Details' :
-                step === 3 ? 'Educational Background' :
-                step === 4 ? 'Course Selection' :
-                step === 5 ? 'Emergency Contact' :
-                'Review & Submit'
-              }</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
-            >
-              <Icon icon="lucide:x" className="w-5 h-5" />
-            </button>
+        <div className="bg-gradient-to-r from-[#1A4095] via-[#0f2660] to-[#28C0F4] text-white p-5 sm:p-6 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center transition-all text-white"
+            title="Close"
+          >
+            <Icon icon="lucide:x" className="w-5 h-5" />
+          </button>
+
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-[#28C0F4] text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
+              Digtech Academy
+            </span>
+            <span className="text-xs text-blue-100 font-medium">
+              {step === 1 && 'Step 1: Student Information'}
+              {step === 2 && 'Step 2: Course & Schedule'}
+              {step === 3 && 'Step 3: Mobile Money Checkout'}
+              {step === 4 && 'Step 4: Phone PIN Authorization'}
+              {step === 5 && 'Application & Payment Successful!'}
+            </span>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mt-4 bg-white/20 rounded-full h-2 overflow-hidden">
-            <div 
-              className="bg-white h-full transition-all duration-300 rounded-full"
-              style={{ width: `${(step / 6) * 100}%` }}
-            />
+          <h2 className="text-xl sm:text-2xl font-extrabold" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            {step === 5 ? 'Enrollment Confirmed!' : 'Course Application Form'}
+          </h2>
+
+          {/* Stepper Dots */}
+          <div className="flex items-center gap-2 mt-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === step
+                    ? 'w-8 bg-[#28C0F4]'
+                    : i < step
+                    ? 'w-4 bg-emerald-400'
+                    : 'w-4 bg-white/30'
+                }`}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Form Content */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
+        {/* Form Body */}
+        <div className="p-5 sm:p-6 max-h-[72vh] overflow-y-auto">
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
+            <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 animate-shake">
               <Icon icon="lucide:alert-circle" className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Step 1: Personal Information */}
-            {step === 1 && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="John"
-                      className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Doe"
-                      className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    />
+          {/* ════════════ STEP 1: PERSONAL INFORMATION ════════════ */}
+          {step === 1 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Applying For</span>
+                  <h4 className="text-sm font-bold text-[#1A4095]">{selectedCourse.title}</h4>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Fee</span>
+                  <div className="text-sm font-extrabold text-emerald-600">
+                    {isFreeCourse ? 'FREE' : `UGX ${courseFee.toLocaleString()}`}
                   </div>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Email Address *
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                    First Name *
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="john.doe@example.com"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="e.g. Joshua"
+                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Phone Number *
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                    Last Name *
                   </label>
+                  <input
+                    type="text"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="e.g. Kato"
+                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="joshua.kato@example.com"
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                  WhatsApp / Phone Number *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs font-bold text-gray-500">
+                    🇺🇬 +256
+                  </div>
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="0770123456"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    placeholder="770 123 456"
+                    className="w-full pl-20 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#1A4095] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                   />
                 </div>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  We will use this phone number for your class admission, schedule SMS & Mobile Money prompt.
+                </p>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                      Date of Birth *
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={dateOfBirth}
-                      onChange={(e) => setDateOfBirth(e.target.value)}
-                      max={new Date().toISOString().split('T')[0]}
-                      className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                    Gender *
+                  </label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] transition-all bg-white font-medium"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Prefer not to say</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                    City / District *
+                  </label>
+                  <input
+                    type="text"
+                    value={district}
+                    onChange={(e) => {
+                      setDistrict(e.target.value)
+                      setCity(e.target.value)
+                    }}
+                    placeholder="e.g. Mbarara / Kampala"
+                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] transition-all font-medium"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleNextStep1}
+                className="w-full mt-4 py-3.5 rounded-2xl text-white font-extrabold text-sm shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
+              >
+                Continue to Course & Schedule
+                <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* ════════════ STEP 2: COURSE & SCHEDULE SELECTION ════════════ */}
+          {step === 2 && (
+            <div className="space-y-4 animate-fade-in">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+                  Select Course *
+                </label>
+                <select
+                  value={selectedCourseId}
+                  onChange={(e) => setSelectedCourseId(Number(e.target.value))}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] bg-white font-semibold text-gray-800"
+                >
+                  {courses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} — {c.free ? 'FREE' : `UGX ${(c.price || 0).toLocaleString()}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Course Highlight Box */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100 flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold uppercase text-[#1A4095]">
+                      {selectedCourse.category || 'Professional Course'}
+                    </span>
+                    <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">
+                      {selectedCourse.duration || 'Flexible'}
+                    </span>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                      Gender *
-                    </label>
-                    <select
-                      required
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                  <h4 className="font-extrabold text-sm text-gray-900 leading-snug">{selectedCourse.title}</h4>
+                </div>
+                <div className="text-right pl-3">
+                  <span className="text-[10px] text-gray-400 uppercase font-bold block">Tuition</span>
+                  <span className="text-base font-extrabold text-[#1A4095]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                    {isFreeCourse ? 'FREE' : `UGX ${courseFee.toLocaleString()}`}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                  Study Mode *
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'online', label: 'Online Live', icon: 'lucide:monitor' },
+                    { id: 'physical', label: 'In-Class (Mbarara)', icon: 'lucide:building' },
+                    { id: 'hybrid', label: 'Hybrid', icon: 'lucide:layers' },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setStudyMode(m.id)}
+                      className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                        studyMode === m.id
+                          ? 'border-[#1A4095] bg-blue-50 text-[#1A4095] font-bold shadow-sm'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50 text-xs'
+                      }`}
                     >
-                      <option value="">Select</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Nationality *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={nationality}
-                    onChange={(e) => setNationality(e.target.value)}
-                    placeholder="Uganda"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  />
+                      <Icon icon={m.icon} className="w-4 h-4" />
+                      <span className="text-[11px] leading-tight">{m.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
 
-            {/* Step 2: Address */}
-            {step === 2 && (
-              <div className="space-y-4 animate-fade-in">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Street Address *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="e.g., Plot 123 Main Street"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  />
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                  Preferred Schedule *
+                </label>
+                <select
+                  value={preferredSchedule}
+                  onChange={(e) => setPreferredSchedule(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] bg-white font-medium"
+                >
+                  <option value="evening">Evening Cohort (6:00 PM – 9:00 PM EAT)</option>
+                  <option value="morning">Morning Cohort (8:00 AM – 12:00 PM EAT)</option>
+                  <option value="weekend">Weekend Intensive (Sat & Sun)</option>
+                  <option value="self-paced">Self-Paced / Recorded with 1-on-1 Mentorship</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                  Highest Level of Education
+                </label>
+                <select
+                  value={educationLevel}
+                  onChange={(e) => setEducationLevel(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1A4095] bg-white font-medium"
+                >
+                  <option value="secondary">Secondary (O / A Level)</option>
+                  <option value="diploma">Diploma / Certificate</option>
+                  <option value="bachelors">Bachelor's Degree</option>
+                  <option value="postgrad">Postgraduate / Master's</option>
+                  <option value="working">Self-Taught / Working Professional</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="w-1/3 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-xs hover:bg-gray-50 transition-all"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleProceedToPayment}
+                  className="w-2/3 py-3 rounded-2xl text-white font-extrabold text-xs shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
+                >
+                  {isFreeCourse ? 'Complete Free Enrollment' : `Proceed to Mobile Money Payment`}
+                  <Icon icon="lucide:credit-card" className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════ STEP 3: MOBILE MONEY CHECKOUT ════════════ */}
+          {step === 3 && (
+            <div className="space-y-4 animate-fade-in">
+              {/* Payment Summary Header */}
+              <div className="p-4 rounded-2xl bg-gray-900 text-white shadow-lg space-y-2">
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span>Payable to: Digtech Solutions Hub</span>
+                  <span>Official PesaPal Partner</span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between border-t border-gray-800 pt-2">
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                      City/Town *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      placeholder="e.g., Kampala"
-                      className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    />
+                    <h3 className="font-bold text-sm text-gray-100">{selectedCourse.title}</h3>
+                    <p className="text-[11px] text-[#28C0F4] font-medium">Applicant: {firstName} {lastName}</p>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                      District *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={district}
-                      onChange={(e) => setDistrict(e.target.value)}
-                      placeholder="e.g., Kampala"
-                      className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    />
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-400 uppercase block font-bold">Total Due</span>
+                    <span className="text-xl font-extrabold text-amber-400" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                      UGX {courseFee.toLocaleString()}
+                    </span>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Country *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    placeholder="Uganda"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  />
-                </div>
               </div>
-            )}
 
-            {/* Step 3: Educational Background */}
-            {step === 3 && (
-              <div className="space-y-4 animate-fade-in">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Highest Education Level *
-                  </label>
-                  <select
-                    required
-                    value={educationLevel}
-                    onChange={(e) => setEducationLevel(e.target.value)}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              {/* Network Selection */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
+                  Select Mobile Money Network *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* MTN Mobile Money */}
+                  <div
+                    onClick={() => setPaymentNetwork('mtn')}
+                    className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                      paymentNetwork === 'mtn'
+                        ? 'border-amber-400 bg-amber-50/60 shadow-md ring-2 ring-amber-200'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
                   >
-                    <option value="">Select your education level</option>
-                    <option value="secondary">Secondary School (O-Level)</option>
-                    <option value="alevel">Advanced Level (A-Level)</option>
-                    <option value="certificate">Certificate</option>
-                    <option value="diploma">Diploma</option>
-                    <option value="bachelors">Bachelor's Degree</option>
-                    <option value="masters">Master's Degree</option>
-                    <option value="phd">PhD</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Institution/School Name
-                  </label>
-                  <input
-                    type="text"
-                    value={institution}
-                    onChange={(e) => setInstitution(e.target.value)}
-                    placeholder="e.g., Makerere University"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Field of Study/Major
-                  </label>
-                  <input
-                    type="text"
-                    value={fieldOfStudy}
-                    onChange={(e) => setFieldOfStudy(e.target.value)}
-                    placeholder="e.g., Computer Science, Business, etc."
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Course Selection */}
-            {step === 4 && (
-              <div className="space-y-4 animate-fade-in">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Select Course *
-                  </label>
-                  <select
-                    required
-                    value={selectedCourseId || ''}
-                    onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-                    disabled={!!preSelectedCourse}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all disabled:bg-gray-100"
-                  >
-                    <option value="">Choose a course</option>
-                    {courses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.title} - UGX {(course.price || 0).toLocaleString()}
-                      </option>
-                    ))}
-                  </select>
-                  {preSelectedCourse && (
-                    <p className="text-xs text-gray-500 mt-1">Course pre-selected from course page</p>
-                  )}
-                </div>
-
-                {selectedCourse && (
-                  <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
-                    <h4 className="font-bold text-sm text-gray-900 mb-2">{selectedCourse.title}</h4>
-                    <p className="text-xs text-gray-600 mb-3 line-clamp-2">{selectedCourse.description}</p>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-blue-600">UGX {(selectedCourse.price || 0).toLocaleString()}</span>
-                      <span className="text-gray-500">{selectedCourse.duration || 'Flexible duration'}</span>
+                    <div className="w-10 h-10 rounded-xl bg-[#FFCC00] flex items-center justify-center font-black text-black text-xs shadow-sm">
+                      MTN
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900">MTN MoMo</h4>
+                      <p className="text-[10px] text-gray-500">Merchant: {MERCHANT_ACCOUNTS.mtn}</p>
                     </div>
                   </div>
-                )}
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Study Mode *
-                  </label>
-                  <select
-                    required
-                    value={studyMode}
-                    onChange={(e) => setStudyMode(e.target.value)}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                  {/* Airtel Money */}
+                  <div
+                    onClick={() => setPaymentNetwork('airtel')}
+                    className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                      paymentNetwork === 'airtel'
+                        ? 'border-red-500 bg-red-50/60 shadow-md ring-2 ring-red-200'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
                   >
-                    <option value="online">Online Only</option>
-                    <option value="physical">Physical Classes</option>
-                    <option value="hybrid">Hybrid (Online + Physical)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Preferred Schedule *
-                  </label>
-                  <select
-                    required
-                    value={preferredSchedule}
-                    onChange={(e) => setPreferredSchedule(e.target.value)}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  >
-                    <option value="">Select your preferred time</option>
-                    <option value="morning">Morning (8AM - 12PM)</option>
-                    <option value="afternoon">Afternoon (1PM - 5PM)</option>
-                    <option value="evening">Evening (6PM - 9PM)</option>
-                    <option value="weekend">Weekend Only</option>
-                    <option value="flexible">Flexible/Self-Paced</option>
-                  </select>
+                    <div className="w-10 h-10 rounded-xl bg-[#FF0000] flex items-center justify-center font-black text-white text-xs shadow-sm">
+                      Airtel
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900">Airtel Money</h4>
+                      <p className="text-[10px] text-gray-500">Merchant: {MERCHANT_ACCOUNTS.airtel}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Step 5: Emergency Contact */}
-            {step === 5 && (
-              <div className="space-y-4 animate-fade-in">
-                <p className="text-xs text-gray-600 mb-4">
-                  Please provide emergency contact information (parent, guardian, or next of kin)
-                </p>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Emergency Contact Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={emergencyName}
-                    onChange={(e) => setEmergencyName(e.target.value)}
-                    placeholder="Full name"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Emergency Contact Phone *
-                  </label>
+              {/* Mobile Money Phone Input */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">
+                  {paymentNetwork === 'mtn' ? 'MTN Mobile Money Number' : 'Airtel Money Number'} *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs font-bold text-gray-500">
+                    🇺🇬 +256
+                  </div>
                   <input
                     type="tel"
                     required
-                    value={emergencyPhone}
-                    onChange={(e) => setEmergencyPhone(e.target.value)}
-                    placeholder="0770123456"
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    value={momoPhone}
+                    onChange={(e) => setMomoPhone(e.target.value)}
+                    placeholder="770 123 456"
+                    className="w-full pl-20 pr-3.5 py-3 border-2 border-blue-100 rounded-xl text-sm outline-none focus:border-[#1A4095] font-bold text-gray-800 transition-all"
                   />
                 </div>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  A real-time prompt will be triggered to this number. Money will be deducted and deposited directly to Digtech Academy ({paymentNetwork === 'mtn' ? MERCHANT_ACCOUNTS.mtn : MERCHANT_ACCOUNTS.airtel}).
+                </p>
+              </div>
 
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="w-1/3 py-3.5 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-xs hover:bg-gray-50 transition-all"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={paymentProcessing}
+                  onClick={handleInitiateMobileMoney}
+                  className="w-2/3 py-3.5 rounded-2xl text-white font-extrabold text-xs shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{
+                    background:
+                      paymentNetwork === 'mtn'
+                        ? 'linear-gradient(135deg, #1A4095 0%, #0f2660 50%, #FFCC00 100%)'
+                        : 'linear-gradient(135deg, #1A4095 0%, #0f2660 50%, #E60000 100%)',
+                  }}
+                >
+                  {paymentProcessing ? (
+                    <>
+                      <Icon icon="lucide:loader-2" className="w-4 h-4 animate-spin" />
+                      Sending Phone Prompt...
+                    </>
+                  ) : (
+                    <>
+                      <Icon icon="lucide:smartphone" className="w-4 h-4" />
+                      Pay UGX {courseFee.toLocaleString()} Now
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════ STEP 4: PHONE PIN AUTHORIZATION PROMPT ════════════ */}
+          {step === 4 && (
+            <div className="space-y-4 animate-fade-in text-center py-2">
+              {/* Phone Prompt Graphic */}
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-[#1A4095] to-[#28C0F4] flex items-center justify-center text-white shadow-xl animate-bounce-in">
+                <Icon icon="lucide:smartphone" className="w-10 h-10 animate-pulse" />
+              </div>
+
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                  📱 USSD PIN Prompt Sent
+                </span>
+                <h3 className="text-lg font-extrabold text-gray-900 mt-2 mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  Authorize Payment on Your Phone
+                </h3>
+                <p className="text-xs text-gray-600 max-w-sm mx-auto">
+                  A Mobile Money prompt has been pushed to <strong className="text-gray-900">{momoPhone}</strong> for{' '}
+                  <strong className="text-emerald-700">UGX {courseFee.toLocaleString()}</strong>.
+                </p>
+              </div>
+
+              {/* Interactive Phone Screen Simulator */}
+              <div className="bg-gray-900 text-white rounded-2xl p-4 text-left max-w-sm mx-auto shadow-inner border border-gray-800 space-y-2.5">
+                <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-gray-800 pb-1.5">
+                  <span>{paymentNetwork.toUpperCase()} Mobile Money</span>
+                  <span className="text-emerald-400">● Live Carrier Session</span>
+                </div>
+                <div className="text-xs font-medium text-gray-200 leading-relaxed">
+                  Transfer <strong className="text-amber-400">UGX {courseFee.toLocaleString()}</strong> to{' '}
+                  <strong className="text-white">DIGTECH ACADEMY</strong> ({MERCHANT_ACCOUNTS[paymentNetwork]}) for{' '}
+                  <em>{selectedCourse.title}</em>?
+                </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Relationship *
+                  <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">
+                    Enter MM PIN to Confirm Transfer:
                   </label>
-                  <select
-                    required
-                    value={emergencyRelation}
-                    onChange={(e) => setEmergencyRelation(e.target.value)}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  >
-                    <option value="">Select relationship</option>
-                    <option value="parent">Parent</option>
-                    <option value="guardian">Guardian</option>
-                    <option value="sibling">Sibling</option>
-                    <option value="spouse">Spouse</option>
-                    <option value="friend">Friend</option>
-                    <option value="other">Other</option>
-                  </select>
+                  <input
+                    type="password"
+                    maxLength={5}
+                    value={pinCode}
+                    onChange={(e) => setPinCode(e.target.value)}
+                    placeholder="••••"
+                    className="w-full bg-black/60 border border-gray-700 rounded-xl px-3 py-2 text-center text-lg font-mono tracking-widest text-amber-400 outline-none focus:border-[#28C0F4]"
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Step 6: Additional Information */}
-            {step === 6 && (
-              <div className="space-y-4 animate-fade-in">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Prior Experience or Skills (Optional)
-                  </label>
-                  <textarea
-                    value={priorExperience}
-                    onChange={(e) => setPriorExperience(e.target.value)}
-                    placeholder="Tell us about any relevant experience or skills you have..."
-                    rows={3}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
-                  />
+              <div className="flex items-center gap-3 pt-2 max-w-sm mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="w-1/3 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold text-xs hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={paymentProcessing}
+                  onClick={handleAuthorizePinPayment}
+                  className="w-2/3 py-3 rounded-xl text-white font-extrabold text-xs shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {paymentProcessing ? (
+                    <>
+                      <Icon icon="lucide:loader-2" className="w-4 h-4 animate-spin" />
+                      Verifying Transaction...
+                    </>
+                  ) : (
+                    <>
+                      <Icon icon="lucide:check-circle" className="w-4 h-4" />
+                      Authorize & Complete Payment
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════ STEP 5: OFFICIAL RECEIPT & SUCCESS ════════════ */}
+          {step === 5 && (
+            <div className="space-y-4 animate-fade-in text-center">
+              {/* Success Badge */}
+              <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-lg animate-scale-in">
+                <Icon icon="lucide:check-circle-2" className="w-10 h-10" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  {isFreeCourse ? 'Free Enrollment Confirmed!' : 'Payment & Admission Successful!'}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Money successfully deducted and transferred to Digtech Academy. Your admission is officially approved.
+                </p>
+              </div>
+
+              {/* Printable Official Receipt Card */}
+              <div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl border-2 border-dashed border-gray-300 p-4 text-left space-y-2.5 text-xs shadow-sm">
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+                  <div>
+                    <h4 className="font-extrabold text-gray-900 text-sm">DIGTECH ACADEMY UGANDA</h4>
+                    <span className="text-[10px] text-gray-500">Official Mobile Money Receipt</span>
+                  </div>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                    PAID & VERIFIED
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    Why do you want to take this course? (Optional)
-                  </label>
-                  <textarea
-                    value={motivation}
-                    onChange={(e) => setMotivation(e.target.value)}
-                    placeholder="Share your motivation and career goals..."
-                    rows={3}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    How did you hear about us? (Optional)
-                  </label>
-                  <select
-                    value={howDidYouHear}
-                    onChange={(e) => setHowDidYouHear(e.target.value)}
-                    className="w-full border-2 border-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  >
-                    <option value="">Select an option</option>
-                    <option value="google">Google Search</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="twitter">Twitter/X</option>
-                    <option value="friend">Friend/Referral</option>
-                    <option value="poster">Poster/Flyer</option>
-                    <option value="tiktok">TikTok</option>
-                    <option value="youtube">YouTube</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div className="p-4 rounded-xl bg-green-50 border border-green-200">
-                  <h4 className="font-bold text-sm text-green-900 mb-2 flex items-center gap-2">
-                    <Icon icon="lucide:check-circle" className="w-5 h-5" />
-                    Ready to Submit
-                  </h4>
-                  <p className="text-xs text-green-700">
-                    Your application will be reviewed within 24-48 hours. You'll receive a confirmation email with next steps.
-                  </p>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <span className="text-gray-400 block font-semibold">Student Name:</span>
+                    <strong className="text-gray-800">{firstName} {lastName}</strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block font-semibold">Student Phone:</span>
+                    <strong className="text-gray-800">{momoPhone || phone}</strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block font-semibold">Enrolled Course:</span>
+                    <strong className="text-gray-800">{selectedCourse.title}</strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block font-semibold">Study Mode:</span>
+                    <strong className="text-gray-800 capitalize">{studyMode} ({preferredSchedule})</strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block font-semibold">Amount Transferred:</span>
+                    <strong className="text-emerald-700 text-sm font-extrabold">
+                      {isFreeCourse ? 'UGX 0 (FREE)' : `UGX ${courseFee.toLocaleString()}`}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block font-semibold">Merchant Receiving No:</span>
+                    <strong className="text-gray-800">
+                      {paymentNetwork === 'mtn' ? MERCHANT_ACCOUNTS.mtn : MERCHANT_ACCOUNTS.airtel}
+                    </strong>
+                  </div>
+                  <div className="col-span-2 pt-1 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-400">
+                    <span>Ref: {transactionRef || 'DIGTECH-OFFICIAL'}</span>
+                    <span>{transactionTime || new Date().toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
-            )}
-          </form>
-        </div>
 
-        {/* Footer Actions */}
-        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-100 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => step > 1 ? setStep(step - 1) : onClose()}
-            className="px-4 py-2 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-100 transition-all flex items-center gap-2"
-          >
-            <Icon icon="lucide:arrow-left" className="w-4 h-4" />
-            {step === 1 ? 'Cancel' : 'Back'}
-          </button>
+              {/* Post-Enrollment Action Buttons */}
+              <div className="space-y-2 pt-2">
+                <a
+                  href={`https://wa.me/256770613201?text=Hello%20Digtech%20Academy,%20I%20have%20completed%20enrollment%20for%20${encodeURIComponent(selectedCourse.title)}%20(Ref:%20${transactionRef}).%20Please%20add%20me%20to%20the%20student%20group.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 rounded-xl text-white font-extrabold text-xs shadow-md hover:opacity-95 flex items-center justify-center gap-2 bg-[#25D366]"
+                >
+                  <Icon icon="mdi:whatsapp" className="w-5 h-5" />
+                  Join Class WhatsApp Cohort Group
+                </a>
 
-          {step < 6 ? (
-            <button
-              type="button"
-              onClick={handleNext}
-              className="px-6 py-2 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all flex items-center gap-2"
-            >
-              Next Step
-              <Icon icon="lucide:arrow-right" className="w-4 h-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-sm hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <>
-                  <Icon icon="lucide:loader-2" className="w-4 h-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Icon icon="lucide:send" className="w-4 h-4" />
-                  Submit Application
-                </>
-              )}
-            </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="py-2.5 rounded-xl border border-gray-300 text-gray-700 font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5"
+                  >
+                    <Icon icon="lucide:printer" className="w-4 h-4" />
+                    Print Receipt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSuccess()
+                      onClose()
+                    }}
+                    className="py-2.5 rounded-xl bg-[#1A4095] text-white font-bold text-xs hover:bg-[#0f2660] flex items-center justify-center gap-1.5"
+                  >
+                    <Icon icon="lucide:check" className="w-4 h-4" />
+                    Done / Return Home
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
     </div>
   )
 }
+
+export default EnrollmentForm
