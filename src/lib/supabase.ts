@@ -2,11 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 
 // Supabase configuration
 // TODO: Replace these with your actual Supabase credentials
-// Get them from: https://supabase.com/dashboard > Project Settings > API
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://bibhhrpnubdazxdxoglx.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYmhocnBudWJkYXp4ZHhvZ2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NDg5NTEsImV4cCI6MjEwMTMyNDk1MX0.SPVt__ohqYuz6NSGKNFh77d8DbGuBsoJxNyMgXGup9s'
-
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || 'https://bibhhrpnubdazxdxoglx.supabase.co'
+const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYmhocnBudWJkYXp4ZHhvZ2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NDg5NTEsImV4cCI6MjEwMTMyNDk1MX0.SPVt__ohqYuz6NSGKNFh77d8DbGuBsoJxNyMgXGup9s'
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
