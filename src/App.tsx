@@ -3295,17 +3295,71 @@ function TutorDashboard() {
   const approveEnrollment = async (id: number) => { await db.enrollments.update(id, { status: 'enrolled', payment_status: 'PAID' }); loadEnrollments() }
   const removeEnrollment = async (id: number) => { if (!confirm('Remove this student enrollment?')) return; await db.enrollments.delete(id); loadEnrollments() }
 
-  // Exam CRUD
+  // Exam CRUD with enhanced features
+  const [examDuration, setExamDuration] = useState(60)
+  const [examQuestions, setExamQuestions] = useState<any[]>([])
+  const [showQuestionBuilder, setShowQuestionBuilder] = useState(false)
+  const [examLink, setExamLink] = useState('')
+  
   const loadExams = async () => {
     const all: any[] = []
     for (const course of courses) { const { data } = await db.exams.getByCourse(course.id); if (data) all.push(...data.map((e: any) => ({ ...e, course_title: course.title }))) }
     setExams(all)
   }
+  
   const openExamModal = (exam?: any) => {
-    if (exam) { setEditingExam(exam); setExamTitle(exam.title); setExamDescription(exam.description || ''); setExamTotalMarks(exam.total_marks || 100); setExamDate(exam.exam_date || '') }
-    else { setEditingExam(null); setExamTitle(''); setExamDescription(''); setExamTotalMarks(100); setExamDate('') }
+    if (exam) { 
+      setEditingExam(exam)
+      setExamTitle(exam.title)
+      setExamDescription(exam.description || '')
+      setExamTotalMarks(exam.total_marks || 100)
+      setExamDate(exam.exam_date || '')
+      setExamDuration(exam.duration_minutes || 60)
+      setExamQuestions(exam.questions || [])
+    } else { 
+      setEditingExam(null)
+      setExamTitle('')
+      setExamDescription('')
+      setExamTotalMarks(100)
+      setExamDate('')
+      setExamDuration(60)
+      setExamQuestions([])
+    }
     setShowExamModal(true)
   }
+  
+  const addQuestion = (type: 'mcq' | 'true-false' | 'short-answer') => {
+    const newQuestion = {
+      id: Date.now(),
+      type,
+      question: '',
+      options: type === 'mcq' ? ['', '', '', ''] : [],
+      correct_answer: '',
+      marks: type === 'short-answer' ? 5 : 1
+    }
+    setExamQuestions([...examQuestions, newQuestion])
+  }
+  
+  const updateQuestion = (id: number, field: string, value: any) => {
+    setExamQuestions(examQuestions.map(q => q.id === id ? { ...q, [field]: value } : q))
+  }
+  
+  const deleteQuestion = (id: number) => {
+    setExamQuestions(examQuestions.filter(q => q.id !== id))
+  }
+  
+  const generateExamLink = (examId: number) => {
+    const baseUrl = window.location.origin
+    return `${baseUrl}/exam/${examId}`
+  }
+  
+  const isExamExpired = (exam: any) => {
+    if (!exam.exam_date || !exam.duration_minutes) return false
+    const examStart = new Date(exam.exam_date).getTime()
+    const examEnd = examStart + (exam.duration_minutes * 60 * 1000)
+    return Date.now() > examEnd
+  }
+  
   const saveExam = async () => {
     if (!examTitle.trim() || !selectedCourse) return
     const payload = { 
@@ -3313,23 +3367,44 @@ function TutorDashboard() {
       title: examTitle, 
       description: examDescription, 
       total_marks: examTotalMarks, 
-      duration_minutes: 60,
+      duration_minutes: examDuration,
       passing_marks: Math.floor(examTotalMarks * 0.5),
-      questions: [],
-      time_limit: examDate || null 
+      questions: examQuestions,
+      exam_date: examDate || null,
+      status: 'active'
     }
-    if (editingExam) await db.exams.update(editingExam.id, payload); else await db.exams.create(payload)
-    setShowExamModal(false); loadExams()
+    
+    let examId
+    if (editingExam) {
+      await db.exams.update(editingExam.id, payload)
+      examId = editingExam.id
+    } else {
+      const { data } = await db.exams.create(payload)
+      examId = data?.id
+    }
+    
+    if (examId) {
+      setExamLink(generateExamLink(examId))
+    }
+    
+    setShowExamModal(false)
+    loadExams()
   }
-  const deleteExam = async (id: number) => { if (!confirm('Delete this exam?')) return; await db.exams.delete(id); loadExams() }
+  
+  const deleteExam = async (id: number) => { 
+    if (!confirm('Delete this exam?')) return
+    await db.exams.delete(id)
+    loadExams()
+  }
 
-  // Marks helpers
+  // Marks helpers with report generation
   const loadMarks = async (examId: number) => {
     const { data } = await db.marks.getByExam(examId)
     const entries: Record<string, number> = {}
     data?.forEach((m: any) => { entries[m.student_id] = m.marks_obtained })
     setMarkEntries(entries)
   }
+  
   const saveMarks = async () => {
     if (!selectedExam) return
     for (const [studentId, score] of Object.entries(markEntries)) {
@@ -3341,7 +3416,170 @@ function TutorDashboard() {
         grade: score >= 80 ? 'A' : score >= 70 ? 'B' : score >= 60 ? 'C' : score >= 50 ? 'D' : 'F' 
       })
     }
-    alert('Marks saved successfully!'); loadMarks(selectedExam.id)
+    alert('Marks saved successfully!')
+    loadMarks(selectedExam.id)
+  }
+  
+  // Report Generation
+  const generateStudentReport = async (studentId: string) => {
+    const { data: student } = await db.users.getById(studentId)
+    const { data: marks } = await db.marks.getByStudent(studentId)
+    const { data: enrollmentData } = await db.enrollments.getByStudent(studentId)
+    
+    const reportData = {
+      student: student,
+      enrollments: enrollmentData,
+      marks: marks,
+      totalExams: marks?.length || 0,
+      averageScore: marks?.reduce((sum, m) => sum + m.marks_obtained, 0) / (marks?.length || 1),
+      generatedAt: new Date().toISOString()
+    }
+    
+    return reportData
+  }
+  
+  const printReport = (reportData: any) => {
+    const printWindow = window.open('', '', 'width=800,height=600')
+    if (!printWindow) return
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Student Report - ${reportData.student?.full_name}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; }
+          h1 { color: #1A4095; border-bottom: 3px solid #28C0F4; padding-bottom: 10px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .section { margin: 20px 0; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+          th { background: #1A4095; color: white; }
+          .summary { background: #f0f4ff; padding: 15px; border-radius: 8px; }
+          @media print { button { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Digtech Academy</h1>
+          <h2>Student Progress Report</h2>
+        </div>
+        <div class="section">
+          <h3>Student Information</h3>
+          <p><strong>Name:</strong> ${reportData.student?.full_name || 'N/A'}</p>
+          <p><strong>Email:</strong> ${reportData.student?.email || 'N/A'}</p>
+          <p><strong>Student ID:</strong> ${reportData.student?.id || 'N/A'}</p>
+        </div>
+        <div class="section summary">
+          <h3>Performance Summary</h3>
+          <p><strong>Total Exams:</strong> ${reportData.totalExams}</p>
+          <p><strong>Average Score:</strong> ${reportData.averageScore.toFixed(2)}%</p>
+          <p><strong>Report Generated:</strong> ${new Date(reportData.generatedAt).toLocaleString()}</p>
+        </div>
+        <div class="section">
+          <h3>Exam Results</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Exam</th>
+                <th>Marks Obtained</th>
+                <th>Grade</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${reportData.marks?.map((m: any) => `
+                <tr>
+                  <td>${m.exam?.title || 'N/A'}</td>
+                  <td>${m.marks_obtained}</td>
+                  <td>${m.grade}</td>
+                  <td>${new Date(m.created_at).toLocaleDateString()}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="4">No exam results available</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+        <button onclick="window.print()" style="background: #1A4095; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px;">Print Report</button>
+      </body>
+      </html>
+    `)
+    printWindow.document.close()
+  }
+  
+  // Certificate Generation
+  const generateCertificate = async (studentId: string, courseId: number) => {
+    const { data: student } = await db.users.getById(studentId)
+    const { data: course } = await db.courses.getById(courseId)
+    
+    const certificateWindow = window.open('', '', 'width=1000,height=700')
+    if (!certificateWindow) return
+    
+    certificateWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Certificate of Completion</title>
+        <style>
+          body { font-family: 'Georgia', serif; padding: 60px; background: linear-gradient(135deg, #1A4095 0%, #28C0F4 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+          .certificate { background: white; padding: 60px; border: 20px solid #FFD700; border-radius: 20px; text-align: center; max-width: 800px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+          h1 { font-size: 48px; color: #1A4095; margin: 20px 0; font-weight: bold; }
+          .subtitle { font-size: 24px; color: #28C0F4; margin: 10px 0; }
+          .student-name { font-size: 36px; color: #1A4095; margin: 30px 0; font-weight: bold; text-decoration: underline; }
+          .course-name { font-size: 28px; color: #333; margin: 20px 0; font-style: italic; }
+          .date { margin-top: 40px; font-size: 18px; color: #666; }
+          .signature { margin-top: 50px; display: flex; justify-content: space-around; }
+          .signature-line { border-top: 2px solid #333; padding-top: 10px; width: 200px; }
+          @media print { body { background: white; } button { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="certificate">
+          <h1>Certificate of Completion</h1>
+          <div class="subtitle">This is to certify that</div>
+          <div class="student-name">${student?.full_name || 'Student Name'}</div>
+          <div class="subtitle">has successfully completed the course</div>
+          <div class="course-name">${course?.title || 'Course Title'}</div>
+          <div class="date">Issued on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+          <div class="signature">
+            <div class="signature-line">
+              <strong>Director</strong><br/>Digtech Academy
+            </div>
+            <div class="signature-line">
+              <strong>Instructor</strong><br/>${course?.tutor_name || 'Tutor'}
+            </div>
+          </div>
+        </div>
+        <button onclick="window.print()" style="position: fixed; bottom: 20px; right: 20px; background: #FFD700; color: #1A4095; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">Print Certificate</button>
+      </body>
+      </html>
+    `)
+    certificateWindow.document.close()
+  }
+  
+  // Student Activity Tracking
+  const getStudentOnlineStatus = async () => {
+    const { data: allStudents } = await db.users.getByRole('student')
+    const now = Date.now()
+    const fiveMinutes = 5 * 60 * 1000
+    
+    return allStudents?.map((student: any) => ({
+      ...student,
+      isOnline: student.last_seen ? (now - new Date(student.last_seen).getTime()) < fiveMinutes : false,
+      lastSeenText: student.last_seen ? formatLastSeen(new Date(student.last_seen)) : 'Never'
+    })) || []
+  }
+  
+  const formatLastSeen = (date: Date) => {
+    const now = Date.now()
+    const diff = now - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(minutes / 60)
+    const days = Math.floor(hours / 24)
+    
+    if (minutes < 1) return 'Just now'
+    if (minutes < 60) return `${minutes} min ago`
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`
+    return `${days} day${days > 1 ? 's' : ''} ago`
   }
 
   // Live Links CRUD
@@ -3767,12 +4005,12 @@ function TutorDashboard() {
           </div>
         )}
 
-        {/* ── STUDENTS TAB ── */}
+        {/* ── STUDENTS TAB (Enhanced with Reports & Certificates) ── */}
         {activeTab === 'students' && (
           <div className="space-y-6">
             <div>
               <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Enrolled Students</h1>
-              <p className="text-sm text-gray-500 mt-1">View students enrolled in your courses</p>
+              <p className="text-sm text-gray-500 mt-1">View students, track activity, generate reports</p>
             </div>
             {enrollments.length === 0 ? (
               <div className="bg-white p-10 rounded-2xl border text-center">
@@ -3789,6 +4027,7 @@ function TutorDashboard() {
                       <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Course</th>
                       <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Status</th>
                       <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Payment</th>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Last Seen</th>
                       <th className="px-5 py-3 text-xs font-bold text-gray-500 uppercase">Actions</th>
                     </tr>
                   </thead>
@@ -3796,8 +4035,13 @@ function TutorDashboard() {
                     {enrollments.map((e: any) => (
                       <tr key={e.id} className="hover:bg-blue-50/30 transition-all">
                         <td className="px-5 py-3">
-                          <div className="font-medium text-gray-800">{e.users?.full_name || `Student #${e.student_id?.slice(-4)}`}</div>
-                          <div className="text-xs text-gray-400">{e.users?.email || '—'}</div>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${e.users?.last_seen && (Date.now() - new Date(e.users.last_seen).getTime() < 300000) ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                            <div>
+                              <div className="font-medium text-gray-800">{e.users?.full_name || `Student #${e.student_id?.slice(-4)}`}</div>
+                              <div className="text-xs text-gray-400">{e.users?.email || '—'}</div>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-5 py-3 text-gray-600">{e.course_title || e.courses?.title || '—'}</td>
                         <td className="px-5 py-3">
@@ -3810,14 +4054,40 @@ function TutorDashboard() {
                             {e.payment_status}
                           </span>
                         </td>
+                        <td className="px-5 py-3 text-xs text-gray-500">
+                          {e.users?.last_seen ? formatLastSeen(new Date(e.users.last_seen)) : 'Never'}
+                        </td>
                         <td className="px-5 py-3">
                           <div className="flex gap-2 justify-end">
+                            <button 
+                              onClick={async () => {
+                                const report = await generateStudentReport(e.student_id)
+                                printReport(report)
+                              }} 
+                              className="px-2 py-1 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all"
+                              title="Generate Report"
+                            >
+                              <Icon icon="lucide:file-text" className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={() => generateCertificate(e.student_id, e.course_id)} 
+                              className="px-2 py-1 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition-all"
+                              title="Generate Certificate"
+                            >
+                              <Icon icon="lucide:award" className="w-3.5 h-3.5" />
+                            </button>
                             {e.payment_status !== 'paid' && (
-                              <button onClick={() => approveEnrollment(e.id)} className="px-2 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all">
+                              <button 
+                                onClick={() => approveEnrollment(e.id)} 
+                                className="px-2 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all"
+                              >
                                 Approve
                               </button>
                             )}
-                            <button onClick={() => removeEnrollment(e.id)} className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all">
+                            <button 
+                              onClick={() => removeEnrollment(e.id)} 
+                              className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all"
+                            >
                               <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -3856,25 +4126,88 @@ function TutorDashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {exams.map((exam: any) => (
-                  <div key={exam.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
-                    <div>
-                      <div className="font-bold text-sm text-gray-900">{exam.title}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{exam.course_title || exam.courses?.title} · {exam.total_marks} marks · {exam.duration_minutes}min</div>
+                {exams.map((exam: any) => {
+                  const expired = isExamExpired(exam)
+                  const examUrl = generateExamLink(exam.id)
+                  
+                  return (
+                    <div key={exam.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="font-bold text-sm text-gray-900">{exam.title}</div>
+                            {expired && (
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                                Expired
+                              </span>
+                            )}
+                            {!expired && exam.exam_date && (
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                Active
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {exam.course_title || exam.courses?.title} · {exam.total_marks} marks · {exam.duration_minutes}min
+                            {exam.questions?.length > 0 && ` · ${exam.questions.length} questions`}
+                          </div>
+                          {exam.exam_date && (
+                            <div className="text-xs text-gray-400 mt-1">
+                              <Icon icon="lucide:calendar" className="w-3 h-3 inline mr-1" />
+                              Starts: {new Date(exam.exam_date).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => { 
+                              setSelectedExam(exam)
+                              setActiveTab('marks') 
+                            }} 
+                            className="px-3 py-1.5 rounded-lg border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-50 transition-all"
+                          >
+                            <Icon icon="lucide:award" className="w-3 h-3 inline mr-1" />Marks
+                          </button>
+                          <button 
+                            onClick={() => openExamModal(exam)} 
+                            className="p-1.5 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all"
+                          >
+                            <Icon icon="lucide:edit" className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => deleteExam(exam.id)} 
+                            className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all"
+                          >
+                            <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Exam Link */}
+                      {exam.questions?.length > 0 && (
+                        <div className="mt-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                          <div className="text-xs font-bold text-blue-900 mb-1.5">Student Exam Link:</div>
+                          <div className="flex gap-2">
+                            <input 
+                              value={examUrl} 
+                              readOnly 
+                              className="flex-1 bg-white border border-blue-300 rounded px-2 py-1 text-xs font-mono text-gray-700" 
+                            />
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(examUrl)
+                                alert('Exam link copied to clipboard!')
+                              }} 
+                              className="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-all"
+                            >
+                              <Icon icon="lucide:copy" className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => { setSelectedExam(exam); setActiveTab('marks') }} className="px-3 py-1.5 rounded-lg border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-50 transition-all">
-                        <Icon icon="lucide:award" className="w-3 h-3 inline mr-1" />Marks
-                      </button>
-                      <button onClick={() => openExamModal(exam)} className="p-1.5 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all">
-                        <Icon icon="lucide:edit" className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => deleteExam(exam.id)} className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all">
-                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -4057,27 +4390,199 @@ function TutorDashboard() {
           </div>
         )}
 
-        {/* ── EXAM MODAL ── */}
+        {/* ── EXAM MODAL (Enhanced with Question Builder) ── */}
         {showExamModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-6 space-y-4 my-8">
               <h3 className="text-lg font-extrabold text-gray-900">{editingExam ? 'Edit Exam' : 'Create Exam'}</h3>
+              
               <CourseSelector />
-              <input value={examTitle} onChange={(e) => setExamTitle(e.target.value)} placeholder="Exam title *" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
-              <textarea value={examDescription} onChange={(e) => setExamDescription(e.target.value)} placeholder="Description (optional)" rows={2} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <input 
+                  value={examTitle} 
+                  onChange={(e) => setExamTitle(e.target.value)} 
+                  placeholder="Exam title *" 
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" 
+                />
+                <input 
+                  type="number" 
+                  value={examDuration} 
+                  onChange={(e) => setExamDuration(Number(e.target.value))} 
+                  placeholder="Duration (minutes)" 
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" 
+                />
+              </div>
+              
+              <textarea 
+                value={examDescription} 
+                onChange={(e) => setExamDescription(e.target.value)} 
+                placeholder="Description (optional)" 
+                rows={2} 
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" 
+              />
+              
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-gray-600 mb-1 block">Total Marks</label>
-                  <input type="number" value={examTotalMarks} onChange={(e) => setExamTotalMarks(Number(e.target.value))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#1A4095]" />
+                  <input 
+                    type="number" 
+                    value={examTotalMarks} 
+                    onChange={(e) => setExamTotalMarks(Number(e.target.value))} 
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#1A4095]" 
+                  />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-600 mb-1 block">Deadline (optional)</label>
-                  <input type="datetime-local" value={examDate} onChange={(e) => setExamDate(e.target.value)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#1A4095]" />
+                  <label className="text-xs font-bold text-gray-600 mb-1 block">Start Date/Time</label>
+                  <input 
+                    type="datetime-local" 
+                    value={examDate} 
+                    onChange={(e) => setExamDate(e.target.value)} 
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#1A4095]" 
+                  />
                 </div>
               </div>
+              
+              {/* Question Builder */}
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-bold text-sm text-gray-900">Questions ({examQuestions.length})</h4>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => addQuestion('mcq')} 
+                      className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition-all"
+                    >
+                      + MCQ
+                    </button>
+                    <button 
+                      onClick={() => addQuestion('true-false')} 
+                      className="px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-xs font-bold hover:bg-green-100 transition-all"
+                    >
+                      + True/False
+                    </button>
+                    <button 
+                      onClick={() => addQuestion('short-answer')} 
+                      className="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-all"
+                    >
+                      + Short Answer
+                    </button>
+                  </div>
+                </div>
+                
+                {examQuestions.length === 0 ? (
+                  <div className="bg-gray-50 p-6 rounded-xl text-center">
+                    <Icon icon="lucide:help-circle" className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs text-gray-500">No questions added yet. Click buttons above to add questions.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {examQuestions.map((q, index) => (
+                      <div key={q.id} className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="text-xs font-bold text-gray-500">Question {index + 1} ({q.type})</span>
+                          <button 
+                            onClick={() => deleteQuestion(q.id)} 
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Icon icon="lucide:x" className="w-4 h-4" />
+                          </button>
+                        </div>
+                        
+                        <input 
+                          value={q.question} 
+                          onChange={(e) => updateQuestion(q.id, 'question', e.target.value)} 
+                          placeholder="Enter question text" 
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2" 
+                        />
+                        
+                        {q.type === 'mcq' && (
+                          <div className="space-y-2">
+                            {q.options.map((opt: string, i: number) => (
+                              <input 
+                                key={i}
+                                value={opt} 
+                                onChange={(e) => {
+                                  const newOpts = [...q.options]
+                                  newOpts[i] = e.target.value
+                                  updateQuestion(q.id, 'options', newOpts)
+                                }} 
+                                placeholder={`Option ${String.fromCharCode(65 + i)}`} 
+                                className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs" 
+                              />
+                            ))}
+                            <input 
+                              value={q.correct_answer} 
+                              onChange={(e) => updateQuestion(q.id, 'correct_answer', e.target.value)} 
+                              placeholder="Correct answer (A, B, C, or D)" 
+                              className="w-full border border-green-300 rounded-lg px-3 py-1.5 text-xs bg-green-50" 
+                            />
+                          </div>
+                        )}
+                        
+                        {q.type === 'true-false' && (
+                          <select 
+                            value={q.correct_answer} 
+                            onChange={(e) => updateQuestion(q.id, 'correct_answer', e.target.value)} 
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                          >
+                            <option value="">Select correct answer</option>
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                          </select>
+                        )}
+                        
+                        <div className="mt-2">
+                          <label className="text-xs text-gray-500">Marks:</label>
+                          <input 
+                            type="number" 
+                            value={q.marks} 
+                            onChange={(e) => updateQuestion(q.id, 'marks', Number(e.target.value))} 
+                            className="w-20 ml-2 border border-gray-300 rounded px-2 py-1 text-xs" 
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Exam Link Display */}
+              {examLink && (
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <div className="text-xs font-bold text-blue-900 mb-1">Exam Link (Share with students):</div>
+                  <div className="flex gap-2">
+                    <input 
+                      value={examLink} 
+                      readOnly 
+                      className="flex-1 bg-white border border-blue-300 rounded-lg px-3 py-2 text-xs font-mono" 
+                    />
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(examLink)
+                        alert('Link copied!')
+                      }} 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowExamModal(false)} className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all">Cancel</button>
-                <button onClick={saveExam} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all">
+                <button 
+                  onClick={() => {
+                    setShowExamModal(false)
+                    setExamLink('')
+                  }} 
+                  className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={saveExam} 
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all"
+                >
                   {editingExam ? 'Update Exam' : 'Create Exam'}
                 </button>
               </div>
