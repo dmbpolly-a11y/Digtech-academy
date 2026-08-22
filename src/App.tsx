@@ -752,18 +752,28 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
           <p className="text-xs text-gray-500 mt-1">Powered by industry-leading partners</p>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center justify-items-center">
-          {[1, 2, 3, 4, 5].map((num) => (
-            <div 
-              key={num}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6 items-center justify-items-center">
+          {[
+            { num: 1, url: 'https://innovationhub.ug/', name: 'Innovation Hub Uganda' },
+            { num: 2, url: 'https://www.w3schools.com/', name: 'W3Schools' },
+            { num: 3, url: 'https://www.nita.go.ug/', name: 'NITA Uganda' },
+            { num: 4, url: '#', name: 'Partner 4' },
+            { num: 5, url: '#', name: 'Partner 5' },
+          ].map((partner) => (
+            <a
+              key={partner.num}
+              href={partner.url}
+              target={partner.url !== '#' ? '_blank' : '_self'}
+              rel={partner.url !== '#' ? 'noopener noreferrer' : undefined}
               className="w-full max-w-[140px] h-20 bg-white/5 backdrop-blur-sm rounded-xl p-3 hover:bg-white/10 transition-all hover:scale-105 flex items-center justify-center border border-gray-700/50 hover:border-[#28C0F4]/30"
+              title={partner.name}
             >
               <img
-                src={`/images/footerpic${num}.${num === 1 || num === 5 ? 'jfif' : 'png'}`}
-                alt={`Partner ${num}`}
+                src={`/images/footerpic${partner.num}.${partner.num === 1 || partner.num === 5 ? 'jfif' : 'png'}`}
+                alt={partner.name}
                 className="w-full h-full object-contain filter brightness-90 hover:brightness-110 transition-all"
               />
-            </div>
+            </a>
           ))}
         </div>
       </div>
@@ -871,30 +881,30 @@ function HomePage({
           <div className="absolute top-10 left-1/4 w-72 h-72 rounded-full bg-white blur-3xl" />
           <div className="absolute bottom-10 right-1/4 w-56 h-56 rounded-full blur-3xl bg-[#28C0F4]" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-28 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="animate-fade-in-left">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-2 mb-6">
-              <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-[#28C0F4]" />
-              <span className="text-white/90 text-xs font-semibold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6">
+              <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full animate-pulse bg-[#28C0F4]" />
+              <span className="text-white/90 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
                 Uganda's Leading Online Digital Academy
               </span>
             </div>
             <h1
-              className="text-white font-extrabold text-4xl md:text-5xl leading-tight mb-6"
+              className="text-white font-extrabold text-3xl sm:text-4xl md:text-5xl leading-tight mb-4 sm:mb-6"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
               Master In-Demand <br />
               <span className="text-[#28C0F4]">Digital Skills</span> & Career Growth
             </h1>
-            <p className="text-white/80 text-base mb-8 leading-relaxed">
+            <p className="text-white/80 text-sm sm:text-base mb-6 sm:mb-8 leading-relaxed">
               Expert-led courses, live hands-on classes, and accredited certifications. Pay easily in UGX with PesaPal and learn at your own pace.
             </p>
 
             {/* Live Search Appearance with Autocomplete Dropdown */}
             <div className="relative max-w-lg">
-              <div className="flex gap-2 bg-white rounded-2xl p-1.5 shadow-2xl">
-                <div className="flex items-center pl-3 text-gray-400">
-                  <Icon icon="lucide:search" className="w-5 h-5" />
+              <div className="flex gap-1 sm:gap-2 bg-white rounded-xl sm:rounded-2xl p-1 sm:p-1.5 shadow-2xl">
+                <div className="flex items-center pl-2 sm:pl-3 text-gray-400">
+                  <Icon icon="lucide:search" className="w-4 sm:w-5 h-4 sm:h-5" />
                 </div>
                 <input
                   type="text"
@@ -904,12 +914,12 @@ function HomePage({
                     setShowSuggestions(true)
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  placeholder="Search courses, categories, tutors..."
-                  className="flex-1 px-2 py-3 text-gray-800 text-sm outline-none bg-transparent placeholder-gray-400 font-medium"
+                  placeholder="Search courses..."
+                  className="flex-1 px-1 sm:px-2 py-2 sm:py-3 text-gray-800 text-xs sm:text-sm outline-none bg-transparent placeholder-gray-400 font-medium"
                 />
                 <button
                   onClick={() => setFrame('courses')}
-                  className="text-white text-xs font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer click-zoom"
+                  className="text-white text-[10px] sm:text-xs font-bold px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer click-zoom"
                   style={{ background: '#28C0F4' }}
                 >
                   Search
@@ -918,8 +928,8 @@ function HomePage({
 
               {/* Autocomplete Dropdown */}
               {showSuggestions && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in-down max-h-80 overflow-y-auto">
-                  <div className="p-2 bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in-down max-h-60 sm:max-h-80 overflow-y-auto">
+                  <div className="p-2 bg-gray-50 text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                     Suggested Courses ({searchResults.length})
                   </div>
                   {searchResults.map((c) => (
@@ -929,20 +939,18 @@ function HomePage({
                         setShowSuggestions(false)
                         setFrame('course-detail')
                       }}
-                      className="w-full text-left p-3.5 hover:bg-blue-50/60 transition-colors flex items-center justify-between border-b border-gray-50 last:border-0 cursor-pointer"
+                      className="w-full text-left p-2.5 sm:p-3.5 hover:bg-blue-50/60 transition-colors flex items-center justify-between border-b border-gray-50 last:border-0 cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <img src={c.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                        <div>
-                          <div className="text-xs font-bold text-gray-900">{c.title}</div>
-                          <div className="text-[11px] text-gray-500 flex items-center gap-2 mt-0.5">
-                            <span className="text-[#28C0F4] font-semibold">{c.category}</span>
-                            <span>•</span>
-                            <span>{c.tutor}</span>
+                      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                        <img src={c.image} alt="" className="w-8 sm:w-10 h-8 sm:h-10 rounded-lg object-cover flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[11px] sm:text-xs font-bold text-gray-900 truncate">{c.title}</div>
+                          <div className="text-[10px] sm:text-[11px] text-gray-500 flex items-center gap-1 sm:gap-2 mt-0.5">
+                            <span className="text-[#28C0F4] font-semibold truncate">{c.category}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0 ml-2">
                         <div className="text-xs font-extrabold text-[#1A4095]">
                           {c.free ? 'Free' : `UGX ${c.price.toLocaleString()}`}
                         </div>
@@ -955,20 +963,20 @@ function HomePage({
             </div>
           </div>
 
-          <div className="hidden md:block animate-fade-in-right">
+          <div className="animate-fade-in-right">
             <div className="relative section-zoom-animate">
               <button 
                 onClick={() => setFrame('courses')}
-                className="block w-full cursor-pointer group overflow-hidden rounded-3xl"
+                className="block w-full cursor-pointer group overflow-hidden rounded-2xl sm:rounded-3xl"
               >
                 {/* Image Carousel */}
-                <div className="relative w-full h-[420px]">
+                <div className="relative w-full h-[280px] sm:h-[360px] md:h-[420px]">
                   {carouselImages.map((img, index) => (
                     <img
                       key={img}
                       src={img}
                       alt={`Students learning tech skills at Digtech Academy - Image ${index + 1}`}
-                      className={`absolute inset-0 w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-[#28C0F4]/40 image-with-blue-border transition-all duration-1000 ${
+                      className={`absolute inset-0 w-full h-full object-cover rounded-2xl sm:rounded-3xl shadow-2xl border-2 sm:border-4 border-[#28C0F4]/40 image-with-blue-border transition-all duration-1000 ${
                         index === currentImageIndex 
                           ? 'opacity-100 scale-100' 
                           : 'opacity-0 scale-95'
@@ -978,7 +986,7 @@ function HomePage({
                   ))}
                   
                   {/* Carousel Indicators */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                  <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 z-10">
                     {carouselImages.map((_, index) => (
                       <button
                         key={index}
@@ -986,9 +994,9 @@ function HomePage({
                           e.stopPropagation()
                           setCurrentImageIndex(index)
                         }}
-                        className={`w-2 h-2 rounded-full transition-all ${
+                        className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full transition-all ${
                           index === currentImageIndex 
-                            ? 'bg-[#FFD700] w-8' 
+                            ? 'bg-[#FFD700] w-6 sm:w-8' 
                             : 'bg-white/50 hover:bg-white/80'
                         }`}
                       />
@@ -998,15 +1006,15 @@ function HomePage({
               </button>
               <button 
                 onClick={() => setFrame('about')}
-                className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 animate-float hover:scale-110 transition-transform cursor-pointer z-20"
+                className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 animate-float hover:scale-110 transition-transform cursor-pointer z-20 hidden sm:block"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                    <Icon icon="lucide:award" className="w-6 h-6" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <Icon icon="lucide:award" className="w-5 sm:w-6 h-5 sm:h-6" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-gray-900">Verified Certificates</div>
-                    <div className="text-xs text-gray-500">Recognized by Top Employers</div>
+                    <div className="text-xs sm:text-sm font-bold text-gray-900">Verified Certificates</div>
+                    <div className="text-[10px] sm:text-xs text-gray-500">Recognized by Top Employers</div>
                   </div>
                 </div>
               </button>
