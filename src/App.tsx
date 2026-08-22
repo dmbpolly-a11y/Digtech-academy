@@ -845,7 +845,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
             { num: 3, url: 'https://www.nita.go.ug/', name: 'NITA Uganda' },
             { num: 4, url: '#', name: 'Partner 4' },
             { num: 5, url: '#', name: 'Partner 5' },
-            { num: 6, url: 'https://hivecolab.org/', name: 'Hive Colab' },
+            { num: 6, url: 'https://hivecolab.org/', name: 'Hive Colab Uganda' },
           ].map((partner) => (
             <a
               key={partner.num}
