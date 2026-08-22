@@ -18,7 +18,64 @@
     <script type="module">
       var myLandbot = new Landbot.Livechat({
         configUrl: 'https://storage.googleapis.com/landbot.site/v3/H-3496800-WG83CBLMRS36PSAX/index.json',
+        customData: {
+          avatar: '/images/chatbot.png'
+        }
+      });
+      
+      // Custom styling for Landbot widget with custom logo
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const landbotButton = document.querySelector('.landbot-container__button, #landbot-button, [class*="landbot"]');
+          if (landbotButton) {
+            // Add custom background image
+            landbotButton.style.backgroundImage = 'url(/images/chatbot.png)';
+            landbotButton.style.backgroundSize = 'cover';
+            landbotButton.style.backgroundPosition = 'center';
+            landbotButton.style.backgroundColor = 'transparent';
+          }
+          
+          // Also try to find by iframe
+          const iframe = document.querySelector('iframe[src*="landbot"]');
+          if (iframe && iframe.parentElement) {
+            const parent = iframe.parentElement;
+            if (parent.style) {
+              parent.style.setProperty('background-image', 'url(/images/chatbot.png)', 'important');
+              parent.style.setProperty('background-size', 'contain', 'important');
+              parent.style.setProperty('background-repeat', 'no-repeat', 'important');
+              parent.style.setProperty('background-position', 'center', 'important');
+            }
+          }
+        }, 2000);
       });
     </script>
+    
+    <!-- Additional styling for Landbot widget -->
+    <style>
+      /* Style Landbot button with custom chatbot logo */
+      .landbot-container__button,
+      #landbot-button,
+      [class*="LandbotLivechat"] > div:first-child,
+      iframe[src*="landbot"] {
+        background-image: url('/images/chatbot.png') !important;
+        background-size: contain !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+      }
+      
+      /* Ensure the button shows the custom image */
+      .landbot-container__button::before,
+      #landbot-button::before {
+        content: '' !important;
+        background-image: url('/images/chatbot.png') !important;
+        background-size: cover !important;
+        width: 100% !important;
+        height: 100% !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        border-radius: 50% !important;
+      }
+    </style>
   </body>
 </html>
