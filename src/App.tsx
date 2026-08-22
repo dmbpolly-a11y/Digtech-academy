@@ -715,15 +715,14 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
       {/* Live East African Time Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div className="live-clock flex flex-col items-center justify-center gap-2 py-4 px-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(26,64,149,0.15) 0%, rgba(40,192,244,0.15) 100%)', border: '1px solid rgba(40,192,244,0.3)' }}>
+        <div className="live-clock flex flex-col items-center justify-center gap-2 py-3 px-4 rounded-2xl max-w-sm mx-auto" style={{ background: 'linear-gradient(135deg, rgba(26,64,149,0.15) 0%, rgba(40,192,244,0.15) 100%)', border: '1px solid rgba(40,192,244,0.3)' }}>
           <div className="flex items-center gap-2">
-            <Icon icon="lucide:clock" className="w-6 h-6 animate-pulse" style={{ color: '#FFD700' }} />
-            <span className="text-sm font-bold uppercase tracking-wider" style={{ color: '#FFFFFF', textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>Live Time – East Africa Time (EAT, UTC+3)</span>
+            <Icon icon="lucide:clock" className="w-5 h-5 animate-pulse" style={{ color: '#FFD700' }} />
           </div>
-          <div className="live-clock-time text-4xl md:text-5xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 30px rgba(255,215,0,0.7), 0 0 60px rgba(255,215,0,0.5)' }}>
+          <div className="live-clock-time text-2xl md:text-3xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.4)' }}>
             {currentTime}
           </div>
-          <div className="text-sm font-semibold" style={{ color: '#FFFFFF', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+          <div className="text-xs font-medium" style={{ color: '#FFFFFF', textShadow: '0 1px 5px rgba(0,0,0,0.3)' }}>
             {currentDate}
           </div>
         </div>
@@ -753,6 +752,25 @@ function HomePage({
 }) {
   const [searchQ, setSearchQ] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Carousel images
+  const carouselImages = [
+    '/images/liveclass1.png',
+    '/images/liveclass2.png',
+    '/images/liveclass3.png',
+    '/images/liveclass4.png',
+    '/images/liveclass5.png',
+  ]
+
+  // Auto-scroll carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % carouselImages.length)
+    }, 3000) // Change image every 3 seconds
+    
+    return () => clearInterval(interval)
+  }, [])
 
   // Sorted descending by enrollment count
   const sortedCourses = [...INITIAL_COURSES].sort((a, b) => b.students - a.students)
@@ -901,17 +919,46 @@ function HomePage({
             <div className="relative section-zoom-animate">
               <button 
                 onClick={() => setFrame('courses')}
-                className="block w-full cursor-pointer group"
+                className="block w-full cursor-pointer group overflow-hidden rounded-3xl"
               >
-                <img
-                  src="/images/liveclass2.png"
-                  alt="Students learning tech skills at Digtech Academy Mbarara"
-                  className="rounded-3xl shadow-2xl border-4 border-[#28C0F4]/40 object-cover w-full h-[420px] image-with-blue-border transition-transform group-hover:scale-105"
-                />
+                {/* Image Carousel */}
+                <div className="relative w-full h-[420px]">
+                  {carouselImages.map((img, index) => (
+                    <img
+                      key={img}
+                      src={img}
+                      alt={`Students learning tech skills at Digtech Academy - Image ${index + 1}`}
+                      className={`absolute inset-0 w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-[#28C0F4]/40 image-with-blue-border transition-all duration-1000 ${
+                        index === currentImageIndex 
+                          ? 'opacity-100 scale-100' 
+                          : 'opacity-0 scale-95'
+                      }`}
+                      style={{ transition: 'opacity 1s ease-in-out, transform 1s ease-in-out' }}
+                    />
+                  ))}
+                  
+                  {/* Carousel Indicators */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    {carouselImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setCurrentImageIndex(index)
+                        }}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentImageIndex 
+                            ? 'bg-[#FFD700] w-8' 
+                            : 'bg-white/50 hover:bg-white/80'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </button>
               <button 
                 onClick={() => setFrame('about')}
-                className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 animate-float hover:scale-110 transition-transform cursor-pointer"
+                className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 animate-float hover:scale-110 transition-transform cursor-pointer z-20"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
