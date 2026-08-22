@@ -376,7 +376,9 @@ function PublicNav({
               key={l.frame}
               onClick={() => setFrame(l.frame)}
               className={`text-sm font-medium transition-all hover:scale-105 cursor-pointer ${
-                frame === l.frame ? 'font-bold text-[#1A4095] border-b-2 border-[#1A4095] pb-0.5' : 'text-gray-600 hover:text-gray-900'
+                frame === l.frame 
+                  ? 'font-bold text-[#1A4095] border-b-2 border-[#1A4095] pb-0.5' 
+                  : 'text-gray-600 hover:text-[#1A4095] hover:font-semibold'
               }`}
             >
               {l.label}
@@ -448,8 +450,10 @@ function PublicNav({
                 setFrame(l.frame)
                 setMobileOpen(false)
               }}
-              className={`text-left text-sm font-medium py-2.5 px-3 rounded-lg ${
-                frame === l.frame ? 'bg-blue-50 text-[#1A4095] font-bold' : 'text-gray-700 hover:bg-gray-50'
+              className={`text-left text-sm font-medium py-2.5 px-3 rounded-lg transition-all ${
+                frame === l.frame 
+                  ? 'bg-[#1A4095] text-white font-bold' 
+                  : 'text-gray-700 hover:bg-[#28C0F4] hover:text-white'
               }`}
             >
               {l.label}
@@ -4893,10 +4897,16 @@ function AboutPage({ setFrame }: { setFrame: (f: Frame) => void }) {
           Join hundreds of successful graduates who transformed their careers with Digtech Academy
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-white text-[#1A4095] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg">
+          <button 
+            onClick={() => setFrame('courses')}
+            className="bg-white text-[#1A4095] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer hover:bg-[#28C0F4] hover:text-white"
+          >
             Browse Courses
           </button>
-          <button className="bg-[#FFD700] text-[#1A4095] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg">
+          <button 
+            onClick={() => setFrame('register')}
+            className="bg-[#FFD700] text-[#1A4095] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer hover:bg-[#1A4095] hover:text-white"
+          >
             Apply Now
           </button>
         </div>
