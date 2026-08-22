@@ -403,28 +403,27 @@ function PublicNav({
                   else if (currentUser.role === 'principal') setFrame('principal-dashboard')
                   else setFrame('student-dashboard')
                 }}
-                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all shadow-sm hover:opacity-90 flex items-center gap-2 hover:scale-105 cursor-pointer blue-btn-gradient-hover"
+                className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all shadow-sm hover:opacity-90 hover:scale-105 cursor-pointer blue-btn-gradient-hover"
                 style={{ background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 100%)' }}
               >
-                <Icon icon="lucide:layout-dashboard" className="w-4 h-4" />
                 {currentUser.role.toUpperCase()} DASHBOARD
               </button>
               <button
                 onClick={onLogout}
-                className="text-xs font-bold px-3.5 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-all flex items-center gap-1.5 cursor-pointer"
+                className="text-xs font-bold px-3.5 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-all cursor-pointer"
               >
-                <Icon icon="lucide:log-out" className="w-4 h-4" /> Logout
+                Logout
               </button>
             </div>
           ) : (
             <>
               <button
                 onClick={() => setFrame('login')}
-                className={`text-xs font-bold px-4 py-2.5 rounded-xl border-2 transition-all flex items-center gap-1.5 hover:bg-blue-50 hover:scale-105 cursor-pointer ${
+                className={`text-xs font-bold px-4 py-2.5 rounded-xl border-2 transition-all hover:bg-blue-50 hover:scale-105 cursor-pointer ${
                   frame === 'login' ? 'bg-blue-50 border-[#1A4095] text-[#1A4095]' : 'border-gray-200 text-gray-700'
                 }`}
               >
-                <Icon icon="lucide:lock" className="w-4 h-4 text-[#1A4095]" /> Sign In
+                Sign In
               </button>
               <button
                 onClick={() => setFrame('register')}
@@ -691,10 +690,12 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
             title="Digtech Academy – Grand West Arcade, High Street, Mbarara"
             style={{ border: 0 }}
           />
-          {/* Floating location badge overlay */}
+          {/* Floating location badge with ripple animation */}
           <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-lg flex items-center gap-2 border border-[#28C0F4]/30">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1A4095] to-[#28C0F4] flex items-center justify-center flex-shrink-0">
-              <Icon icon="lucide:map-pin" className="w-4 h-4 text-white" />
+            <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-[#1A4095] to-[#28C0F4] flex items-center justify-center flex-shrink-0">
+              {/* Ripple waves animation */}
+              <div className="absolute inset-0 rounded-full bg-[#28C0F4] animate-ping opacity-30"></div>
+              <div className="absolute inset-0 rounded-full bg-[#28C0F4] animate-pulse opacity-20" style={{ animationDelay: '0.5s' }}></div>
             </div>
             <div>
               <div className="text-xs font-extrabold text-[#1A4095]">Digtech Academy</div>
@@ -704,40 +705,47 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
       </div>
 
-      {/* Live East African Time Display */}
+      {/* Live East African Time Display with Ripple Animation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div 
-          className="live-clock flex flex-col items-center justify-center gap-2 py-12 px-8 max-w-xs mx-auto relative" 
-          style={{ 
-            background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 50%, #1A4095 100%)',
-            clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
-            minHeight: '200px',
-            boxShadow: '0 15px 50px rgba(40, 192, 244, 0.4), 0 0 60px rgba(26, 64, 149, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1)',
-            border: '3px solid rgba(255, 215, 0, 0.3)'
-          }}
-        >
-          {/* Digtech logo icon overlay for authenticity */}
-          <div 
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: 'url(/images/Digtech Academy Logo Icon White.png)',
-              backgroundSize: '80%',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              mixBlendMode: 'overlay'
-            }}
-          ></div>
+        <div className="relative flex items-center justify-center py-12 px-8 max-w-xs mx-auto">
+          {/* Ripple waves emanating from center (water droplet effect) */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute w-32 h-32 rounded-full border-4 border-[#28C0F4] opacity-40 animate-ping" style={{ animationDuration: '2s' }}></div>
+            <div className="absolute w-48 h-48 rounded-full border-4 border-[#1A4095] opacity-30 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }}></div>
+            <div className="absolute w-64 h-64 rounded-full border-4 border-[#28C0F4] opacity-20 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
+          </div>
           
-          {/* Content */}
-          <div className="relative z-10 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:clock" className="w-6 h-6 animate-pulse" style={{ color: '#FFD700' }} />
-            </div>
-            <div className="live-clock-time text-3xl md:text-4xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 25px rgba(255,215,0,0.9), 0 0 50px rgba(255,215,0,0.6), 0 3px 15px rgba(0,0,0,0.8), 0 0 5px rgba(255,255,255,0.5)' }}>
-              {currentTime}
-            </div>
-            <div className="text-sm font-bold" style={{ color: '#FFFFFF', textShadow: '0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7), 0 0 5px rgba(40,192,244,0.8)' }}>
-              {currentDate}
+          {/* Central time display */}
+          <div 
+            className="relative z-10 flex flex-col items-center justify-center gap-2 py-8 px-12 rounded-full"
+            style={{ 
+              background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 50%, #1A4095 100%)',
+              boxShadow: '0 15px 50px rgba(40, 192, 244, 0.5), 0 0 60px rgba(26, 64, 149, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.1)',
+              border: '3px solid rgba(255, 215, 0, 0.3)',
+              minWidth: '200px',
+              minHeight: '200px'
+            }}
+          >
+            {/* Digtech logo icon overlay */}
+            <div 
+              className="absolute inset-0 opacity-20 rounded-full"
+              style={{
+                backgroundImage: 'url(/images/Digtech Academy Logo Icon White.png)',
+                backgroundSize: '70%',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                mixBlendMode: 'overlay'
+              }}
+            ></div>
+            
+            {/* Time content */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div className="text-3xl md:text-4xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 25px rgba(255,215,0,0.9), 0 0 50px rgba(255,215,0,0.6), 0 3px 15px rgba(0,0,0,0.8)' }}>
+                {currentTime}
+              </div>
+              <div className="text-xs font-bold" style={{ color: '#FFFFFF', textShadow: '0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7)' }}>
+                {currentDate}
+              </div>
             </div>
           </div>
         </div>
