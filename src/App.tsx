@@ -1,4 +1,4 @@
-// ─── Digtech Academy Main App (Updated: DigiTechFX YouTube Integration) ─────
+// ─── Digtech Academy Main App (Updated: Fresh liveclass2 & liveclass6 images) ─────
 import { useState, useEffect } from 'react'
 import { Icon } from '@iconify/react'
 import { simulateCompletePaymentFlow, validatePaymentDetails, getMerchantAccount } from './utils/pesapal'
