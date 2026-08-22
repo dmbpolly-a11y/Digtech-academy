@@ -706,15 +706,31 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
       {/* Live East African Time Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div className="live-clock flex flex-col items-center justify-center gap-2 py-3 px-4 rounded-2xl max-w-sm mx-auto" style={{ background: 'linear-gradient(135deg, rgba(26,64,149,0.15) 0%, rgba(40,192,244,0.15) 100%)', border: '1px solid rgba(40,192,244,0.3)' }}>
-          <div className="flex items-center gap-2">
-            <Icon icon="lucide:clock" className="w-5 h-5 animate-pulse" style={{ color: '#FFD700' }} />
-          </div>
-          <div className="live-clock-time text-2xl md:text-3xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.4)' }}>
-            {currentTime}
-          </div>
-          <div className="text-xs font-medium" style={{ color: '#FFFFFF', textShadow: '0 1px 5px rgba(0,0,0,0.3)' }}>
-            {currentDate}
+        <div 
+          className="live-clock flex flex-col items-center justify-center gap-2 py-8 px-6 max-w-xs mx-auto relative overflow-hidden" 
+          style={{ 
+            backgroundImage: 'url(/images/Digtech Academy Logo Icon.png)',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            minHeight: '200px',
+            filter: 'drop-shadow(0 10px 30px rgba(40, 192, 244, 0.3))'
+          }}
+        >
+          {/* Semi-transparent overlay for better text visibility */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1A4095]/20 via-[#28C0F4]/20 to-[#1A4095]/20 backdrop-blur-sm"></div>
+          
+          {/* Content */}
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:clock" className="w-5 h-5 animate-pulse" style={{ color: '#FFD700' }} />
+            </div>
+            <div className="live-clock-time text-2xl md:text-3xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,215,0,0.5), 0 2px 10px rgba(0,0,0,0.5)' }}>
+              {currentTime}
+            </div>
+            <div className="text-xs font-medium" style={{ color: '#FFFFFF', textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 0 10px rgba(0,0,0,0.5)' }}>
+              {currentDate}
+            </div>
           </div>
         </div>
       </div>
