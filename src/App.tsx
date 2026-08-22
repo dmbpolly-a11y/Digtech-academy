@@ -235,16 +235,8 @@ const INITIAL_ADMINS: AdminUser[] = [
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Icon
-          key={i}
-          icon="lucide:star"
-          className={`w-3.5 h-3.5 ${
-            i <= Math.floor(rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'
-          }`}
-        />
-      ))}
-      <span className="ml-1 text-xs font-semibold text-gray-600">{rating}</span>
+      <span className="text-amber-500 font-bold text-sm">{rating.toFixed(1)}</span>
+      <span className="text-gray-400 text-xs ml-1">/ 5.0</span>
     </div>
   )
 }
@@ -707,31 +699,31 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
       {/* Live East African Time Display with Ripple Animation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div className="relative flex items-center justify-center py-12 px-8 max-w-xs mx-auto">
+        <div className="relative flex items-center justify-center py-8">
           {/* Ripple waves emanating from center (water droplet effect) */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="absolute w-32 h-32 rounded-full border-4 border-[#28C0F4] opacity-40 animate-ping" style={{ animationDuration: '2s' }}></div>
-            <div className="absolute w-48 h-48 rounded-full border-4 border-[#1A4095] opacity-30 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }}></div>
-            <div className="absolute w-64 h-64 rounded-full border-4 border-[#28C0F4] opacity-20 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
+            <div className="absolute w-48 h-32 rounded-3xl border-4 border-[#28C0F4] opacity-40 animate-ping" style={{ animationDuration: '2s' }}></div>
+            <div className="absolute w-64 h-40 rounded-3xl border-4 border-[#1A4095] opacity-30 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }}></div>
+            <div className="absolute w-80 h-48 rounded-3xl border-4 border-[#28C0F4] opacity-20 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
           </div>
           
-          {/* Central time display */}
+          {/* Central time display in small rectangle */}
           <div 
-            className="relative z-10 flex flex-col items-center justify-center gap-2 py-8 px-12 rounded-full"
+            className="relative z-10 flex flex-col items-center justify-center gap-1 py-4 px-8 rounded-2xl"
             style={{ 
               background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 50%, #1A4095 100%)',
               boxShadow: '0 15px 50px rgba(40, 192, 244, 0.5), 0 0 60px rgba(26, 64, 149, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.1)',
               border: '3px solid rgba(255, 215, 0, 0.3)',
-              minWidth: '200px',
-              minHeight: '200px'
+              minWidth: '240px',
+              maxWidth: '280px'
             }}
           >
             {/* Digtech logo icon overlay */}
             <div 
-              className="absolute inset-0 opacity-20 rounded-full"
+              className="absolute inset-0 opacity-15 rounded-2xl"
               style={{
                 backgroundImage: 'url(/images/Digtech Academy Logo Icon White.png)',
-                backgroundSize: '70%',
+                backgroundSize: '60%',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
                 mixBlendMode: 'overlay'
@@ -739,11 +731,11 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
             ></div>
             
             {/* Time content */}
-            <div className="relative z-10 flex flex-col items-center gap-2">
-              <div className="text-3xl md:text-4xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 25px rgba(255,215,0,0.9), 0 0 50px rgba(255,215,0,0.6), 0 3px 15px rgba(0,0,0,0.8)' }}>
+            <div className="relative z-10 flex flex-col items-center gap-1">
+              <div className="text-2xl md:text-3xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 25px rgba(255,215,0,0.9), 0 0 50px rgba(255,215,0,0.6), 0 3px 15px rgba(0,0,0,0.8)' }}>
                 {currentTime}
               </div>
-              <div className="text-xs font-bold" style={{ color: '#FFFFFF', textShadow: '0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7)' }}>
+              <div className="text-[10px] font-bold" style={{ color: '#FFFFFF', textShadow: '0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7)' }}>
                 {currentDate}
               </div>
             </div>
@@ -1102,10 +1094,9 @@ function HomePage({
                 className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col justify-between card-flip-hover"
               >
                 <div>
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(t.rating)].map((_, i) => (
-                      <Icon key={i} icon="lucide:star" className="h-4 w-4 fill-amber-400 text-amber-400" />
-                    ))}
+                  <div className="mb-4">
+                    <span className="text-amber-500 font-bold text-lg">{t.rating.toFixed(1)}</span>
+                    <span className="text-gray-400 text-sm ml-1">/ 5.0</span>
                   </div>
                   <p className="text-white/90 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
                 </div>
@@ -4709,7 +4700,7 @@ function AboutPage() {
       } else {
         clearInterval(interval)
       }
-    }, 50)
+    }, 150)
     return () => clearInterval(interval)
   }, [])
 
@@ -4727,9 +4718,9 @@ function AboutPage() {
         } else {
           clearInterval(interval)
         }
-      }, 50)
+      }, 150)
       return () => clearInterval(interval)
-    }, fullText1.length * 50 + 500)
+    }, fullText1.length * 150 + 500)
     return () => clearTimeout(timeout)
   }, [])
 
@@ -4747,9 +4738,9 @@ function AboutPage() {
         } else {
           clearInterval(interval)
         }
-      }, 50)
+      }, 150)
       return () => clearInterval(interval)
-    }, (fullText1.length + fullText2.length) * 50 + 1000)
+    }, (fullText1.length + fullText2.length) * 150 + 1000)
     return () => clearTimeout(timeout)
   }, [])
 
@@ -4767,9 +4758,9 @@ function AboutPage() {
         } else {
           clearInterval(interval)
         }
-      }, 50)
+      }, 150)
       return () => clearInterval(interval)
-    }, (fullText1.length + fullText2.length + fullText3.length) * 20 + 1500)
+    }, (fullText1.length + fullText2.length + fullText3.length) * 150 + 1500)
     return () => clearTimeout(timeout)
   }, [])
 
