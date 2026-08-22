@@ -1099,23 +1099,35 @@ function HomePage({
             {testimonials.map((t) => (
               <div
                 key={t.id}
-                className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col justify-between card-flip-hover"
+                className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col card-flip-hover animate-slide-in-bottom"
               >
-                <div>
+                {/* Profile picture on top */}
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src={t.avatar} 
+                    alt={t.name} 
+                    className="w-20 h-20 rounded-full object-cover border-4 border-[#1A4095] shadow-lg" 
+                  />
+                </div>
+                
+                <div className="flex-1">
                   <div className="mb-4">
                     <span className="text-amber-500 font-bold text-lg">{t.rating.toFixed(1)}</span>
                     <span className="text-gray-400 text-sm ml-1">/ 5.0</span>
                   </div>
                   <p className="text-white/90 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
                 </div>
+                
                 <button 
                   onClick={() => setFrame('courses')}
-                  className="flex items-center gap-3 pt-4 border-t border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
+                  className="flex items-center justify-between pt-4 border-t border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <img src={t.avatar} alt={t.name} className="w-11 h-11 rounded-full object-cover border-2 border-[#28C0F4]" />
                   <div className="text-left">
                     <div className="font-bold text-sm text-white">{t.name}</div>
                     <div className="text-xs text-white/60">{t.role}</div>
+                  </div>
+                  <div className="px-4 py-2 bg-[#1A4095] text-white rounded-lg text-xs font-bold hover:bg-[#28C0F4] transition-colors">
+                    View Story
                   </div>
                 </button>
               </div>
@@ -4662,7 +4674,7 @@ function TutorDashboard() {
   )
 }
 
-function AboutPage() {
+function AboutPage({ setFrame }: { setFrame: (f: Frame) => void }) {
   const [typingText1, setTypingText1] = useState('')
   const [typingText2, setTypingText2] = useState('')
   const [typingText3, setTypingText3] = useState('')
@@ -5024,7 +5036,7 @@ export default function App() {
         {frame === 'courses' && <CoursesPage setFrame={setFrame} onEnroll={handleEnrollClick} />}
         {frame === 'course-detail' && <CourseDetailPage onEnroll={handleEnrollClick} />}
         {frame === 'live-courses' && <LiveCoursesPage onEnroll={handleEnrollClick} />}
-        {frame === 'about' && <AboutPage />}
+        {frame === 'about' && <AboutPage setFrame={setFrame} />}
         {frame === 'contact' && <ContactPage />}
         {frame === 'faq' && <FaqPage />}
         {frame === 'login' && <LoginPage onLoginSuccess={handleLoginSuccess} setFrame={setFrame} />}
