@@ -4092,14 +4092,180 @@ function TutorDashboard() {
 }
 
 function AboutPage() {
+  const [typingText1, setTypingText1] = useState('')
+  const [typingText2, setTypingText2] = useState('')
+  const [typingText3, setTypingText3] = useState('')
+  const [typingText4, setTypingText4] = useState('')
+
+  const fullText1 = "Digtech Academy is Uganda's premier technology education institution, strategically located at Level 2 Grand West Arcade in the heart of Mbarara City. We are dedicated to transforming Africa's digital landscape by empowering the next generation of tech innovators, entrepreneurs, and industry leaders with cutting-edge skills and hands-on experience."
+  
+  const fullText2 = "Our comprehensive curriculum spans across multiple high-demand technology domains including Software Engineering, Data Science & Machine Learning, Cybersecurity, Cloud Computing, Mobile App Development, and Creative Digital Design. Each program is carefully crafted by industry experts and updated regularly to align with global technology trends and employer requirements."
+  
+  const fullText3 = "We believe in learning by doing. Our state-of-the-art facilities feature modern computer labs, collaborative workspaces, and industry-standard tools that mirror real-world professional environments. Students work on live projects, participate in hackathons, and engage with tech communities to build portfolios that demonstrate their capabilities to potential employers."
+  
+  const fullText4 = "Digtech Academy has successfully trained over 500+ students who now work at leading tech companies across East Africa and beyond. Our graduates have launched successful startups, secured remote positions with international firms, and contributed significantly to Uganda's growing technology sector. We partner with industry leaders to provide internship opportunities, mentorship programs, and career placement support to ensure our students transition smoothly from learning to earning."
+
+  // Typewriter effect for text 1
+  useEffect(() => {
+    let index = 0
+    const interval = setInterval(() => {
+      if (index <= fullText1.length) {
+        setTypingText1(fullText1.slice(0, index))
+        index++
+      } else {
+        clearInterval(interval)
+      }
+    }, 20)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Typewriter effect for text 2 (starts after text 1)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let index = 0
+      const interval = setInterval(() => {
+        if (index <= fullText2.length) {
+          setTypingText2(fullText2.slice(0, index))
+          index++
+        } else {
+          clearInterval(interval)
+        }
+      }, 20)
+      return () => clearInterval(interval)
+    }, fullText1.length * 20 + 500)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  // Typewriter effect for text 3
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let index = 0
+      const interval = setInterval(() => {
+        if (index <= fullText3.length) {
+          setTypingText3(fullText3.slice(0, index))
+          index++
+        } else {
+          clearInterval(interval)
+        }
+      }, 20)
+      return () => clearInterval(interval)
+    }, (fullText1.length + fullText2.length) * 20 + 1000)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  // Typewriter effect for text 4
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let index = 0
+      const interval = setInterval(() => {
+        if (index <= fullText4.length) {
+          setTypingText4(fullText4.slice(0, index))
+          index++
+        } else {
+          clearInterval(interval)
+        }
+      }, 20)
+      return () => clearInterval(interval)
+    }, (fullText1.length + fullText2.length + fullText3.length) * 20 + 1500)
+    return () => clearTimeout(timeout)
+  }, [])
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="text-3xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-        About Digtech Academy
-      </h1>
-      <p className="text-gray-600 text-sm leading-relaxed mb-6">
-        Digtech Academy is Uganda's flagship technology learning hub, located in Grand West Arcade, Mbarara City. We empower African talent with practical, real-world skills in software engineering, data science, cybersecurity, and creative design.
-      </p>
+      <div className="text-center mb-12">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          About Digtech Academy
+        </h1>
+        <p className="text-lg text-[#28C0F4] font-semibold">
+          Empowering Africa's Digital Future Through Technology Education
+        </p>
+      </div>
+
+      {/* Who We Are */}
+      <div className="mb-10 bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-sm">
+        <h2 className="text-2xl font-bold text-[#1A4095] mb-4 flex items-center gap-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <Icon icon="lucide:building-2" className="w-7 h-7" />
+          Who We Are
+        </h2>
+        <p className="text-gray-700 text-sm leading-relaxed min-h-[120px]">
+          {typingText1}
+          <span className="animate-pulse">|</span>
+        </p>
+      </div>
+
+      {/* What We Offer */}
+      <div className="mb-10 bg-gradient-to-r from-cyan-50 to-blue-50 p-8 rounded-2xl shadow-sm">
+        <h2 className="text-2xl font-bold text-[#1A4095] mb-4 flex items-center gap-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <Icon icon="lucide:book-open" className="w-7 h-7" />
+          What We Offer
+        </h2>
+        <p className="text-gray-700 text-sm leading-relaxed min-h-[120px]">
+          {typingText2}
+          <span className="animate-pulse">|</span>
+        </p>
+      </div>
+
+      {/* Our Approach */}
+      <div className="mb-10 bg-gradient-to-r from-emerald-50 to-teal-50 p-8 rounded-2xl shadow-sm">
+        <h2 className="text-2xl font-bold text-[#1A4095] mb-4 flex items-center gap-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <Icon icon="lucide:lightbulb" className="w-7 h-7" />
+          Our Approach
+        </h2>
+        <p className="text-gray-700 text-sm leading-relaxed min-h-[120px]">
+          {typingText3}
+          <span className="animate-pulse">|</span>
+        </p>
+      </div>
+
+      {/* Our Impact */}
+      <div className="mb-10 bg-gradient-to-r from-amber-50 to-orange-50 p-8 rounded-2xl shadow-sm">
+        <h2 className="text-2xl font-bold text-[#1A4095] mb-4 flex items-center gap-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          <Icon icon="lucide:trophy" className="w-7 h-7" />
+          Our Impact & Success Stories
+        </h2>
+        <p className="text-gray-700 text-sm leading-relaxed min-h-[120px]">
+          {typingText4}
+          <span className="animate-pulse">|</span>
+        </p>
+      </div>
+
+      {/* Stats Section */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+        <div className="text-center p-6 bg-white rounded-2xl shadow-lg border-2 border-[#28C0F4]/30">
+          <div className="text-4xl font-extrabold text-[#1A4095] mb-2">500+</div>
+          <div className="text-xs font-semibold text-gray-600 uppercase">Students Trained</div>
+        </div>
+        <div className="text-center p-6 bg-white rounded-2xl shadow-lg border-2 border-[#28C0F4]/30">
+          <div className="text-4xl font-extrabold text-[#1A4095] mb-2">15+</div>
+          <div className="text-xs font-semibold text-gray-600 uppercase">Expert Tutors</div>
+        </div>
+        <div className="text-center p-6 bg-white rounded-2xl shadow-lg border-2 border-[#28C0F4]/30">
+          <div className="text-4xl font-extrabold text-[#1A4095] mb-2">50+</div>
+          <div className="text-xs font-semibold text-gray-600 uppercase">Industry Partners</div>
+        </div>
+        <div className="text-center p-6 bg-white rounded-2xl shadow-lg border-2 border-[#28C0F4]/30">
+          <div className="text-4xl font-extrabold text-[#1A4095] mb-2">95%</div>
+          <div className="text-xs font-semibold text-gray-600 uppercase">Job Placement Rate</div>
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="mt-12 text-center bg-gradient-to-r from-[#1A4095] to-[#28C0F4] p-10 rounded-2xl shadow-xl">
+        <h3 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          Ready to Start Your Tech Journey?
+        </h3>
+        <p className="text-white/90 text-sm mb-6">
+          Join hundreds of successful graduates who transformed their careers with Digtech Academy
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button className="bg-white text-[#1A4095] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg">
+            Browse Courses
+          </button>
+          <button className="bg-[#FFD700] text-[#1A4095] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg">
+            Apply Now
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
