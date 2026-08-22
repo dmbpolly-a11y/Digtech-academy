@@ -558,6 +558,26 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
   return (
     <footer className="bg-[#04263A] border-t border-gray-700 text-gray-300 py-12 footer-animate">
+      {/* Landbot Chatbot - Top Left */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
+        <div className="bg-gray-800/50 rounded-2xl p-4 border border-gray-700 shadow-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <Icon icon="lucide:bot" className="w-5 h-5 text-[#28C0F4]" />
+            <h3 className="text-white font-bold text-sm" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Chat with DigiBot - 24/7 Support
+            </h3>
+          </div>
+          <div className="rounded-xl overflow-hidden border-2 border-[#28C0F4]/30 shadow-xl">
+            <iframe
+              src="https://landbot.site/v3/H-3496793-4MY45MO2HXZXIU6L/index.html"
+              className="w-full h-[500px] border-0"
+              title="Digtech Academy Chatbot"
+              allow="microphone; camera"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & Socials */}
         <div className="space-y-4 footer-section">
