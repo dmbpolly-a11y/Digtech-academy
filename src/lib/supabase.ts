@@ -78,6 +78,14 @@ export const db = {
       return { data, error }
     },
 
+    getByRole: async (role: string) => {
+      const { data, error, count } = await supabase
+        .from('users')
+        .select('*', { count: 'exact' })
+        .eq('role', role)
+      return { data, error, count }
+    },
+
     create: async (user: any) => {
       const { data, error } = await supabase
         .from('users')
@@ -298,6 +306,194 @@ export const db = {
         .eq('course_id', courseId)
         .order('created_at', { ascending: false })
       return { data, error }
+    },
+  },
+
+  // Modules (sub-courses under a course)
+  modules: {
+    getAll: async () => {
+      const { data, error } = await supabase
+        .from('course_modules')
+        .select('*')
+        .order('order_index', { ascending: true })
+      return { data, error }
+    },
+
+    getByCourse: async (courseId: number) => {
+      const { data, error } = await supabase
+        .from('course_modules')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('order_index', { ascending: true })
+      return { data, error }
+    },
+
+    create: async (module: any) => {
+      const { data, error } = await supabase
+        .from('course_modules')
+        .insert([module])
+        .select()
+      return { data, error }
+    },
+
+    update: async (id: number, updates: any) => {
+      const { data, error } = await supabase
+        .from('course_modules')
+        .update(updates)
+        .eq('id', id)
+        .select()
+      return { data, error }
+    },
+
+    delete: async (id: number) => {
+      const { error } = await supabase
+        .from('course_modules')
+        .delete()
+        .eq('id', id)
+      return { error }
+    },
+  },
+
+  // Exams & Tests
+  exams: {
+    getAll: async () => {
+      const { data, error } = await supabase
+        .from('exams')
+        .select('*, courses(title)')
+        .order('created_at', { ascending: false })
+      return { data, error }
+    },
+
+    getByCourse: async (courseId: number) => {
+      const { data, error } = await supabase
+        .from('exams')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: false })
+      return { data, error }
+    },
+
+    create: async (exam: any) => {
+      const { data, error } = await supabase
+        .from('exams')
+        .insert([exam])
+        .select()
+      return { data, error }
+    },
+
+    update: async (id: number, updates: any) => {
+      const { data, error } = await supabase
+        .from('exams')
+        .update(updates)
+        .eq('id', id)
+        .select()
+      return { data, error }
+    },
+
+    delete: async (id: number) => {
+      const { error } = await supabase
+        .from('exams')
+        .delete()
+        .eq('id', id)
+      return { error }
+    },
+  },
+
+  // Marks & Grades
+  marks: {
+    getAll: async () => {
+      const { data, error } = await supabase
+        .from('exam_submissions')
+        .select('*')
+        .order('submitted_at', { ascending: false })
+      return { data, error }
+    },
+
+    getByExam: async (examId: number) => {
+      const { data, error } = await supabase
+        .from('exam_submissions')
+        .select('*, users(full_name, email)')
+        .eq('exam_id', examId)
+        .order('submitted_at', { ascending: false })
+      return { data, error }
+    },
+
+    create: async (mark: any) => {
+      const { data, error } = await supabase
+        .from('exam_submissions')
+        .insert([mark])
+        .select()
+      return { data, error }
+    },
+
+    upsert: async (mark: any) => {
+      const { data, error } = await supabase
+        .from('exam_submissions')
+        .upsert([mark], { onConflict: 'exam_id,student_id' })
+        .select()
+      return { data, error }
+    },
+
+    update: async (id: number, updates: any) => {
+      const { data, error } = await supabase
+        .from('exam_submissions')
+        .update(updates)
+        .eq('id', id)
+        .select()
+      return { data, error }
+    },
+
+    delete: async (id: number) => {
+      const { error } = await supabase
+        .from('exam_submissions')
+        .delete()
+        .eq('id', id)
+      return { error }
+    },
+  },
+
+  // Live Class Links
+  liveLinks: {
+    getAll: async () => {
+      const { data, error } = await supabase
+        .from('media_links')
+        .select('*, courses(title)')
+        .order('created_at', { ascending: false })
+      return { data, error }
+    },
+
+    getByCourse: async (courseId: number) => {
+      const { data, error } = await supabase
+        .from('media_links')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: false })
+      return { data, error }
+    },
+
+    create: async (link: any) => {
+      const { data, error } = await supabase
+        .from('media_links')
+        .insert([link])
+        .select()
+      return { data, error }
+    },
+
+    update: async (id: number, updates: any) => {
+      const { data, error } = await supabase
+        .from('media_links')
+        .update(updates)
+        .eq('id', id)
+        .select()
+      return { data, error }
+    },
+
+    delete: async (id: number) => {
+      const { error } = await supabase
+        .from('media_links')
+        .delete()
+        .eq('id', id)
+      return { error }
     },
   },
 }

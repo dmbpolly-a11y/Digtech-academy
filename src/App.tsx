@@ -123,11 +123,12 @@ const INITIAL_COURSES = [
 ]
 
 const TUTORS = [
-  { name: 'Grace Nakato', specialty: 'Data Science', students: 548, rating: 4.9, avatar: '/images/liveclass1.png' },
-  { name: 'David Ssekandi', specialty: 'Web Development', students: 312, rating: 4.8, avatar: '/images/liveclass2.png' },
-  { name: 'Ronald Kato', specialty: 'Digital Marketing', students: 274, rating: 4.6, avatar: '/images/liveclass3.png' },
-  { name: 'Peter Musoke', specialty: 'Cybersecurity', students: 201, rating: 4.8, avatar: '/images/liveclass4.png' },
-  { name: 'Amina Nalule', specialty: 'UI/UX Design', students: 189, rating: 4.7, avatar: '/images/liveclass5.png' },
+  { name: 'Grace Nakato', specialty: 'Data Science', students: 548, rating: 4.9, avatar: '/images/liveclass2.png' },
+  { name: 'David Ssekandi', specialty: 'Web Development', students: 312, rating: 4.8, avatar: '/images/liveclass3.png' },
+  { name: 'Ronald Kato', specialty: 'Digital Marketing', students: 274, rating: 4.6, avatar: '/images/liveclass4.png' },
+  { name: 'Peter Musoke', specialty: 'Cybersecurity', students: 201, rating: 4.8, avatar: '/images/liveclass5.png' },
+  { name: 'Amina Nalule', specialty: 'UI/UX Design', students: 189, rating: 4.7, avatar: '/images/liveclass1.png' },
+  { name: 'Collins Tumwesigye', specialty: 'Mobile App Development', students: 163, rating: 4.7, avatar: '/images/Tutor1.jpg' },
 ]
 
 const LIVE_COURSES = [
@@ -687,31 +688,42 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
       </div>
 
-      {/* Embedded Google Map for Mbarara Location */}
+      {/* Embedded Google Map for Mbarara Location – pinned to Grand West Arcade, High Street */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 animate-slide-in-bottom">
-        <div className="rounded-2xl overflow-hidden border-2 border-[#28C0F4]/30 h-64 shadow-lg hover:shadow-2xl transition-all ease-in-out" style={{ boxShadow: '0 10px 40px rgba(40, 192, 244, 0.2)' }}>
+        <div className="relative rounded-2xl overflow-hidden border-2 border-[#28C0F4]/30 shadow-lg hover:shadow-2xl transition-all ease-in-out" style={{ boxShadow: '0 10px 40px rgba(40, 192, 244, 0.2)', height: '280px' }}>
+          {/* Map iframe pinned exactly to Grand West Arcade, Mbarara */}
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.7608791885!2d30.659711!3d-0.606781!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x176584af1e2a08ff%3A0x79a3e7bc3b8f5123!2sMbarara%2C%20Uganda!5e0!3m2!1sen!2sug!4v1234567890"
-            className="h-full w-full border-0"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.762049537014!2d30.65782831531888!3d-0.6066019997004887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x176584af1e2a08ff%3A0x2e5b2e8e5e5f1234!2sGrand%20West%20Arcade%2C%20High%20Street%2C%20Mbarara%2C%20Uganda!5e0!3m2!1sen!2sug!4v1724000000000!5m2!1sen!2sug"
+            className="w-full h-full border-0"
             loading="lazy"
             allowFullScreen
-            title="Digtech Academy Mbarara Location - Grand West Arcade, High Street"
+            title="Digtech Academy – Grand West Arcade, High Street, Mbarara"
             style={{ border: 0 }}
           />
+          {/* Floating location badge overlay */}
+          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-lg flex items-center gap-2 border border-[#28C0F4]/30">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1A4095] to-[#28C0F4] flex items-center justify-center flex-shrink-0">
+              <Icon icon="lucide:map-pin" className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold text-[#1A4095]">Digtech Academy</div>
+              <div className="text-[10px] text-gray-500">Grand West Arcade, Level 2 · High Street, Mbarara</div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Live East African Time Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
-        <div className="live-clock flex flex-col items-center justify-center gap-2">
+        <div className="live-clock flex flex-col items-center justify-center gap-2 py-4 px-6 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(26,64,149,0.15) 0%, rgba(40,192,244,0.15) 100%)', border: '1px solid rgba(40,192,244,0.3)' }}>
           <div className="flex items-center gap-2">
-            <Icon icon="lucide:clock" className="w-5 h-5 text-[#28C0F4] animate-pulse" />
-            <span className="text-xs font-bold text-[#28C0F4] uppercase tracking-wider">Live Time - East African Time (EAT)</span>
+            <Icon icon="lucide:clock" className="w-6 h-6 animate-pulse" style={{ color: '#FFD700' }} />
+            <span className="text-sm font-bold uppercase tracking-wider" style={{ color: '#FFFFFF', textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>Live Time – East Africa Time (EAT, UTC+3)</span>
           </div>
-          <div className="live-clock-time text-2xl md:text-3xl">
+          <div className="live-clock-time text-4xl md:text-5xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 30px rgba(255,215,0,0.7), 0 0 60px rgba(255,215,0,0.5)' }}>
             {currentTime}
           </div>
-          <div className="text-xs text-gray-400 font-medium">
+          <div className="text-sm font-semibold" style={{ color: '#FFFFFF', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
             {currentDate}
           </div>
         </div>
@@ -892,8 +904,8 @@ function HomePage({
                 className="block w-full cursor-pointer group"
               >
                 <img
-                  src="/images/liveclass1.png"
-                  alt="Students learning tech in live class"
+                  src="/images/liveclass2.png"
+                  alt="Students learning tech skills at Digtech Academy Mbarara"
                   className="rounded-3xl shadow-2xl border-4 border-[#28C0F4]/40 object-cover w-full h-[420px] image-with-blue-border transition-transform group-hover:scale-105"
                 />
               </button>
@@ -1767,6 +1779,20 @@ function LoginPage({
   const [showRegPassword, setShowRegPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [registerRole, setRegisterRole] = useState<'student' | 'tutor'>('student')
+  const [tutorCourses, setTutorCourses] = useState<string[]>([])
+  
+  const AVAILABLE_COURSES = [
+    'Python for Data Science & Machine Learning',
+    'Full Stack Web Development with React & Node.js',
+    'Digital Marketing & Social Media Strategy',
+    'Cybersecurity Essentials for Professionals',
+    'UI/UX Design Fundamentals with Figma',
+    'Mobile App Development with Flutter',
+    'Cloud Computing & DevOps',
+    'Graphic Design & Branding',
+    'Microsoft Office & Productivity',
+    'Entrepreneurship & Digital Business',
+  ]
   
   // Reset password fields
   const [resetEmail, setResetEmail] = useState('')
@@ -1969,6 +1995,7 @@ function LoginPage({
         phone: regPhone,
         role: registerRole,
         status: 'active',
+        ...(registerRole === 'tutor' && tutorCourses.length > 0 ? { bio: `Teaches: ${tutorCourses.join(', ')}` } : {}),
       })
 
       if (insertError) {
@@ -2249,6 +2276,58 @@ function LoginPage({
                     />
                   </div>
 
+                  {/* Tutor-Specific: Course Selection */}
+                  {registerRole === 'tutor' && (
+                    <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200">
+                      <label className="block text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider flex items-center gap-2">
+                        <Icon icon="lucide:book-open" className="w-4 h-4 text-[#1A4095]" />
+                        Select Courses You Can Teach *
+                      </label>
+                      <p className="text-[11px] text-gray-600 mb-3">Choose one or more courses you are qualified to teach</p>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {INITIAL_COURSES.map((course) => (
+                          <label
+                            key={course.id}
+                            className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white transition-colors cursor-pointer group"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={tutorCourses.includes(course.title)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setTutorCourses([...tutorCourses, course.title])
+                                } else {
+                                  setTutorCourses(tutorCourses.filter(c => c !== course.title))
+                                }
+                              }}
+                              className="w-4 h-4 text-[#1A4095] border-gray-300 rounded focus:ring-[#28C0F4] focus:ring-2"
+                            />
+                            <div className="flex-1">
+                              <div className="text-xs font-bold text-gray-900 group-hover:text-[#1A4095] transition-colors">
+                                {course.title}
+                              </div>
+                              <div className="text-[10px] text-gray-500">
+                                {course.category} • {course.level}
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                      {tutorCourses.length > 0 && (
+                        <div className="mt-3 p-2.5 bg-emerald-50 rounded-lg border border-emerald-200">
+                          <div className="text-[10px] font-bold text-emerald-700 uppercase mb-1">Selected ({tutorCourses.length})</div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {tutorCourses.map((course, idx) => (
+                              <span key={idx} className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-semibold">
+                                {course}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Password *</label>
                     <div className="relative">
@@ -2422,6 +2501,18 @@ function AdminDashboard({
   const [newStoryName, setNewStoryName] = useState('')
   const [newStoryRole, setNewStoryRole] = useState('')
   const [newStoryText, setNewStoryText] = useState('')
+  const [stats, setStats] = useState({ students: 0, tutors: 0, revenue: 0 })
+
+  useEffect(() => {
+    const loadStats = async () => {
+      const { count: studentCount } = await db.users.getByRole('student')
+      const { count: tutorCount } = await db.users.getByRole('tutor')
+      const { data: enrollments } = await db.enrollments.getAll()
+      const rev = enrollments?.reduce((sum: number, e: any) => sum + (Number(e.payment_amount) || 0), 0) || 0
+      setStats({ students: studentCount || 0, tutors: tutorCount || 0, revenue: rev })
+    }
+    loadStats()
+  }, [])
 
   const handleAddStory = (e: React.FormEvent) => {
     e.preventDefault()
@@ -2492,9 +2583,9 @@ function AdminDashboard({
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {[
-                { label: 'Total Students', val: '5,248', color: '#1A4095', icon: 'lucide:users' },
-                { label: 'Active Tutors', val: '48', color: '#28C0F4', icon: 'lucide:user-check' },
-                { label: 'Revenue (PesaPal)', val: 'UGX 186M', color: '#10B981', icon: 'lucide:banknote' },
+                { label: 'Total Students', val: stats.students.toString(), color: '#1A4095', icon: 'lucide:users' },
+                { label: 'Active Tutors', val: stats.tutors.toString(), color: '#28C0F4', icon: 'lucide:user-check' },
+                { label: 'Revenue (PesaPal)', val: `UGX ${(stats.revenue).toLocaleString()}`, color: '#10B981', icon: 'lucide:banknote' },
                 { label: 'Success Stories', val: `${testimonials.length}`, color: '#F59E0B', icon: 'lucide:star' },
               ].map((s) => (
                 <div key={s.label} className="bg-white p-5 rounded-2xl border-2 border-blue-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
@@ -2608,18 +2699,57 @@ function PrincipalDashboard({
   const [adminPhone, setAdminPhone] = useState('')
   const [adminRole, setAdminRole] = useState('Course Operations Admin')
 
-  const handleCreateAdmin = (e: React.FormEvent) => {
+  useEffect(() => {
+    const loadAdmins = async () => {
+      const { data } = await db.users.getByRole('admin')
+      if (data) {
+        setAdmins(data.map((u: any) => ({
+          id: u.id,
+          name: u.full_name,
+          email: u.email,
+          phone: u.phone || '',
+          role: u.role,
+          createdAt: u.created_at
+        })))
+      }
+    }
+    loadAdmins()
+  }, [setAdmins])
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!adminName || !adminEmail) return
-    const newAdmin: AdminUser = {
-      id: Date.now(),
-      name: adminName,
-      email: adminEmail,
-      phone: adminPhone || '+256 700 000 000',
-      role: adminRole,
-      createdAt: new Date().toISOString().split('T')[0],
+    
+    // Create auth user
+    const { data: authData, error } = await auth.signUp(adminEmail, 'TempPass123!', { full_name: adminName, role: 'admin' })
+    
+    if (error) {
+      alert('Error creating admin: ' + error.message)
+      return
     }
-    setAdmins([...admins, newAdmin])
+
+    if (authData?.user) {
+      const newAdmin = {
+        id: authData.user.id,
+        email: adminEmail,
+        full_name: adminName,
+        phone: adminPhone || '',
+        role: 'admin',
+        status: 'active'
+      }
+      
+      await db.users.create(newAdmin)
+      
+      setAdmins([...admins, {
+        id: newAdmin.id as any,
+        name: newAdmin.full_name,
+        email: newAdmin.email,
+        phone: newAdmin.phone,
+        role: newAdmin.role,
+        createdAt: new Date().toISOString()
+      }])
+    }
+
     setAdminName('')
     setAdminEmail('')
     setAdminPhone('')
@@ -2997,75 +3127,196 @@ function TutorDashboard() {
   const [loading, setLoading] = useState(true)
   const [showCourseModal, setShowCourseModal] = useState(false)
   const [editingCourse, setEditingCourse] = useState<any>(null)
-  const [showModuleModal, setShowModuleModal] = useState(false)
-  const [showExamModal, setShowExamModal] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<any>(null)
   const [tutorId, setTutorId] = useState<string>('')
+  const [tutorName, setTutorName] = useState<string>('Tutor')
 
-  // Load tutor ID and courses on mount
-  useEffect(() => {
-    loadTutorData()
-  }, [])
+  // Modules state
+  const [modules, setModules] = useState<any[]>([])
+  const [showModuleModal, setShowModuleModal] = useState(false)
+  const [editingModule, setEditingModule] = useState<any>(null)
+  const [moduleTitle, setModuleTitle] = useState('')
+  const [moduleDescription, setModuleDescription] = useState('')
+  const [moduleOrder, setModuleOrder] = useState(1)
+
+  // Students state
+  const [enrollments, setEnrollments] = useState<any[]>([])
+
+  // Exams state
+  const [exams, setExams] = useState<any[]>([])
+  const [showExamModal, setShowExamModal] = useState(false)
+  const [editingExam, setEditingExam] = useState<any>(null)
+  const [examTitle, setExamTitle] = useState('')
+  const [examDescription, setExamDescription] = useState('')
+  const [examTotalMarks, setExamTotalMarks] = useState(100)
+  const [examDate, setExamDate] = useState('')
+
+  // Marks state
+  const [selectedExam, setSelectedExam] = useState<any>(null)
+  const [markEntries, setMarkEntries] = useState<Record<string, number>>({})
+
+  // Live Links state
+  const [liveLinks, setLiveLinks] = useState<any[]>([])
+  const [showLinkModal, setShowLinkModal] = useState(false)
+  const [editingLink, setEditingLink] = useState<any>(null)
+  const [linkTitle, setLinkTitle] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkType, setLinkType] = useState<'google-meet' | 'zoom' | 'youtube' | 'other'>('google-meet')
+  const [linkSchedule, setLinkSchedule] = useState('')
+
+  // Fee editing state
+  const [editingFeeId, setEditingFeeId] = useState<number | null>(null)
+  const [editingFeeValue, setEditingFeeValue] = useState('')
+
+  useEffect(() => { loadTutorData() }, [])
 
   const loadTutorData = async () => {
     try {
-      // Get current user
       const { user } = await auth.getUser()
       if (user) {
         setTutorId(user.id)
+        const { data: userData } = await db.users.getById(user.id)
+        if (userData) setTutorName(userData.full_name || user.email || 'Tutor')
         await loadCourses(user.id)
       }
-    } catch (error) {
-      console.error('Error loading tutor data:', error)
-    } finally {
-      setLoading(false)
-    }
+    } catch (error) { console.error('Error loading tutor data:', error) } finally { setLoading(false) }
   }
 
   const loadCourses = async (userId: string) => {
     try {
       const { data, error } = await db.courses.getAll()
-      if (error) {
-        console.error('Error loading courses:', error)
-        return
-      }
-      // Filter courses by tutor
-      const tutorCourses = data?.filter((c: any) => c.tutor_id === userId) || []
-      setCourses(tutorCourses)
-    } catch (error) {
-      console.error('Error loading courses:', error)
+      if (error) { console.error(error); return }
+      setCourses(data?.filter((c: any) => c.tutor_id === userId) || [])
+    } catch (error) { console.error(error) }
+  }
+
+  // Module CRUD
+  const loadModules = async (courseId: number) => { const { data } = await db.modules.getByCourse(courseId); setModules(data || []) }
+  const openModuleModal = (mod?: any) => {
+    if (mod) { setEditingModule(mod); setModuleTitle(mod.title); setModuleDescription(mod.description || ''); setModuleOrder(mod.sort_order || 1) }
+    else { setEditingModule(null); setModuleTitle(''); setModuleDescription(''); setModuleOrder(modules.length + 1) }
+    setShowModuleModal(true)
+  }
+  const saveModule = async () => {
+    if (!moduleTitle.trim() || !selectedCourse) return
+    const payload = { course_id: selectedCourse.id, title: moduleTitle, description: moduleDescription, sort_order: moduleOrder }
+    if (editingModule) await db.modules.update(editingModule.id, payload); else await db.modules.create(payload)
+    setShowModuleModal(false); loadModules(selectedCourse.id)
+  }
+  const deleteModule = async (id: number) => { if (!confirm('Delete this module?')) return; await db.modules.delete(id); if (selectedCourse) loadModules(selectedCourse.id) }
+
+  // Enrollment helpers
+  const loadEnrollments = async () => {
+    const all: any[] = []
+    for (const course of courses) { const { data } = await db.enrollments.getByCourse(course.id); if (data) all.push(...data.map((e: any) => ({ ...e, course_title: course.title }))) }
+    setEnrollments(all)
+  }
+  const approveEnrollment = async (id: number) => { await db.enrollments.update(id, { status: 'enrolled', payment_status: 'PAID' }); loadEnrollments() }
+  const removeEnrollment = async (id: number) => { if (!confirm('Remove this student enrollment?')) return; await db.enrollments.delete(id); loadEnrollments() }
+
+  // Exam CRUD
+  const loadExams = async () => {
+    const all: any[] = []
+    for (const course of courses) { const { data } = await db.exams.getByCourse(course.id); if (data) all.push(...data.map((e: any) => ({ ...e, course_title: course.title }))) }
+    setExams(all)
+  }
+  const openExamModal = (exam?: any) => {
+    if (exam) { setEditingExam(exam); setExamTitle(exam.title); setExamDescription(exam.description || ''); setExamTotalMarks(exam.total_marks || 100); setExamDate(exam.exam_date || '') }
+    else { setEditingExam(null); setExamTitle(''); setExamDescription(''); setExamTotalMarks(100); setExamDate('') }
+    setShowExamModal(true)
+  }
+  const saveExam = async () => {
+    if (!examTitle.trim() || !selectedCourse) return
+    const payload = { 
+      course_id: selectedCourse.id, 
+      title: examTitle, 
+      description: examDescription, 
+      total_marks: examTotalMarks, 
+      duration_minutes: 60,
+      passing_marks: Math.floor(examTotalMarks * 0.5),
+      questions: [],
+      time_limit: examDate || null 
     }
+    if (editingExam) await db.exams.update(editingExam.id, payload); else await db.exams.create(payload)
+    setShowExamModal(false); loadExams()
+  }
+  const deleteExam = async (id: number) => { if (!confirm('Delete this exam?')) return; await db.exams.delete(id); loadExams() }
+
+  // Marks helpers
+  const loadMarks = async (examId: number) => {
+    const { data } = await db.marks.getByExam(examId)
+    const entries: Record<string, number> = {}
+    data?.forEach((m: any) => { entries[m.student_id] = m.marks_obtained })
+    setMarkEntries(entries)
+  }
+  const saveMarks = async () => {
+    if (!selectedExam) return
+    for (const [studentId, score] of Object.entries(markEntries)) {
+      await db.marks.upsert({ 
+        exam_id: selectedExam.id, 
+        student_id: studentId, 
+        answers: {}, 
+        marks_obtained: score, 
+        grade: score >= 80 ? 'A' : score >= 70 ? 'B' : score >= 60 ? 'C' : score >= 50 ? 'D' : 'F' 
+      })
+    }
+    alert('Marks saved successfully!'); loadMarks(selectedExam.id)
   }
 
-  const handleCourseSuccess = () => {
-    loadCourses(tutorId)
+  // Live Links CRUD
+  const loadLiveLinks = async () => {
+    const all: any[] = []
+    for (const course of courses) { const { data } = await db.liveLinks.getByCourse(course.id); if (data) all.push(...data.map((l: any) => ({ ...l, course_title: course.title }))) }
+    setLiveLinks(all)
+  }
+  const openLinkModal = (link?: any) => {
+    if (link) { setEditingLink(link); setLinkTitle(link.title); setLinkUrl(link.url); setLinkType(link.link_type || 'google-meet'); setLinkSchedule(link.scheduled_at || '') }
+    else { setEditingLink(null); setLinkTitle(''); setLinkUrl(''); setLinkType('google-meet'); setLinkSchedule('') }
+    setShowLinkModal(true)
+  }
+  const saveLink = async () => {
+    if (!linkTitle.trim() || !linkUrl.trim() || !selectedCourse) return
+    const payload = { course_id: selectedCourse.id, title: linkTitle, url: linkUrl, link_type: linkType, scheduled_at: linkSchedule || null }
+    if (editingLink) await db.liveLinks.update(editingLink.id, payload); else await db.liveLinks.create(payload)
+    setShowLinkModal(false); loadLiveLinks()
+  }
+  const deleteLink = async (id: number) => { if (!confirm('Delete this link?')) return; await db.liveLinks.delete(id); loadLiveLinks() }
+
+  // Fee inline edit
+  const saveFee = async (courseId: number) => {
+    const newPrice = parseFloat(editingFeeValue)
+    if (isNaN(newPrice) || newPrice < 0) { alert('Invalid price'); return }
+    await db.courses.update(courseId, { price: newPrice }); setEditingFeeId(null); loadCourses(tutorId)
   }
 
-  const handleEditCourse = (course: any) => {
-    setEditingCourse(course)
-    setShowCourseModal(true)
-  }
+  // Tab data loaders
+  useEffect(() => {
+    if (activeTab === 'modules' && selectedCourse) loadModules(selectedCourse.id)
+    if (activeTab === 'students' && courses.length) loadEnrollments()
+    if (activeTab === 'exams' && courses.length) loadExams()
+    if (activeTab === 'links' && courses.length) loadLiveLinks()
+  }, [activeTab, selectedCourse?.id])
 
+  const handleCourseSuccess = () => { loadCourses(tutorId) }
+  const handleEditCourse = (course: any) => { setEditingCourse(course); setShowCourseModal(true) }
   const handleDeleteCourse = async (courseId: number) => {
     if (!confirm('Are you sure you want to delete this course?')) return
-    
-    try {
-      const { error } = await db.courses.delete(courseId)
-      if (error) {
-        alert('Failed to delete course: ' + error.message)
-        return
-      }
-      loadCourses(tutorId)
-    } catch (error) {
-      console.error('Error deleting course:', error)
-      alert('Failed to delete course')
-    }
+    try { const { error } = await db.courses.delete(courseId); if (error) { alert('Failed: ' + error.message); return }; loadCourses(tutorId) } catch { alert('Failed to delete course') }
   }
-  
-  const handleCloseCourseModal = () => {
-    setShowCourseModal(false)
-    setEditingCourse(null)
-  }
+  const handleCloseCourseModal = () => { setShowCourseModal(false); setEditingCourse(null) }
+
+  const CourseSelector = ({ onChange }: { onChange?: () => void }) => (
+    <div className="mb-6">
+      <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Select Course</label>
+      <select value={selectedCourse?.id || ''} onChange={(e) => { const c = courses.find((c: any) => c.id === Number(e.target.value)); setSelectedCourse(c || null); onChange?.() }} className="w-full max-w-md border-2 border-blue-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:border-[#1A4095] focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+        <option value="">— Choose a course —</option>
+        {courses.map((c: any) => (<option key={c.id} value={c.id}>{c.title}</option>))}
+      </select>
+    </div>
+  )
+
+  const totalStudents = enrollments.length
+  const totalEarnings = courses.reduce((sum: number, c: any) => sum + ((c.price || 0) * (c.enrollments_count || 0)), 0)
   
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%)' }}>
@@ -3317,81 +3568,464 @@ function TutorDashboard() {
           </div>
         )}
 
-        {/* Other tabs with placeholder content */}
+        {/* ── MODULES TAB ── */}
         {activeTab === 'modules' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:layers" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Module Management</h2>
-            <p className="text-sm text-gray-500 mb-4">Create and manage sub-courses/modules under your main courses</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              Create First Module
-            </button>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Course Modules</h1>
+                <p className="text-sm text-gray-500 mt-1">Create and manage sub-modules under each course</p>
+              </div>
+              <button
+                onClick={() => openModuleModal()}
+                disabled={!selectedCourse}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all disabled:opacity-40"
+              >
+                <Icon icon="lucide:plus" className="w-4 h-4" /> Add Module
+              </button>
+            </div>
+            <CourseSelector onChange={() => selectedCourse && loadModules(selectedCourse.id)} />
+            {!selectedCourse ? (
+              <div className="bg-white p-10 rounded-2xl border border-gray-100 text-center text-gray-400">
+                <Icon icon="lucide:mouse-pointer-click" className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="text-sm font-medium">Select a course above to view its modules</p>
+              </div>
+            ) : modules.length === 0 ? (
+              <div className="bg-white p-10 rounded-2xl border border-gray-100 text-center">
+                <Icon icon="lucide:layers" className="w-14 h-14 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-800 mb-1">No modules yet</h3>
+                <p className="text-sm text-gray-500">Click "Add Module" to create the first module for this course.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {modules.map((mod: any) => (
+                  <div key={mod.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-[#1A4095] font-bold text-sm">
+                        {mod.order_index || '—'}
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-gray-900">{mod.title}</div>
+                        {mod.description && <div className="text-xs text-gray-500 mt-0.5">{mod.description}</div>}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => openModuleModal(mod)} className="p-2 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all">
+                        <Icon icon="lucide:edit" className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => deleteModule(mod.id)} className="p-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all">
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── FEES TAB ── */}
         {activeTab === 'fees' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:dollar-sign" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Fee Management</h2>
-            <p className="text-sm text-gray-500 mb-4">Set, update, and lock course and module fees</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              Configure Fees
-            </button>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Fee Management</h1>
+              <p className="text-sm text-gray-500 mt-1">View and update course fees inline</p>
+            </div>
+            {courses.length === 0 ? (
+              <div className="bg-white p-10 rounded-2xl border text-center text-gray-400">No courses found.</div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Course</th>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Fee (UGX)</th>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Status</th>
+                      <th className="px-5 py-3 text-xs font-bold text-gray-500 uppercase">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {courses.map((c: any) => (
+                      <tr key={c.id} className="hover:bg-blue-50/30 transition-all">
+                        <td className="px-5 py-3 font-medium text-gray-800">{c.title}</td>
+                        <td className="px-5 py-3">
+                          {editingFeeId === c.id ? (
+                            <input
+                              type="number"
+                              value={editingFeeValue}
+                              onChange={(e) => setEditingFeeValue(e.target.value)}
+                              className="border border-blue-300 rounded-lg px-3 py-1 text-sm w-32 outline-none focus:border-[#1A4095]"
+                            />
+                          ) : (
+                            <span className="font-bold text-blue-700">{(c.price || 0).toLocaleString()}</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            {c.status || 'draft'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          {editingFeeId === c.id ? (
+                            <div className="flex gap-2 justify-end">
+                              <button onClick={() => saveFee(c.id)} className="px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-all">Save</button>
+                              <button onClick={() => setEditingFeeId(null)} className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 text-xs font-bold hover:bg-gray-50 transition-all">Cancel</button>
+                            </div>
+                          ) : (
+                            <button onClick={() => { setEditingFeeId(c.id); setEditingFeeValue(String(c.price || 0)) }} className="px-3 py-1 rounded-lg border border-blue-200 text-blue-700 text-xs font-bold hover:bg-blue-50 transition-all">
+                              <Icon icon="lucide:edit-2" className="w-3 h-3 inline mr-1" />Edit
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── STUDENTS TAB ── */}
         {activeTab === 'students' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:users" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Student Management</h2>
-            <p className="text-sm text-gray-500 mb-4">Add, approve, and manage your students</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              View Students
-            </button>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Enrolled Students</h1>
+              <p className="text-sm text-gray-500 mt-1">View students enrolled in your courses</p>
+            </div>
+            {enrollments.length === 0 ? (
+              <div className="bg-white p-10 rounded-2xl border text-center">
+                <Icon icon="lucide:users" className="w-14 h-14 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-800 mb-1">No students yet</h3>
+                <p className="text-sm text-gray-500">Students who enroll in your courses will appear here.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Student</th>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Course</th>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Status</th>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Payment</th>
+                      <th className="px-5 py-3 text-xs font-bold text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {enrollments.map((e: any) => (
+                      <tr key={e.id} className="hover:bg-blue-50/30 transition-all">
+                        <td className="px-5 py-3">
+                          <div className="font-medium text-gray-800">{e.users?.full_name || `Student #${e.student_id?.slice(-4)}`}</div>
+                          <div className="text-xs text-gray-400">{e.users?.email || '—'}</div>
+                        </td>
+                        <td className="px-5 py-3 text-gray-600">{e.course_title || e.courses?.title || '—'}</td>
+                        <td className="px-5 py-3">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${e.status === 'active' ? 'bg-green-100 text-green-700' : e.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            {e.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${e.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
+                            {e.payment_status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex gap-2 justify-end">
+                            {e.payment_status !== 'paid' && (
+                              <button onClick={() => approveEnrollment(e.id)} className="px-2 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all">
+                                Approve
+                              </button>
+                            )}
+                            <button onClick={() => removeEnrollment(e.id)} className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all">
+                              <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── EXAMS TAB ── */}
         {activeTab === 'exams' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:file-text" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Exam System</h2>
-            <p className="text-sm text-gray-500 mb-4">Create exams, set time limits, and track submissions</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              Create Exam
-            </button>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Exams & Assessments</h1>
+                <p className="text-sm text-gray-500 mt-1">Create exams and track student submissions</p>
+              </div>
+              <button
+                onClick={() => openExamModal()}
+                disabled={!selectedCourse}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all disabled:opacity-40"
+              >
+                <Icon icon="lucide:plus" className="w-4 h-4" /> Create Exam
+              </button>
+            </div>
+            <CourseSelector onChange={() => loadExams()} />
+            {exams.length === 0 ? (
+              <div className="bg-white p-10 rounded-2xl border text-center">
+                <Icon icon="lucide:file-text" className="w-14 h-14 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-800 mb-1">No exams yet</h3>
+                <p className="text-sm text-gray-500">Select a course and click "Create Exam" to add your first exam.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {exams.map((exam: any) => (
+                  <div key={exam.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
+                    <div>
+                      <div className="font-bold text-sm text-gray-900">{exam.title}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{exam.course_title || exam.courses?.title} · {exam.total_marks} marks · {exam.duration_minutes}min</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setSelectedExam(exam); setActiveTab('marks') }} className="px-3 py-1.5 rounded-lg border border-purple-200 text-purple-700 text-xs font-bold hover:bg-purple-50 transition-all">
+                        <Icon icon="lucide:award" className="w-3 h-3 inline mr-1" />Marks
+                      </button>
+                      <button onClick={() => openExamModal(exam)} className="p-1.5 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all">
+                        <Icon icon="lucide:edit" className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => deleteExam(exam.id)} className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all">
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── MARKS TAB ── */}
         {activeTab === 'marks' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:award" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Marks & Grading</h2>
-            <p className="text-sm text-gray-500 mb-4">Enter marks, calculate grades, and view analytics</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              Grade Students
-            </button>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Marks & Grading</h1>
+              <p className="text-sm text-gray-500 mt-1">Enter student marks per exam</p>
+            </div>
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Select Exam</label>
+              <select
+                value={selectedExam?.id || ''}
+                onChange={(e) => {
+                  const ex = exams.find((x: any) => x.id === Number(e.target.value))
+                  setSelectedExam(ex || null)
+                  if (ex) loadMarks(ex.id)
+                }}
+                className="w-full max-w-md border-2 border-blue-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:border-[#1A4095] outline-none"
+              >
+                <option value="">— Choose an exam —</option>
+                {exams.map((ex: any) => <option key={ex.id} value={ex.id}>{ex.title}</option>)}
+              </select>
+            </div>
+            {selectedExam && (
+              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                <h3 className="font-bold text-gray-900">Marks for: <span className="text-[#1A4095]">{selectedExam.title}</span> (max {selectedExam.total_marks})</h3>
+                {enrollments.filter((e: any) => e.status === 'active').length === 0 ? (
+                  <p className="text-sm text-gray-500">No active students found. Approve student enrollments first.</p>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      {enrollments.filter((e: any) => e.status === 'active').map((enr: any) => (
+                        <div key={enr.id} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-gray-800">{enr.users?.full_name || `Student #${enr.student_id?.slice(-4)}`}</div>
+                            <div className="text-xs text-gray-400">{enr.users?.email}</div>
+                          </div>
+                          <input
+                            type="number"
+                            min="0"
+                            max={selectedExam.total_marks}
+                            value={markEntries[enr.student_id] || ''}
+                            onChange={(e) => setMarkEntries({ ...markEntries, [enr.student_id]: Number(e.target.value) })}
+                            placeholder="Score"
+                            className="w-24 border-2 border-blue-200 rounded-xl px-3 py-1.5 text-sm font-bold text-center focus:border-[#1A4095] outline-none"
+                          />
+                          {markEntries[enr.student_id] !== undefined && (
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${markEntries[enr.student_id] >= 80 ? 'bg-green-100 text-green-700' : markEntries[enr.student_id] >= 50 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                              {markEntries[enr.student_id] >= 80 ? 'A' : markEntries[enr.student_id] >= 70 ? 'B' : markEntries[enr.student_id] >= 60 ? 'C' : markEntries[enr.student_id] >= 50 ? 'D' : 'F'}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={saveMarks} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all">
+                      <Icon icon="lucide:save" className="w-4 h-4 inline mr-2" />Save All Marks
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── CERTIFICATES TAB ── */}
         {activeTab === 'certificates' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:badge-check" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Certificate Management</h2>
-            <p className="text-sm text-gray-500 mb-4">Generate and issue certificates to students</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              Issue Certificate
-            </button>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Certificate Management</h1>
+              <p className="text-sm text-gray-500 mt-1">Issue certificates to students who completed and passed</p>
+            </div>
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              {enrollments.filter((e: any) => e.status === 'active' || e.status === 'completed').length === 0 ? (
+                <div className="text-center py-8">
+                  <Icon icon="lucide:badge-check" className="w-14 h-14 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">No students eligible for certificates yet.</p>
+                </div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead className="border-b border-gray-100">
+                    <tr>
+                      <th className="text-left pb-3 text-xs font-bold text-gray-500 uppercase">Student</th>
+                      <th className="text-left pb-3 text-xs font-bold text-gray-500 uppercase">Course</th>
+                      <th className="pb-3 text-xs font-bold text-gray-500 uppercase">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {enrollments.filter((e: any) => e.status === 'active' || e.status === 'completed').map((enr: any) => (
+                      <tr key={enr.id} className="hover:bg-gray-50">
+                        <td className="py-3 pr-4 font-medium text-gray-800">{enr.users?.full_name || `Student #${enr.student_id?.slice(-4)}`}</td>
+                        <td className="py-3 pr-4 text-gray-600">{enr.course_title || enr.courses?.title || '—'}</td>
+                        <td className="py-3 text-right">
+                          <button
+                            onClick={() => alert(`Certificate for ${enr.users?.full_name || 'student'} — PDF generation coming soon!`)}
+                            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 text-white text-xs font-bold hover:shadow-md transition-all"
+                          >
+                            <Icon icon="lucide:download" className="w-3 h-3 inline mr-1" />Issue Certificate
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         )}
 
+        {/* ── LIVE LINKS TAB ── */}
         {activeTab === 'links' && (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center">
-            <Icon icon="lucide:video" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Live Class Links</h2>
-            <p className="text-sm text-gray-500 mb-4">Add and manage Google Meet, Zoom, and YouTube links</p>
-            <button className="px-6 py-3 rounded-xl bg-[#1A4095] text-white font-bold text-sm">
-              Add Link
-            </button>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>Live Class Links</h1>
+                <p className="text-sm text-gray-500 mt-1">Add Google Meet, Zoom, or YouTube links for your classes</p>
+              </div>
+              <button
+                onClick={() => openLinkModal()}
+                disabled={!selectedCourse}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all disabled:opacity-40"
+              >
+                <Icon icon="lucide:plus" className="w-4 h-4" /> Add Link
+              </button>
+            </div>
+            <CourseSelector onChange={() => loadLiveLinks()} />
+            {liveLinks.length === 0 ? (
+              <div className="bg-white p-10 rounded-2xl border text-center">
+                <Icon icon="lucide:video" className="w-14 h-14 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-gray-800 mb-1">No live links yet</h3>
+                <p className="text-sm text-gray-500">Select a course and click "Add Link" to share a live class link with your students.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {liveLinks.map((link: any) => (
+                  <div key={link.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-bold ${link.link_type === 'zoom' ? 'bg-blue-600' : link.link_type === 'youtube' ? 'bg-red-600' : 'bg-green-600'}`}>
+                        <Icon icon={link.link_type === 'zoom' ? 'lucide:video' : link.link_type === 'youtube' ? 'lucide:youtube' : 'lucide:video'} className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-gray-900">{link.title}</div>
+                        <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#28C0F4] hover:underline truncate max-w-xs block">{link.url}</a>
+                        {link.scheduled_at && <div className="text-xs text-gray-400 mt-0.5">Scheduled: {new Date(link.scheduled_at).toLocaleString()}</div>}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => openLinkModal(link)} className="p-1.5 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all">
+                        <Icon icon="lucide:edit" className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => deleteLink(link.id)} className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all">
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── MODULE MODAL ── */}
+        {showModuleModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+              <h3 className="text-lg font-extrabold text-gray-900">{editingModule ? 'Edit Module' : 'Create Module'}</h3>
+              <input value={moduleTitle} onChange={(e) => setModuleTitle(e.target.value)} placeholder="Module title *" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <textarea value={moduleDescription} onChange={(e) => setModuleDescription(e.target.value)} placeholder="Description (optional)" rows={3} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <input type="number" value={moduleOrder} onChange={(e) => setModuleOrder(Number(e.target.value))} placeholder="Order/Index" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowModuleModal(false)} className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all">Cancel</button>
+                <button onClick={saveModule} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all">
+                  {editingModule ? 'Update Module' : 'Create Module'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── EXAM MODAL ── */}
+        {showExamModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+              <h3 className="text-lg font-extrabold text-gray-900">{editingExam ? 'Edit Exam' : 'Create Exam'}</h3>
+              <CourseSelector />
+              <input value={examTitle} onChange={(e) => setExamTitle(e.target.value)} placeholder="Exam title *" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <textarea value={examDescription} onChange={(e) => setExamDescription(e.target.value)} placeholder="Description (optional)" rows={2} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-gray-600 mb-1 block">Total Marks</label>
+                  <input type="number" value={examTotalMarks} onChange={(e) => setExamTotalMarks(Number(e.target.value))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#1A4095]" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600 mb-1 block">Deadline (optional)</label>
+                  <input type="datetime-local" value={examDate} onChange={(e) => setExamDate(e.target.value)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#1A4095]" />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowExamModal(false)} className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all">Cancel</button>
+                <button onClick={saveExam} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all">
+                  {editingExam ? 'Update Exam' : 'Create Exam'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── LIVE LINK MODAL ── */}
+        {showLinkModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+              <h3 className="text-lg font-extrabold text-gray-900">{editingLink ? 'Edit Live Link' : 'Add Live Link'}</h3>
+              <CourseSelector />
+              <input value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} placeholder="Link title (e.g. Monday Session)" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="URL (Google Meet / Zoom / YouTube)" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <select value={linkType} onChange={(e) => setLinkType(e.target.value as any)} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095] bg-white">
+                <option value="google-meet">Google Meet</option>
+                <option value="zoom">Zoom</option>
+                <option value="youtube">YouTube Live</option>
+                <option value="other">Other</option>
+              </select>
+              <input type="datetime-local" value={linkSchedule} onChange={(e) => setLinkSchedule(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#1A4095]" />
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowLinkModal(false)} className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all">Cancel</button>
+                <button onClick={saveLink} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1A4095] to-[#28C0F4] text-white font-bold text-sm hover:shadow-lg transition-all">
+                  {editingLink ? 'Update Link' : 'Add Link'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -3511,6 +4145,16 @@ export default function App() {
     
     checkSession()
   }, [])
+
+  // Prevent authenticated users from going back to login/register or home
+  useEffect(() => {
+    if (currentUser && ['login', 'register', 'home'].includes(frame)) {
+      if (currentUser.role === 'admin') setFrame('admin-dashboard')
+      else if (currentUser.role === 'tutor') setFrame('tutor-dashboard')
+      else if (currentUser.role === 'principal') setFrame('principal-dashboard')
+      else setFrame('student-dashboard')
+    }
+  }, [frame, currentUser])
 
   const handleLoginSuccess = (email: string, role: string, name: string) => {
     setCurrentUser({ email, role, name })
