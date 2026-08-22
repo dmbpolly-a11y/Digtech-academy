@@ -675,15 +675,6 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
               <Icon icon="lucide:mail" className="w-4 h-4 text-[#28C0F4] flex-shrink-0" />
               <a href="mailto:info@digtechsolutionshub.com" className="hover:underline footer-link">info@digtechsolutionshub.com</a>
             </li>
-            <li className="pt-2 border-t border-gray-700">
-              <button
-                onClick={() => setFrame('login')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#28C0F4] hover:text-white transition-all footer-link"
-              >
-                <Icon icon="lucide:shield-check" className="w-4 h-4" />
-                Admin Portal Login
-              </button>
-            </li>
           </ul>
         </div>
       </div>
@@ -1810,6 +1801,8 @@ function LoginPage({
 }) {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>(initialMode)
   const [accountType, setAccountType] = useState<'student' | 'tutor' | 'admin' | 'principal'>('student')
+  const [logoClickCount, setLogoClickCount] = useState(0)
+  const [showAdminForm, setShowAdminForm] = useState(false)
   
   // Login fields
   const [loginEmail, setLoginEmail] = useState('')
@@ -2096,9 +2089,26 @@ function LoginPage({
       <div className="w-full max-w-md relative z-10 auth-container">
         {/* Logo */}
         <div className="text-center mb-6">
-          <button onClick={() => setFrame('home')} className="inline-block">
+          <div 
+            onClick={() => {
+              const newCount = logoClickCount + 1
+              setLogoClickCount(newCount)
+              if (newCount === 5) {
+                setShowAdminForm(true)
+                setAccountType('admin')
+                setMode('login')
+                setLogoClickCount(0)
+              }
+            }}
+            className="inline-block cursor-pointer"
+          >
             <img src="/images/Digtech Academy Logo.png" alt="Digtech Academy" className="h-10 w-auto object-contain mx-auto hover:scale-105 transition-transform" />
-          </button>
+          </div>
+          {showAdminForm && (
+            <p className="mt-2 text-xs font-bold text-[#1A4095] animate-fade-in-down">
+              🔒 Admin Login Activated
+            </p>
+          )}
         </div>
 
         {/* Animated Container */}
