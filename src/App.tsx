@@ -844,7 +844,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
             { num: 1, url: 'https://innovationhub.ug/', name: 'Innovation Hub Uganda' },
             { num: 2, url: 'https://www.w3schools.com/', name: 'W3Schools' },
             { num: 3, url: 'https://www.nita.go.ug/', name: 'NITA Uganda' },
-            { num: 4, url: '#', name: 'Partner 4' },
+            { num: 4, url: 'https://www.microsoft.com/en-us/software-download/windows11', name: 'Microsoft Windows 11' },
             { num: 5, url: '#', name: 'Partner 5' },
             { num: 6, url: 'https://hivecolab.org/', name: 'Hive Colab Uganda' },
           ].map((partner) => (
