@@ -1207,7 +1207,7 @@ function HomePage({
                 </div>
                 
                 <button 
-                  onClick={() => setFrame('courses')}
+                  onClick={() => window.open('https://youtube.com/@digtechacademy/live', '_blank', 'noopener,noreferrer')}
                   className="flex items-center justify-between pt-4 border-t border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <div className="text-left">
