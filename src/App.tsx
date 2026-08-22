@@ -751,6 +751,31 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
       </div>
 
+      {/* Partnership / Powered By Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-8 border-t border-gray-700">
+        <div className="text-center mb-6">
+          <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+            Digtech in Partnership With
+          </h3>
+          <p className="text-xs text-gray-500 mt-1">Powered by industry-leading partners</p>
+        </div>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center justify-items-center">
+          {[1, 2, 3, 4, 5].map((num) => (
+            <div 
+              key={num}
+              className="w-full max-w-[140px] h-20 bg-white/5 backdrop-blur-sm rounded-xl p-3 hover:bg-white/10 transition-all hover:scale-105 flex items-center justify-center border border-gray-700/50 hover:border-[#28C0F4]/30"
+            >
+              <img
+                src={`/images/footerpic${num}.${num === 1 || num === 5 ? 'jfif' : 'png'}`}
+                alt={`Partner ${num}`}
+                className="w-full h-full object-contain filter brightness-90 hover:brightness-110 transition-all"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Automatic Year Copyright Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 pt-6 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
