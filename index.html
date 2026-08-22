@@ -6,9 +6,19 @@
     <title>Digtech Academy — Skills that pay</title>
     <meta name="description" content="Uganda's leading online academy for in-demand tech skills, live classes, and verifiable certificates. Pay in UGX with PesaPal." />
     <link rel="icon" type="image/png" href="/digitechlogo.png" />
+    
+    <!-- Landbot Livechat -->
+    <script type="module" src="https://cdn.landbot.io/landbot-3/landbot-3.0.0.mjs"></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Initialize Landbot -->
+    <script type="module">
+      var myLandbot = new Landbot.Livechat({
+        configUrl: 'https://storage.googleapis.com/landbot.site/v3/H-3496800-WG83CBLMRS36PSAX/index.json',
+      });
+    </script>
   </body>
 </html>

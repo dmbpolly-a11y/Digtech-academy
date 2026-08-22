@@ -524,7 +524,6 @@ function PublicNav({
 function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
   const [currentTime, setCurrentTime] = useState('')
   const [currentDate, setCurrentDate] = useState('')
-  const [showChatbot, setShowChatbot] = useState(false)
 
   // Update East African Time (EAT) every second
   useEffect(() => {
@@ -744,64 +743,14 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
         </div>
       </div>
 
-      {/* Automatic Year Copyright Bar with Chatbot */}
+      {/* Automatic Year Copyright Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 pt-6 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
-        <div className="flex items-center gap-4">
-          {/* Chatbot Icon Button */}
-          <button
-            onClick={() => setShowChatbot(true)}
-            className="group relative w-12 h-12 bg-gradient-to-br from-[#1A4095] to-[#28C0F4] rounded-full flex items-center justify-center shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110"
-            title="Chat with DigiBot"
-          >
-            <Icon icon="lucide:bot" className="w-6 h-6 text-white animate-pulse group-hover:scale-110 transition-transform" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-[#04263A] animate-pulse"></div>
-          </button>
-          
-          <p>© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
-        </div>
+        <p>© {new Date().getFullYear()} Digtech Academy. All rights reserved.</p>
         <p className="flex items-center gap-2">
           <span>Official Payment Partner:</span>
           <span className="font-bold text-[#28C0F4]">PesaPal Payments Uganda</span>
         </p>
       </div>
-
-      {/* Chatbot Modal */}
-      {showChatbot && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-slide-in-up">
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-[#1A4095] to-[#28C0F4] p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <Icon icon="lucide:bot" className="w-6 h-6 text-white animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-lg" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                    DigiBot Assistant
-                  </h3>
-                  <p className="text-white/80 text-xs">Here to help you 24/7</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowChatbot(false)}
-                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all hover:rotate-90 duration-300"
-              >
-                <Icon icon="lucide:x" className="w-5 h-5 text-white" />
-              </button>
-            </div>
-            
-            {/* Chatbot Iframe */}
-            <div className="w-full h-[600px]">
-              <iframe
-                src="https://landbot.site/v3/H-3496800-WG83CBLMRS36PSAX/index.html"
-                className="w-full h-full border-0"
-                title="Digtech Academy Chatbot"
-                allow="microphone; camera"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </footer>
   )
 }
