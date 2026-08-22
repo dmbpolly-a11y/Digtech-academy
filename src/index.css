@@ -388,12 +388,24 @@
 
 /* ─── Marquee Banner ───────────────────────────────────────────────────────── */
 .marquee-banner {
-  background: linear-gradient(135deg, #1A4095 0%, #28C0F4 100%);
+  background: #1A4095;
   border-radius: 0;
   padding: 12px 0;
   overflow: hidden;
   position: relative;
   box-shadow: 0 4px 15px rgba(40, 192, 244, 0.3);
+}
+
+.marquee-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to right, #1A4095, transparent 10%, transparent 90%, #1A4095);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .marquee-content {

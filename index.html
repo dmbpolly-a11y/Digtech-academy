@@ -25,28 +25,74 @@
       
       // Custom styling for Landbot widget with custom logo
       window.addEventListener('load', function() {
-        setTimeout(function() {
-          const landbotButton = document.querySelector('.landbot-container__button, #landbot-button, [class*="landbot"]');
+        function applyChatbotLogo() {
+          console.log('Applying Digtech Academy chatbot logo...');
+          
+          // Try multiple selectors for Landbot button
+          const selectors = [
+            '.landbot-container__button',
+            '#landbot-button',
+            '[class*="landbot"] button',
+            '[class*="Landbot"] button',
+            'button[class*="landbot"]',
+            'button[class*="Landbot"]',
+            '.landbot-button',
+            '.Landbot-button'
+          ];
+          
+          let landbotButton = null;
+          for (const selector of selectors) {
+            landbotButton = document.querySelector(selector);
+            if (landbotButton) break;
+          }
+          
           if (landbotButton) {
+            console.log('Found Landbot button, applying chatbot.png logo');
             // Add custom background image
             landbotButton.style.backgroundImage = 'url(/images/chatbot.png)';
             landbotButton.style.backgroundSize = 'cover';
             landbotButton.style.backgroundPosition = 'center';
             landbotButton.style.backgroundColor = 'transparent';
+            landbotButton.style.border = 'none';
+            landbotButton.style.boxShadow = 'none';
+            
+            // Remove any default content
+            const children = landbotButton.children;
+            for (let i = 0; i < children.length; i++) {
+              children[i].style.display = 'none';
+            }
           }
           
           // Also try to find by iframe
-          const iframe = document.querySelector('iframe[src*="landbot"]');
-          if (iframe && iframe.parentElement) {
-            const parent = iframe.parentElement;
-            if (parent.style) {
-              parent.style.setProperty('background-image', 'url(/images/chatbot.png)', 'important');
-              parent.style.setProperty('background-size', 'contain', 'important');
-              parent.style.setProperty('background-repeat', 'no-repeat', 'important');
-              parent.style.setProperty('background-position', 'center', 'important');
+          const iframes = document.querySelectorAll('iframe');
+          for (const iframe of iframes) {
+            if (iframe.src && iframe.src.includes('landbot')) {
+              console.log('Found Landbot iframe');
+              if (iframe.parentElement) {
+                const parent = iframe.parentElement;
+                parent.style.setProperty('background-image', 'url(/images/chatbot.png)', 'important');
+                parent.style.setProperty('background-size', 'contain', 'important');
+                parent.style.setProperty('background-repeat', 'no-repeat', 'important');
+                parent.style.setProperty('background-position', 'center', 'important');
+                parent.style.setProperty('background-color', 'transparent', 'important');
+              }
             }
           }
-        }, 2000);
+          
+          // Check if logo was applied
+          const logoApplied = document.querySelector('[style*="chatbot.png"], [style*="chatbot.png" i]');
+          if (!logoApplied) {
+            console.log('Chatbot logo not applied yet, retrying in 1 second...');
+            setTimeout(applyChatbotLogo, 1000);
+          } else {
+            console.log('Digtech Academy chatbot logo successfully applied!');
+          }
+        }
+        
+        // Apply logo with delay to ensure Landbot is loaded
+        setTimeout(applyChatbotLogo, 2000);
+        // Also retry after longer delay in case Landbot loads slowly
+        setTimeout(applyChatbotLogo, 5000);
       });
     </script>
     
@@ -55,17 +101,36 @@
       /* Style Landbot button with custom chatbot logo */
       .landbot-container__button,
       #landbot-button,
+      [class*="landbot"] button,
+      [class*="Landbot"] button,
+      button[class*="landbot"],
+      button[class*="Landbot"],
+      .landbot-button,
+      .Landbot-button,
       [class*="LandbotLivechat"] > div:first-child,
       iframe[src*="landbot"] {
         background-image: url('/images/chatbot.png') !important;
         background-size: contain !important;
         background-position: center !important;
         background-repeat: no-repeat !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Hide any default content inside the button */
+      .landbot-container__button > *,
+      #landbot-button > *,
+      [class*="landbot"] button > *,
+      [class*="Landbot"] button > * {
+        display: none !important;
       }
       
       /* Ensure the button shows the custom image */
       .landbot-container__button::before,
-      #landbot-button::before {
+      #landbot-button::before,
+      [class*="landbot"] button::before,
+      [class*="Landbot"] button::before {
         content: '' !important;
         background-image: url('/images/chatbot.png') !important;
         background-size: cover !important;
@@ -75,6 +140,18 @@
         top: 0 !important;
         left: 0 !important;
         border-radius: 50% !important;
+        z-index: 1 !important;
+      }
+      
+      /* Make sure the logo is visible on all states */
+      .landbot-container__button:hover,
+      .landbot-container__button:active,
+      .landbot-container__button:focus,
+      #landbot-button:hover,
+      #landbot-button:active,
+      #landbot-button:focus {
+        background-image: url('/images/chatbot.png') !important;
+        opacity: 1 !important;
       }
     </style>
   </body>
