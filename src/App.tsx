@@ -707,28 +707,36 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
       {/* Live East African Time Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
         <div 
-          className="live-clock flex flex-col items-center justify-center gap-2 py-8 px-6 max-w-xs mx-auto relative overflow-hidden" 
+          className="live-clock flex flex-col items-center justify-center gap-2 py-12 px-8 max-w-xs mx-auto relative" 
           style={{ 
-            backgroundImage: 'url(/images/Digtech Academy Logo Icon.png)',
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
+            background: 'linear-gradient(135deg, #1A4095 0%, #28C0F4 50%, #1A4095 100%)',
+            clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
             minHeight: '200px',
-            filter: 'drop-shadow(0 10px 30px rgba(40, 192, 244, 0.3))'
+            boxShadow: '0 15px 50px rgba(40, 192, 244, 0.4), 0 0 60px rgba(26, 64, 149, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1)',
+            border: '3px solid rgba(255, 215, 0, 0.3)'
           }}
         >
-          {/* Semi-transparent overlay for better text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1A4095]/20 via-[#28C0F4]/20 to-[#1A4095]/20 backdrop-blur-sm"></div>
+          {/* Digtech logo icon overlay for authenticity */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: 'url(/images/Digtech Academy Logo Icon White.png)',
+              backgroundSize: '80%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              mixBlendMode: 'overlay'
+            }}
+          ></div>
           
           {/* Content */}
-          <div className="relative z-10 flex flex-col items-center gap-2">
+          <div className="relative z-10 flex flex-col items-center gap-3">
             <div className="flex items-center gap-2">
-              <Icon icon="lucide:clock" className="w-5 h-5 animate-pulse" style={{ color: '#FFD700' }} />
+              <Icon icon="lucide:clock" className="w-6 h-6 animate-pulse" style={{ color: '#FFD700' }} />
             </div>
-            <div className="live-clock-time text-2xl md:text-3xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,215,0,0.5), 0 2px 10px rgba(0,0,0,0.5)' }}>
+            <div className="live-clock-time text-3xl md:text-4xl font-extrabold" style={{ color: '#FFD700', fontFamily: 'Montserrat, monospace', textShadow: '0 0 25px rgba(255,215,0,0.9), 0 0 50px rgba(255,215,0,0.6), 0 3px 15px rgba(0,0,0,0.8), 0 0 5px rgba(255,255,255,0.5)' }}>
               {currentTime}
             </div>
-            <div className="text-xs font-medium" style={{ color: '#FFFFFF', textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 0 10px rgba(0,0,0,0.5)' }}>
+            <div className="text-sm font-bold" style={{ color: '#FFFFFF', textShadow: '0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7), 0 0 5px rgba(40,192,244,0.8)' }}>
               {currentDate}
             </div>
           </div>
@@ -4131,66 +4139,97 @@ function AboutPage() {
   
   const fullText4 = "Digtech Academy has successfully trained over 500+ students who now work at leading tech companies across East Africa and beyond. Our graduates have launched successful startups, secured remote positions with international firms, and contributed significantly to Uganda's growing technology sector. We partner with industry leaders to provide internship opportunities, mentorship programs, and career placement support to ensure our students transition smoothly from learning to earning."
 
-  // Typewriter effect for text 1
+  // Keyboard typing sound effect using Web Audio API
+  const playTypingSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+    
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+    
+    oscillator.frequency.value = 800 + Math.random() * 200 // Randomize for realistic effect
+    oscillator.type = 'square'
+    
+    gainNode.gain.setValueAtTime(0.05, audioContext.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05)
+    
+    oscillator.start(audioContext.currentTime)
+    oscillator.stop(audioContext.currentTime + 0.05)
+  }
+
+  // Typewriter effect for text 1 with sound
   useEffect(() => {
     let index = 0
     const interval = setInterval(() => {
       if (index <= fullText1.length) {
         setTypingText1(fullText1.slice(0, index))
+        if (index > 0 && fullText1[index - 1] !== ' ') {
+          playTypingSound()
+        }
         index++
       } else {
         clearInterval(interval)
       }
-    }, 20)
+    }, 50)
     return () => clearInterval(interval)
   }, [])
 
-  // Typewriter effect for text 2 (starts after text 1)
+  // Typewriter effect for text 2 (starts after text 1) with sound
   useEffect(() => {
     const timeout = setTimeout(() => {
       let index = 0
       const interval = setInterval(() => {
         if (index <= fullText2.length) {
           setTypingText2(fullText2.slice(0, index))
+          if (index > 0 && fullText2[index - 1] !== ' ') {
+            playTypingSound()
+          }
           index++
         } else {
           clearInterval(interval)
         }
-      }, 20)
+      }, 50)
       return () => clearInterval(interval)
-    }, fullText1.length * 20 + 500)
+    }, fullText1.length * 50 + 500)
     return () => clearTimeout(timeout)
   }, [])
 
-  // Typewriter effect for text 3
+  // Typewriter effect for text 3 with sound
   useEffect(() => {
     const timeout = setTimeout(() => {
       let index = 0
       const interval = setInterval(() => {
         if (index <= fullText3.length) {
           setTypingText3(fullText3.slice(0, index))
+          if (index > 0 && fullText3[index - 1] !== ' ') {
+            playTypingSound()
+          }
           index++
         } else {
           clearInterval(interval)
         }
-      }, 20)
+      }, 50)
       return () => clearInterval(interval)
-    }, (fullText1.length + fullText2.length) * 20 + 1000)
+    }, (fullText1.length + fullText2.length) * 50 + 1000)
     return () => clearTimeout(timeout)
   }, [])
 
-  // Typewriter effect for text 4
+  // Typewriter effect for text 4 with sound
   useEffect(() => {
     const timeout = setTimeout(() => {
       let index = 0
       const interval = setInterval(() => {
         if (index <= fullText4.length) {
           setTypingText4(fullText4.slice(0, index))
+          if (index > 0 && fullText4[index - 1] !== ' ') {
+            playTypingSound()
+          }
           index++
         } else {
           clearInterval(interval)
         }
-      }, 20)
+      }, 50)
       return () => clearInterval(interval)
     }, (fullText1.length + fullText2.length + fullText3.length) * 20 + 1500)
     return () => clearTimeout(timeout)
@@ -4359,6 +4398,11 @@ export default function App() {
   const [admins, setAdmins] = useState<AdminUser[]>(INITIAL_ADMINS)
   const [showEnrollmentForm, setShowEnrollmentForm] = useState(false)
   const [selectedCourseForEnrollment, setSelectedCourseForEnrollment] = useState<{ id: number; title: string } | undefined>(undefined)
+
+  // Scroll to top whenever frame changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [frame])
 
   // Check for existing Supabase session on app load
   useEffect(() => {
