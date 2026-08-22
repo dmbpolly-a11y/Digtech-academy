@@ -524,6 +524,7 @@ function PublicNav({
 function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
   const [currentTime, setCurrentTime] = useState('')
   const [currentDate, setCurrentDate] = useState('')
+  const [showChatbot, setShowChatbot] = useState(false)
 
   // Update East African Time (EAT) every second
   useEffect(() => {
@@ -558,25 +559,62 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
 
   return (
     <footer className="bg-[#04263A] border-t border-gray-700 text-gray-300 py-12 footer-animate">
-      {/* Landbot Chatbot - Top Left */}
+      {/* Chatbot Button - Top Left */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-        <div className="bg-gray-800/50 rounded-2xl p-4 border border-gray-700 shadow-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <Icon icon="lucide:bot" className="w-5 h-5 text-[#28C0F4]" />
-            <h3 className="text-white font-bold text-sm" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Chat with DigiBot - 24/7 Support
-            </h3>
+        <button
+          onClick={() => setShowChatbot(true)}
+          className="group flex items-center gap-3 bg-gradient-to-r from-[#1A4095] to-[#28C0F4] hover:from-[#28C0F4] hover:to-[#1A4095] text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
+            <Icon icon="lucide:bot" className="w-6 h-6 animate-pulse" />
           </div>
-          <div className="rounded-xl overflow-hidden border-2 border-[#28C0F4]/30 shadow-xl">
-            <iframe
-              src="https://landbot.site/v3/H-3496793-4MY45MO2HXZXIU6L/index.html"
-              className="w-full h-[500px] border-0"
-              title="Digtech Academy Chatbot"
-              allow="microphone; camera"
-            />
+          <div className="text-left">
+            <div className="font-bold text-sm" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Chat with DigiBot
+            </div>
+            <div className="text-xs opacity-90">24/7 Support • Always Here to Help</div>
+          </div>
+          <Icon icon="lucide:message-circle" className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
+        </button>
+      </div>
+
+      {/* Chatbot Modal */}
+      {showChatbot && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-slide-in-up">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#1A4095] to-[#28C0F4] p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <Icon icon="lucide:bot" className="w-6 h-6 text-white animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                    DigiBot Assistant
+                  </h3>
+                  <p className="text-white/80 text-xs">Here to help you 24/7</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowChatbot(false)}
+                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all hover:rotate-90 duration-300"
+              >
+                <Icon icon="lucide:x" className="w-5 h-5 text-white" />
+              </button>
+            </div>
+            
+            {/* Chatbot Iframe */}
+            <div className="w-full h-[600px]">
+              <iframe
+                src="https://landbot.site/v3/H-3496800-WG83CBLMRS36PSAX/index.html"
+                className="w-full h-full border-0"
+                title="Digtech Academy Chatbot"
+                allow="microphone; camera"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & Socials */}
