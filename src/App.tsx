@@ -2128,24 +2128,45 @@ function LoginPage({
     }
   }
 
-  const handlePasswordReset = (e: React.FormEvent) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
     
     if (!validateEmail(resetEmail)) {
       setError('Please enter a valid email address.')
       return
     }
 
-    setResetSent(true)
-    setTimeout(() => {
-      setSuccess('Password reset link sent! Check your email.')
+    try {
+      // Call Supabase password reset
+      const { error: resetError } = await auth.resetPassword(resetEmail)
+      
+      if (resetError) {
+        setError('Failed to send reset email. Please check the email address and try again.')
+        console.error('Password reset error:', resetError)
+        return
+      }
+
+      setResetSent(true)
+      setSuccess('Password reset link sent! Check your email inbox.')
+      
+      // Track password reset attempt
+      await logActivity('anonymous', 'password_reset_request', {
+        email: resetEmail,
+        timestamp: new Date().toISOString()
+      })
+      
       setTimeout(() => {
         setMode('login')
         setResetSent(false)
+        setResetEmail('')
         setSuccess('')
-      }, 2000)
-    }, 1000)
+      }, 3000)
+    } catch (err) {
+      console.error('Password reset error:', err)
+      setError('An unexpected error occurred. Please try again.')
+    }
   }
 
   return (
