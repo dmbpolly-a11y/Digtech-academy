@@ -383,10 +383,10 @@ function PublicNav({
             <button
               key={l.frame}
               onClick={() => setFrame(l.frame)}
-              className={`text-sm font-medium transition-all hover:scale-105 cursor-pointer ${
+              className={`text-sm font-medium transition-all cursor-pointer px-4 py-2 rounded-lg ${
                 frame === l.frame 
-                  ? 'font-bold text-[#1A4095] border-b-2 border-[#1A4095] pb-0.5' 
-                  : 'text-gray-600 hover:text-[#1A4095] hover:font-semibold'
+                  ? 'font-bold text-white bg-[#1A4095]' 
+                  : 'text-gray-600 hover:text-white hover:bg-[#1A4095] hover:font-semibold'
               }`}
             >
               {l.label}
@@ -461,7 +461,7 @@ function PublicNav({
               className={`text-left text-sm font-medium py-2.5 px-3 rounded-lg transition-all ${
                 frame === l.frame 
                   ? 'bg-[#1A4095] text-white font-bold' 
-                  : 'text-gray-700 hover:bg-[#28C0F4] hover:text-white'
+                  : 'text-gray-700 hover:bg-[#1A4095] hover:text-white'
               }`}
             >
               {l.label}
