@@ -781,7 +781,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
               title={partner.name}
             >
               <img
-                src={`/images/footerpic${partner.num}.${partner.num === 1 || partner.num === 5 ? 'jfif' : 'png'}`}
+                src={`/images/footerpic${partner.num}.${partner.num === 1 ? 'jfif' : 'png'}`}
                 alt={partner.name}
                 className="w-full h-full object-contain filter brightness-90 hover:brightness-110 transition-all"
               />
@@ -1881,7 +1881,7 @@ function LoginPage({
   initialMode?: 'login' | 'register' | 'reset'
 }) {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>(initialMode)
-  const [accountType, setAccountType] = useState<'student' | 'tutor' | 'admin' | 'principal'>('student')
+  const [accountType, setAccountType] = useState<'student' | 'tutor' | 'principal'>('student')
   const [logoClickCount, setLogoClickCount] = useState(0)
   const [showAdminForm, setShowAdminForm] = useState(false)
   
@@ -2197,7 +2197,6 @@ function LoginPage({
               setLogoClickCount(newCount)
               if (newCount === 5) {
                 setShowAdminForm(true)
-                setAccountType('admin')
                 setMode('login')
                 setLogoClickCount(0)
               }
@@ -2282,14 +2281,13 @@ function LoginPage({
                     <select
                       value={accountType}
                       onChange={(e) => {
-                        setAccountType(e.target.value as 'student' | 'tutor' | 'admin' | 'principal')
+                        setAccountType(e.target.value as 'student' | 'tutor' | 'principal')
                         setError('')
                       }}
                       className="w-full border-2 border-[#28C0F4]/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#28C0F4] focus:ring-2 focus:ring-[#28C0F4]/20 transition-all auth-input appearance-none bg-white cursor-pointer pr-10"
                     >
                       <option value="student">Student</option>
                       <option value="tutor">Tutor</option>
-                      <option value="admin">Admin</option>
                       <option value="principal">Principal</option>
                     </select>
                     <Icon icon="lucide:chevron-down" className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
