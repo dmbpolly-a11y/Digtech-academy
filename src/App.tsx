@@ -5,6 +5,80 @@ import { auth, db, logActivity } from './lib/supabase'
 import { CourseForm } from './components/CourseForm'
 import { EnrollmentForm } from './components/EnrollmentForm'
 
+// ─── Link Tracking System ─────────────────────────────────────────────────────
+interface LinkUsageRecord {
+  url: string
+  platform: string
+  timestamp: string
+  courseTitle: string
+  courseId: number
+}
+
+const LINK_USAGE_KEY = 'digtech_link_usage'
+
+function trackLinkUsage(url: string, platform: string, courseTitle: string, courseId: number): void {
+  try {
+    const usageRecord: LinkUsageRecord = {
+      url,
+      platform,
+      timestamp: new Date().toISOString(),
+      courseTitle,
+      courseId
+    }
+    
+    // Get existing usage records
+    const existingRecords = JSON.parse(localStorage.getItem(LINK_USAGE_KEY) || '[]')
+    
+    // Add new record
+    existingRecords.push(usageRecord)
+    
+    // Save back to localStorage
+    localStorage.setItem(LINK_USAGE_KEY, JSON.stringify(existingRecords))
+    
+    console.log(`Link usage tracked: ${platform} - ${courseTitle}`, usageRecord)
+  } catch (error) {
+    console.error('Failed to track link usage:', error)
+  }
+}
+
+function getLinkUsage(url: string): LinkUsageRecord | null {
+  try {
+    const existingRecords = JSON.parse(localStorage.getItem(LINK_USAGE_KEY) || '[]')
+    return existingRecords.find((record: LinkUsageRecord) => record.url === url) || null
+  } catch (error) {
+    console.error('Failed to get link usage:', error)
+    return null
+  }
+}
+
+function isLinkExpired(usageRecord: LinkUsageRecord): boolean {
+  if (!usageRecord) return false
+  
+  const usageTime = new Date(usageRecord.timestamp)
+  const now = new Date()
+  const hoursDiff = (now.getTime() - usageTime.getTime()) / (1000 * 60 * 60)
+  
+  // Consider a link expired if it was used more than 2 hours ago
+  // This is just an example - you can adjust this logic
+  return hoursDiff > 2
+}
+
+function formatExpiredMessage(usageRecord: LinkUsageRecord): string {
+  const usageTime = new Date(usageRecord.timestamp)
+  const formattedTime = usageTime.toLocaleString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short'
+  })
+  
+  return `Link is expired - this link has been used live on ${usageRecord.platform} and time used has ${formattedTime}`
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Frame =
   | 'home'
@@ -1256,6 +1330,27 @@ function LiveCoursesPage({ onEnroll }: { onEnroll?: (course?: { id: number; titl
   const [selectedCourse, setSelectedCourse] = useState<typeof LIVE_COURSES[0] | null>(null)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [appliedSuccess, setAppliedSuccess] = useState(false)
+  const [expiredLinkMessage, setExpiredLinkMessage] = useState<string>('')
+  const [showExpiredAlert, setShowExpiredAlert] = useState(false)
+
+  // Handle live class link clicks with expiration check
+  const handleLinkClick = (url: string, platform: string, courseTitle: string, courseId: number) => {
+    const usageRecord = getLinkUsage(url)
+    
+    if (usageRecord && isLinkExpired(usageRecord)) {
+      // Link has been used and is expired
+      const message = formatExpiredMessage(usageRecord)
+      setExpiredLinkMessage(message)
+      setShowExpiredAlert(true)
+      return
+    }
+    
+    // Track the usage
+    trackLinkUsage(url, platform, courseTitle, courseId)
+    
+    // Open the link
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -1300,10 +1395,12 @@ function LiveCoursesPage({ onEnroll }: { onEnroll?: (course?: { id: number; titl
                     <span>Hosted on {lc.platform}</span>
                   </div>
                   <a
-                    href={lc.joinLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] font-bold text-[#1A4095] hover:text-[#28C0F4] flex items-center gap-1 hover:underline"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleLinkClick(lc.joinLink, 'Test Link', lc.title, lc.id)
+                    }}
+                    href="#"
+                    className="text-[11px] font-bold text-[#1A4095] hover:text-[#28C0F4] flex items-center gap-1 hover:underline cursor-pointer"
                   >
                     Test Link <Icon icon="lucide:external-link" className="w-3 h-3" />
                   </a>
@@ -1324,36 +1421,30 @@ function LiveCoursesPage({ onEnroll }: { onEnroll?: (course?: { id: number; titl
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <div className="text-[11px] font-bold text-gray-400 uppercase mb-2">Join Via:</div>
                   <div className="flex flex-wrap gap-2">
-                    <a
-                      href={lc.joinLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                    <button
+                      onClick={() => handleLinkClick(lc.joinLink, lc.platform, lc.title, lc.id)}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer"
                       title={lc.platform}
                     >
                       <Icon icon={lc.platformIcon} className="w-4 h-4" />
                       {lc.platform}
-                    </a>
-                    <a
-                      href={lc.whatsappLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                    </button>
+                    <button
+                      onClick={() => handleLinkClick(lc.whatsappLink, 'WhatsApp', lc.title, lc.id)}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors cursor-pointer"
                       title="WhatsApp"
                     >
                       <Icon icon="mdi:whatsapp" className="w-4 h-4" />
                       WhatsApp
-                    </a>
-                    <a
-                      href={lc.youtubeLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                    </button>
+                    <button
+                      onClick={() => handleLinkClick(lc.youtubeLink, 'YouTube', lc.title, lc.id)}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
                       title="YouTube"
                     >
                       <Icon icon="lucide:youtube" className="w-4 h-4" />
                       YouTube
-                    </a>
+                    </button>
                     <a
                       href={lc.emailLink}
                       className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
@@ -1475,6 +1566,38 @@ function LiveCoursesPage({ onEnroll }: { onEnroll?: (course?: { id: number; titl
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Expired Link Alert Modal */}
+      {showExpiredAlert && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 animate-scale-in">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Icon icon="lucide:clock-x" className="w-8 h-8" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Link Expired
+              </h2>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                <p className="text-sm text-red-800 leading-relaxed">
+                  {expiredLinkMessage}
+                </p>
+              </div>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowExpiredAlert(false)}
+                  className="w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors"
+                >
+                  Understood
+                </button>
+                <p className="text-xs text-gray-500">
+                  Please contact support for a new live class link or check the schedule for upcoming sessions.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
