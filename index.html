@@ -9,8 +9,8 @@
     
     <!-- Landbot Livechat -->
     <script type="module" src="https://cdn.landbot.io/landbot-3/landbot-3.0.0.mjs"></script>
-    <script type="module" crossorigin src="/digtech-academy/assets/index-C27yp1Y2.js"></script>
-    <link rel="stylesheet" crossorigin href="/digtech-academy/assets/index-BKL_qklF.css">
+    <script type="module" crossorigin src="/digtech-academy/assets/index-DRDZunsL.js"></script>
+    <link rel="stylesheet" crossorigin href="/digtech-academy/assets/index-C74fcSE2.css">
   </head>
   <body>
     <div id="root"></div>
@@ -22,17 +22,36 @@
       /* Style Landbot button with custom chatbot logo */
       .landbot-container__button,
       #landbot-button,
+      [class*="landbot"] button,
+      [class*="Landbot"] button,
+      button[class*="landbot"],
+      button[class*="Landbot"],
+      .landbot-button,
+      .Landbot-button,
       [class*="LandbotLivechat"] > div:first-child,
       iframe[src*="landbot"] {
         background-image: url('/digtech-academy/images/chatbot.png') !important;
         background-size: contain !important;
         background-position: center !important;
         background-repeat: no-repeat !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Hide any default content inside the button */
+      .landbot-container__button > *,
+      #landbot-button > *,
+      [class*="landbot"] button > *,
+      [class*="Landbot"] button > * {
+        display: none !important;
       }
       
       /* Ensure the button shows the custom image */
       .landbot-container__button::before,
-      #landbot-button::before {
+      #landbot-button::before,
+      [class*="landbot"] button::before,
+      [class*="Landbot"] button::before {
         content: '' !important;
         background-image: url('/digtech-academy/images/chatbot.png') !important;
         background-size: cover !important;
@@ -42,6 +61,18 @@
         top: 0 !important;
         left: 0 !important;
         border-radius: 50% !important;
+        z-index: 1 !important;
+      }
+      
+      /* Make sure the logo is visible on all states */
+      .landbot-container__button:hover,
+      .landbot-container__button:active,
+      .landbot-container__button:focus,
+      #landbot-button:hover,
+      #landbot-button:active,
+      #landbot-button:focus {
+        background-image: url('/digtech-academy/images/chatbot.png') !important;
+        opacity: 1 !important;
       }
     </style>
   </body>
