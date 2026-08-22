@@ -340,7 +340,7 @@ export function CourseForm({ onClose, onSuccess, editingCourse, tutorId }: Cours
               type="url"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="https://youtube.com/watch?v=..."
+              placeholder="https://www.youtube.com/@DigiTechFX/watch?v=..."
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none text-sm"
             />
           </div>

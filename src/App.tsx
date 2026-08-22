@@ -219,7 +219,7 @@ const LIVE_COURSES = [
     platformIcon: 'logos:google-meet',
     joinLink: 'https://meet.google.com/new',
     whatsappLink: 'https://wa.me/256770613201?text=I%20want%20to%20join%20Cloud%20Practitioner%20Masterclass',
-    youtubeLink: 'https://youtube.com/@digtechacademy',
+    youtubeLink: 'https://www.youtube.com/@DigiTechFX',
     emailLink: 'mailto:info@digtechsolutionshub.com?subject=Cloud Practitioner Masterclass Enrollment',
     badgeColor: 'blue',
   },
@@ -236,7 +236,7 @@ const LIVE_COURSES = [
     platformIcon: 'logos:zoom-icon',
     joinLink: 'https://zoom.us/join',
     whatsappLink: 'https://wa.me/256770613201?text=I%20want%20to%20join%20Financial%20Modeling%20Course',
-    youtubeLink: 'https://youtube.com/@digtechacademy',
+    youtubeLink: 'https://www.youtube.com/@DigiTechFX',
     emailLink: 'mailto:info@digtechsolutionshub.com?subject=Financial Modeling Course Enrollment',
     badgeColor: 'cyan',
   },
@@ -251,9 +251,9 @@ const LIVE_COURSES = [
     spots: 5,
     platform: 'YouTube Live',
     platformIcon: 'logos:youtube-icon',
-    joinLink: 'https://youtube.com/@digtechacademy/live',
+    joinLink: 'https://www.youtube.com/@DigiTechFX/live',
     whatsappLink: 'https://wa.me/256770613201?text=I%20want%20to%20join%20Content%20Creation%20Course',
-    youtubeLink: 'https://youtube.com/@digtechacademy',
+    youtubeLink: 'https://www.youtube.com/@DigiTechFX',
     emailLink: 'mailto:info@digtechsolutionshub.com?subject=Content Creation Course Enrollment',
     badgeColor: 'purple',
   },
@@ -657,7 +657,7 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
                 { icon: 'lucide:twitter', href: 'https://x.com/Digtech1', label: 'X (Twitter)' },
                 { icon: 'mdi:tiktok', href: 'https://www.tiktok.com/@korabusiness/video/7543967921161112888', label: 'TikTok' },
                 { icon: 'lucide:linkedin', href: 'https://ug.linkedin.com/company/digtech-solutions-hub', label: 'LinkedIn' },
-                { icon: 'lucide:youtube', href: 'https://youtube.com/@digtechacademy', label: 'YouTube' },
+                { icon: 'lucide:youtube', href: 'https://www.youtube.com/@DigiTechFX', label: 'YouTube' },
                 { icon: 'mdi:whatsapp', href: 'https://wa.me/256770613201', label: 'WhatsApp' },
                 { icon: 'lucide:mail', href: 'mailto:info@digtechsolutionshub.com', label: 'Email' },
               ].map((s, i) => (
@@ -1207,7 +1207,7 @@ function HomePage({
                 </div>
                 
                 <button 
-                  onClick={() => window.open('https://youtube.com/@digtechacademy/live', '_blank', 'noopener,noreferrer')}
+                  onClick={() => window.open('https://www.youtube.com/@DigiTechFX/live', '_blank', 'noopener,noreferrer')}
                   className="flex items-center justify-between pt-4 border-t border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <div className="text-left">

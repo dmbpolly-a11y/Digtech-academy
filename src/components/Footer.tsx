@@ -24,7 +24,7 @@ export function Footer() {
               { icon: 'lucide:twitter', href: 'https://x.com/Digtech1', label: 'X (Twitter)' },
               { icon: 'mdi:tiktok', href: 'https://www.tiktok.com/@korabusiness/video/7543967921161112888', label: 'TikTok' },
               { icon: 'lucide:linkedin', href: 'https://ug.linkedin.com/company/digtech-solutions-hub', label: 'LinkedIn' },
-              { icon: 'lucide:youtube', href: 'https://youtube.com/@digtechacademy', label: 'YouTube' },
+              { icon: 'lucide:youtube', href: 'https://www.youtube.com/@DigiTechFX', label: 'YouTube' },
               { icon: 'mdi:whatsapp', href: 'https://wa.me/256770613201', label: 'WhatsApp' },
             ].map((s, i) => (
               <a
