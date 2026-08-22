@@ -838,13 +838,14 @@ function Footer({ setFrame }: { setFrame: (f: Frame) => void }) {
           <p className="text-xs text-gray-500 mt-1">Powered by industry-leading partners</p>
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6 items-center justify-items-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6 items-center justify-items-center">
           {[
             { num: 1, url: 'https://innovationhub.ug/', name: 'Innovation Hub Uganda' },
             { num: 2, url: 'https://www.w3schools.com/', name: 'W3Schools' },
             { num: 3, url: 'https://www.nita.go.ug/', name: 'NITA Uganda' },
             { num: 4, url: '#', name: 'Partner 4' },
             { num: 5, url: '#', name: 'Partner 5' },
+            { num: 6, url: 'https://hivecolab.org/', name: 'Hive Colab' },
           ].map((partner) => (
             <a
               key={partner.num}
