@@ -767,7 +767,7 @@ function HomePage({
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % carouselImages.length)
-    }, 3000) // Change image every 3 seconds
+    }, 7000) // Change image every 7 seconds
     
     return () => clearInterval(interval)
   }, [])
