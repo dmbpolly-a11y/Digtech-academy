@@ -210,6 +210,14 @@ const INITIAL_TESTIMONIALS: SuccessStory[] = [
     avatar: '/images/liveclass3.png',
     rating: 5,
   },
+  {
+    id: 4,
+    name: 'Michael Okello',
+    text: 'Best investment in my career. The tutors are industry professionals and the hands-on projects prepared me perfectly for real-world challenges.',
+    role: 'Software Engineer at Andela',
+    avatar: '/images/liveclass6.png',
+    rating: 5,
+  },
 ]
 
 const INITIAL_ADMINS: AdminUser[] = [
@@ -815,6 +823,7 @@ function HomePage({
     '/images/liveclass3.png',
     '/images/liveclass4.png',
     '/images/liveclass5.png',
+    '/images/liveclass6.png',
   ]
 
   // Auto-scroll carousel
